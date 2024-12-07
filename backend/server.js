@@ -28,16 +28,25 @@ const userSchema = new mongoose.Schema({
 });
 
 const organizerSchema = new mongoose.Schema({
-    nama_organizer: { type: String },
+    team: { type: String },
     alamat_organizer: { type: String },
     tlpn_organizer: { type: String },
     email_organizer: { type: String },
     password_organizer: { type: String }
 });
 
+const regionSchema = new mongoose.Schema({
+  id: { type: String },
+  name: { type: String },
+  alt_name: { type: String },
+  latitude: { type: Number },
+  longitude: { type: Number }
+});
+
 // Mendeklarasikan Model
 const User = mongoose.models.User || mongoose.model('User', userSchema);
 const Organizer = mongoose.models.Organizer || mongoose.model('Organizer', organizerSchema);
+const Region = mongoose.models.Region || mongoose.model('Region', regionSchema);
 
 // Secret key untuk JWT (Ganti dengan kunci yang lebih aman di produksi)
 // const JWT_SECRET = '001';
@@ -87,21 +96,6 @@ app.post('/loginUser', async (req, res) => {
     }
   });
 
-  // Register User DONE
-// app.post('/loginUser', async (req, res) => {
-//     const { username, password_user } = req.body;
-
-//     try {
-//         const user = await User.findOne({ username });
-//         console.log(user)
-//         if (!user) {
-//             return res.status(400).send("User tidak ditemukan!");
-//           }
-//     } catch (err) {
-//       res.status(500).send("Gagal melakukan registrasi: " + err.message);
-//     }
-//   });
-
 // Register User DONE
 app.post('/registerUser', async (req, res) => {
   const { username, nama_user, alamat_user, tlpn_user, email_user, password_user } = req.body;
@@ -124,11 +118,51 @@ app.get('/getUser', async (req, res) => {
   }
 });
 
+// Cek User
+app.post('/cekUser', async (req, res) => {
+  const { username } = req.body;
+
+  try {
+    // Mencari user berdasarkan email
+    const user = await User.findOne({ username });
+    console.log(user)
+
+    if (!user) {
+      return res.status(200).send(true); 
+    }
+
+    return res.status(400).send(false);
+
+  } catch (err) {
+    res.status(500).send("Terjadi kesalahan: " + err.message);
+  }
+});
+
+// Cek Email
+app.post('/cekEmail', async (req, res) => {
+  const { email_user } = req.body;
+
+  try {
+    // Mencari user berdasarkan email
+    const email = await User.findOne({ email_user });
+    console.log(email)
+
+    if (!email) {
+      return res.status(200).send(true); 
+    }
+
+    return res.status(400).send(false);
+
+  } catch (err) {
+    res.status(500).send("Terjadi kesalahan: " + err.message);
+  }
+});
+
 // Register Organizer DONE
 app.post('/registerOrganizer', async (req, res) => {
-    const { nama_organizer, alamat_organizer, tlpn_organizer, email_organizer, password_organizer } = req.body;
+    const { team, alamat_organizer, tlpn_organizer, email_organizer, password_organizer } = req.body;
     try {
-      const newItem = new Organizer({ nama_organizer, alamat_organizer, tlpn_organizer, email_organizer, password_organizer });
+      const newItem = new Organizer({ team, alamat_organizer, tlpn_organizer, email_organizer, password_organizer });
       await newItem.save();
       res.status(201).send("Registrasi Organizer berhasil!");
     } catch (err) {
@@ -140,6 +174,16 @@ app.post('/registerOrganizer', async (req, res) => {
   app.get('/getOrganizer', async (req, res) => {
     try {
       const items = await Organizer.find();
+      res.status(200).json(items);
+    } catch (err) {
+      res.status(500).send("Gagal mengambil data: " + err.message);
+    }
+  });
+
+   // Get Data Region
+   app.get('/getRegion', async (req, res) => {
+    try {
+      const items = await Region.find();
       res.status(200).json(items);
     } catch (err) {
       res.status(500).send("Gagal mengambil data: " + err.message);

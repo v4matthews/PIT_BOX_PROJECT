@@ -5,40 +5,31 @@ import 'package:pit_box/components/asset_textfield.dart';
 import 'package:pit_box/components/asset_textfield_password.dart';
 import 'package:pit_box/components/asset_textfield_email.dart';
 import 'package:pit_box/components/asset_textfield_number.dart';
-import 'package:pit_box/components/asset_dropdown.dart';
 import 'package:pit_box/api_service.dart';
 
-class RegisterPage extends StatefulWidget {
-  RegisterPage({super.key});
+class OrganizerRegisterPage extends StatefulWidget {
+  OrganizerRegisterPage({super.key});
 
   @override
   _RegisterPageState createState() => _RegisterPageState();
 }
 
-class _RegisterPageState extends State<RegisterPage> {
-  final usernameController = TextEditingController();
+class _RegisterPageState extends State<OrganizerRegisterPage> {
+  final teamController = TextEditingController();
   final emailController = TextEditingController();
   final nomortlpnController = TextEditingController();
-  final kotaController = TextEditingController();
+  final alamatController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmpasswordController = TextEditingController();
-  String? selectedValue;
-  List<String> regionList = [];
-
-  @override
-  void initState() {
-    super.initState();
-    fetchRegionData();
-  }
 
   // Sign In Method
   void registerPage(BuildContext context) async {
     try {
-      final result = await ApiService.registerUser(
-        username: usernameController.text,
+      final result = await ApiService.registerOrganizer(
+        team: teamController.text,
         email: emailController.text,
         nomorTelepon: nomortlpnController.text,
-        kota: kotaController.text,
+        alamat: alamatController.text,
         password: passwordController.text,
         confirmPassword: confirmpasswordController.text,
       );
@@ -53,7 +44,7 @@ class _RegisterPageState extends State<RegisterPage> {
             // text: "Silahkan melakukan login",
           ),
         );
-        Navigator.pushReplacementNamed(context, '/login');
+        Navigator.pushReplacementNamed(context, '/loginOrganizer');
       }
     } catch (e) {
       // Menampilkan error jika gagal registrasi
@@ -75,22 +66,6 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
-  Future<bool> cekUsername(BuildContext context) async {
-    try {
-      final result = await ApiService.cekUsername(
-        username: usernameController.text,
-      );
-
-      if (result == true) {
-        return true;
-      } else {
-        return false;
-      }
-    } catch (e) {
-      return false;
-    }
-  }
-
   Future<bool> cekEmail(BuildContext context) async {
     try {
       final result = await ApiService.cekEmail(
@@ -104,21 +79,6 @@ class _RegisterPageState extends State<RegisterPage> {
       }
     } catch (e) {
       return false;
-    }
-  }
-
-  Future<void> fetchRegionData() async {
-    try {
-      final result = await ApiService.dataRegion();
-      setState(() {
-        regionList =
-            result.map<String>((region) => region['name'] as String).toList();
-      });
-    } catch (e) {
-      // Menampilkan pesan error jika gagal memuat data
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal memuat data region: $e')),
-      );
     }
   }
 
@@ -142,7 +102,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Register Page',
+                        'Organizer Register Page',
                         style: TextStyle(
                           color: Colors.grey[700],
                           fontSize: 30,
@@ -154,26 +114,13 @@ class _RegisterPageState extends State<RegisterPage> {
 
               const SizedBox(height: 15),
 
-              // Username textfield
+              // team textfield
               MyTextField(
-                controller: usernameController,
+                controller: teamController,
                 width: width,
-                hintText: 'Username',
+                hintText: 'Nama Tim / Penyelenggara',
                 obScureText: false,
               ),
-
-              // UsernameTextField(
-              //   controller: usernameController,
-              //   width: width,
-              //   hintText: 'Username',
-              //   obScureText: false,
-              //   onChanged: (username) {
-              //     // Memanggil cekUsername setiap kali teks berubah
-              //     if (username.isNotEmpty) {
-              //       cekUsername(context);
-              //     }
-              //   },
-              // ),
 
               const SizedBox(height: 15),
 
@@ -197,23 +144,12 @@ class _RegisterPageState extends State<RegisterPage> {
 
               const SizedBox(height: 15),
 
-              // // Kota textfield
-              // MyTextField(
-              //   controller: kotaController,
-              //   width: width,
-              //   hintText: 'Kota',
-              //   obScureText: false,
-              // ),
-
-              MyDropdown(
-                hintText: "Pilih Kota",
-                selectedValue: selectedValue,
-                onChanged: (newValue) {
-                  setState(() {
-                    selectedValue = newValue;
-                  });
-                },
-                items: regionList, // Data dari API
+              // Alamar textfield
+              MyTextField(
+                controller: alamatController,
+                width: width,
+                hintText: 'Alamat',
+                obScureText: false,
               ),
 
               const SizedBox(height: 15),
@@ -242,33 +178,21 @@ class _RegisterPageState extends State<RegisterPage> {
                 label: "REGISTER",
                 ontap: () async {
                   // Panggil cekUsername terlebih dahulu
-                  bool isUsernameValid = await cekUsername(context);
+
                   bool isEmailValid = await cekEmail(context);
                   // Jika cekUsername berhasil, lanjutkan proses registrasi
-                  if (isUsernameValid) {
-                    if (isEmailValid) {
-                      registerPage(context);
-                    } else {
-                      await ArtSweetAlert.show(
-                        context: context,
-                        artDialogArgs: ArtDialogArgs(
-                          type: ArtSweetAlertType.danger,
-                          // title: "Username sudah digunakan",
-                          text: "Email sudah digunakan",
-                        ),
-                      );
-                    }
+
+                  if (isEmailValid) {
+                    registerPage(context);
                   } else {
                     await ArtSweetAlert.show(
                       context: context,
                       artDialogArgs: ArtDialogArgs(
                         type: ArtSweetAlertType.danger,
                         // title: "Username sudah digunakan",
-                        text: "Username sudah digunakan",
+                        text: "Email sudah digunakan",
                       ),
                     );
-                    // Menangani kasus ketika cekUsername gagal (misalnya, tampilkan pesan error)
-                    // showError("Username sudah digunakan!");
                   }
                 },
               ),

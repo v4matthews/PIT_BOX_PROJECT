@@ -203,8 +203,8 @@ class OrganizerLoginPage extends StatelessWidget {
                   const SizedBox(width: 4),
                   GestureDetector(
                     onTap: () {
-                      Navigator.pushNamed(
-                          context, '/register'); // Arahkan ke halaman Register
+                      Navigator.pushNamed(context,
+                          '/registerOrganizer'); // Arahkan ke halaman Register
                     },
                     child: Text(
                       'Sign Up',

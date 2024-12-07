@@ -40,6 +40,7 @@ import 'package:pit_box/user_pages/user_forgot.dart';
 // Organizer Pages
 import 'package:pit_box/organizer_pages/organizer_login_page.dart';
 import 'package:pit_box/organizer_pages/organizer_forgot.dart';
+import 'package:pit_box/organizer_pages/organizer_register_page.dart';
 
 import 'user_pages/home_page.dart';
 
@@ -71,6 +72,7 @@ class MyApp extends StatelessWidget {
         // Organizer Route
         '/loginOrganizer': (context) => OrganizerLoginPage(),
         '/forgotOrganizer': (context) => OrganizerForgotPassword(),
+        '/registerOrganizer': (context) => OrganizerRegisterPage(),
       },
     );
   }
