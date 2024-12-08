@@ -7,11 +7,15 @@ class ApiService {
   static const String registrasiOrganizer =
       'http://localhost:5000/registerOrganizer';
   static const String loginUrl = 'http://localhost:5000/loginUser';
+  static const String loginOrganizerUrl =
+      'http://localhost:5000/loginOrganizer';
   static const String cekUser = 'http://localhost:5000/cekUser';
-  static const String cekEmails = 'http://localhost:5000/cekEmail';
+  static const String cekEmail = 'http://localhost:5000/cekEmail';
+  static const String cekEmailOrganizer =
+      'http://localhost:5000/cekEmailOrganizer';
   static const String getRegion = 'http://localhost:5000/getRegion';
 
-  // Fungsi untuk mengirimkan request registrasi
+  // Fungsi Registrasi User
   static Future<bool> registerUser({
     required String username,
     required String email,
@@ -47,7 +51,7 @@ class ApiService {
     }
   }
 
-  // Fungsi untuk mengirimkan request registrasi
+  // Fungsi Registrasi Organizer
   static Future<bool> registerOrganizer({
     required String team,
     required String email,
@@ -70,7 +74,7 @@ class ApiService {
         'email_organizer': email,
         'tlpn_organizer': nomorTelepon,
         'alamat_organizer': alamat,
-        'password_user': password,
+        'password_organizer': password,
       }),
     );
 
@@ -83,7 +87,7 @@ class ApiService {
     }
   }
 
-  // Fungsi untuk mengirimkan request login
+  // Fungsi Login User
   static Future<Map<String, dynamic>> loginUser({
     required String username,
     required String password,
@@ -108,6 +112,32 @@ class ApiService {
     }
   }
 
+  // Fungsi Login Organizer
+  static Future<Map<String, dynamic>> loginOrganizer({
+    required String email,
+    required String password,
+  }) async {
+    final response = await http.post(
+      Uri.parse(loginOrganizerUrl),
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'email_organizer': email,
+        'password_organizer': password,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      // Jika login berhasil, kembalikan data pengguna dan token (jika ada)
+      return json.decode(response.body); // Mengembalikan data dalam bentuk Map
+    } else {
+      // Jika login gagal, lemparkan exception dengan pesan error
+      throw Exception('Login gagal: ${response.body}, ${response.statusCode}');
+    }
+  }
+
+  // Fungsi Forgot Password User
   static Future<Map<String, dynamic>> forgotUser({
     required String email,
   }) async {
@@ -130,6 +160,7 @@ class ApiService {
     }
   }
 
+  // Fungsi Forgot Password Organizer
   static Future<Map<String, dynamic>> forgotOrganizer({
     required String email,
   }) async {
@@ -152,7 +183,7 @@ class ApiService {
     }
   }
 
-  // Get Region
+  // Get Data List Nama Kota
   static Future<List<dynamic>> dataRegion() async {
     try {
       final response = await http.get(
@@ -177,7 +208,7 @@ class ApiService {
     }
   }
 
-  //Cek Username
+  // Cek Username
   static Future<bool> cekUsername({
     required String username,
   }) async {
@@ -200,16 +231,38 @@ class ApiService {
   }
 
   // Cek Email
-  static Future<bool> cekEmail({
+  static Future<bool> getEmail({
     required String email,
   }) async {
     final response = await http.post(
-      Uri.parse(cekEmails),
+      Uri.parse(cekEmail),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },
       body: json.encode({
         'email_user': email,
+      }),
+    );
+    if (response.statusCode == 200) {
+      return true;
+    } else if (response.statusCode == 400) {
+      return false;
+    } else {
+      throw Exception('Gagal memeriksa username: ${response.body}');
+    }
+  }
+
+  // Cek Email Organizer
+  static Future<bool> getEmailOrganier({
+    required String email,
+  }) async {
+    final response = await http.post(
+      Uri.parse(cekEmailOrganizer),
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'email_organizer': email,
       }),
     );
     if (response.statusCode == 200) {

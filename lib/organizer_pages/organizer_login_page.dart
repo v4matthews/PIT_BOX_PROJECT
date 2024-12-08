@@ -8,15 +8,15 @@ import 'package:pit_box/components/asset_textfield_password.dart';
 class OrganizerLoginPage extends StatelessWidget {
   OrganizerLoginPage({super.key});
 
-  final usernameController = TextEditingController();
+  final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
   // Fungsi login
-  void loginUser(BuildContext context) async {
+  void loginOrganizer(BuildContext context) async {
     try {
       // Mengambil username dan password dari controller
-      final response = await ApiService.loginUser(
-        username: usernameController.text, // Menggunakan email sebagai username
+      final response = await ApiService.loginOrganizer(
+        email: emailController.text, // Menggunakan email sebagai username
         password: passwordController.text,
       );
 
@@ -115,7 +115,7 @@ class OrganizerLoginPage extends StatelessWidget {
 
               // Username (Email) textfield
               MyTextField(
-                controller: usernameController,
+                controller: emailController,
                 width: width,
                 hintText: 'Email Organizer',
                 obScureText: false,
@@ -176,7 +176,7 @@ class OrganizerLoginPage extends StatelessWidget {
                     label: 'LOGIN',
                     width: width2,
                     // Warna biru untuk tombol Register
-                    ontap: () => loginUser(
+                    ontap: () => loginOrganizer(
                         context), // Fungsi login dipanggil saat tombol ditekan
                   )
                 ],

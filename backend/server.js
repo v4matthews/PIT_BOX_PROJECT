@@ -94,7 +94,33 @@ app.post('/loginUser', async (req, res) => {
     } catch (err) {
       res.status(500).send("Terjadi kesalahan: " + err.message);
     }
-  });
+});
+
+// Route Login Organizer
+app.post('/loginOrganizer', async (req, res) => {
+  const { email_organizer, password_organizer } = req.body;
+
+  try {
+    // Mencari user berdasarkan email
+    const user = await Organizer.findOne({ email_organizer });
+    console.log(user)
+
+    if (!user) {
+      return res.status(400).send("User tidak ditemukan!");
+    }
+    
+  if (user.password_organizer !== password_organizer) {
+      return res.status(400).send("Password salah!");
+    }
+    console.log("ini pass",user.password_organizer)
+    console.log(password_organizer)
+    // Mengirimkan token ke frontend
+    res.status(200).json({ message: 'Login berhasil!' });
+
+  } catch (err) {
+    res.status(500).send("Terjadi kesalahan: " + err.message);
+  }
+});
 
 // Register User DONE
 app.post('/registerUser', async (req, res) => {
@@ -158,6 +184,26 @@ app.post('/cekEmail', async (req, res) => {
   }
 });
 
+// Cek Email Organizer
+app.post('/cekEmailOrganizer', async (req, res) => {
+  const { email_organizer } = req.body;
+
+  try {
+    // Mencari user berdasarkan email
+    const email = await Organizer.findOne({ email_organizer });
+    console.log(email)
+
+    if (!email) {
+      return res.status(200).send(true); 
+    }
+
+    return res.status(400).send(false);
+
+  } catch (err) {
+    res.status(500).send("Terjadi kesalahan: " + err.message);
+  }
+});
+
 // Register Organizer DONE
 app.post('/registerOrganizer', async (req, res) => {
     const { team, alamat_organizer, tlpn_organizer, email_organizer, password_organizer } = req.body;
@@ -168,27 +214,27 @@ app.post('/registerOrganizer', async (req, res) => {
     } catch (err) {
       res.status(500).send("Gagal melakukan registrasi Organizer: " + err.message);
     }
-  });
+});
   
   // Get Data Organizer
-  app.get('/getOrganizer', async (req, res) => {
-    try {
-      const items = await Organizer.find();
-      res.status(200).json(items);
-    } catch (err) {
-      res.status(500).send("Gagal mengambil data: " + err.message);
-    }
-  });
+app.get('/getOrganizer', async (req, res) => {
+  try {
+    const items = await Organizer.find();
+    res.status(200).json(items);
+  } catch (err) {
+    res.status(500).send("Gagal mengambil data: " + err.message);
+  }
+});
 
-   // Get Data Region
-   app.get('/getRegion', async (req, res) => {
-    try {
-      const items = await Region.find();
-      res.status(200).json(items);
-    } catch (err) {
-      res.status(500).send("Gagal mengambil data: " + err.message);
-    }
-  });
+  // Get Data Region
+  app.get('/getRegion', async (req, res) => {
+  try {
+    const items = await Region.find();
+    res.status(200).json(items);
+  } catch (err) {
+    res.status(500).send("Gagal mengambil data: " + err.message);
+  }
+});
 
 // // Middleware untuk Verifikasi Token
 // const authenticateToken = (req, res, next) => {

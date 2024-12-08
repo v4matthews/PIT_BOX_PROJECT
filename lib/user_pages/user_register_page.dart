@@ -93,7 +93,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   Future<bool> cekEmail(BuildContext context) async {
     try {
-      final result = await ApiService.cekEmail(
+      final result = await ApiService.getEmail(
         email: emailController.text,
       );
 

@@ -59,7 +59,7 @@ class MyApp extends StatelessWidget {
 
       // initialRoute: '/register',
       // initialRoute: '/loginOrganizer',
-      initialRoute: '/forgotUser',
+      initialRoute: '/login',
 
       // Organizer Route
       routes: {

@@ -68,7 +68,7 @@ class _RegisterPageState extends State<OrganizerRegisterPage> {
 
   Future<bool> cekEmail(BuildContext context) async {
     try {
-      final result = await ApiService.cekEmail(
+      final result = await ApiService.getEmailOrganier(
         email: emailController.text,
       );
 
