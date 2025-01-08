@@ -15,6 +15,21 @@ class ApiService {
       'http://localhost:5000/cekEmailOrganizer';
   static const String getRegion = 'http://localhost:5000/getRegion';
 
+  // URL API Event
+  static const String allCategoriesUrl =
+      'http://localhost:5000/getAllCategories';
+  static const String getStoCategories =
+      'http://localhost:5000/getStoCategories';
+  static const String getSdCategories = 'http://localhost:5000/getSdCategories';
+  static const String getStbCategories =
+      'http://localhost:5000/getStbCategories';
+  static const String getStbUpCategories =
+      'http://localhost:5000/getStbUpCategories';
+  static const String getSloopCategories =
+      'http://localhost:5000/getSloopCategories';
+  static const String getNascarCategories =
+      'http://localhost:5000/getNascarCategories';
+
   // Fungsi Registrasi User
   static Future<bool> registerUser({
     required String username,
@@ -271,6 +286,32 @@ class ApiService {
       return false;
     } else {
       throw Exception('Gagal memeriksa username: ${response.body}');
+    }
+  }
+
+  // EVENT
+  // Get All Categories
+  static Future<List<dynamic>> getAllCategories() async {
+    try {
+      final response = await http.get(
+        Uri.parse(allCategoriesUrl),
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // Berhasil, decode response menjadi List atau Map tergantung API
+        final data = json.decode(response.body);
+        return data is List ? data : [data];
+      } else {
+        // Gagal, decode pesan error
+        final errorData = json.decode(response.body);
+        throw Exception("Failed to load region: ${errorData['message']}");
+      }
+    } catch (e) {
+      // Tangani error lainnya
+      throw Exception("Error fetching region: $e");
     }
   }
 }

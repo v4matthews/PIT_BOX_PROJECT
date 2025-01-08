@@ -40,9 +40,14 @@ class MyDropdown extends StatelessWidget {
             ),
             fillColor: Colors.grey.shade200, // Warna latar belakang
             filled: true,
+            contentPadding: const EdgeInsets.symmetric(
+              vertical: 10.0, // Padding vertikal
+              horizontal: 16.0, // Padding horizontal
+            ),
             hintText: hintText,
             hintStyle: TextStyle(
-              color: Colors.grey[500], // Warna hint teks
+              color: Colors.grey[500],
+              fontSize: 16, // Warna hint teks
             ),
           ),
           onChanged: onChanged,

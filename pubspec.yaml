@@ -36,6 +36,9 @@ dependencies:
   mongo_dart: ^0.7.3
   http: ^0.13.6
   art_sweetalert: ^0.0.5
+  carousel_slider: ^4.2.0
+  intl: ^0.17.0
+  image_picker: ^0.8.6
 
 dev_dependencies:
   flutter_test:
