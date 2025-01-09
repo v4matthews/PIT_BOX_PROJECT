@@ -59,32 +59,29 @@ class OrganizerForgotPassword extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final width = screenWidth * 0.8;
-    // final width2 = (screenWidth * 0.8 - 6) / 2;
+    final isSmallScreen = screenWidth < 600; // Deteksi layar kecil
+    final width = screenWidth * (isSmallScreen ? 0.7 : 0.6);
+
     return Scaffold(
-      backgroundColor: Colors.grey[300],
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const SizedBox(height: 50),
+              const SizedBox(height: 40),
 
               // Title Page
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Organizer Forgot Password',
-                      style: TextStyle(
-                        color: Colors.grey[700],
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
+                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.1),
+                child: Text(
+                  'Organizer Forgot Password',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.grey[700],
+                    fontSize: isSmallScreen ? 24 : 30,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
 
@@ -92,18 +89,14 @@ class OrganizerForgotPassword extends StatelessWidget {
 
               // Sub Title Text
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Kami akan mengirimkan password Anda melalui email Pastikan email anda aktif',
-                      style: TextStyle(
-                        color: Colors.grey[700],
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
+                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.1),
+                child: Text(
+                  'Kami akan mengirimkan password Anda melalui email. Pastikan email Anda aktif.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.grey[700],
+                    fontSize: isSmallScreen ? 12 : 14,
+                  ),
                 ),
               ),
 
@@ -121,17 +114,15 @@ class OrganizerForgotPassword extends StatelessWidget {
 
               MyButton(
                 label: 'SEND PASSWORD',
+                color: Color(0xFFFFC700),
                 width: width,
-                // Warna biru untuk tombol Register
-                ontap: () => forgotOrganizer(
-                    context), // Fungsi login dipanggil saat tombol ditekan
+                ontap: () => forgotOrganizer(context),
               ),
 
               const SizedBox(height: 15),
 
               MyButton(
                 label: 'BACK TO LOGIN PAGE',
-                color: Color(0xFF4A59A9),
                 width: width,
                 ontap: () {
                   // Aksi untuk tombol Sign In
@@ -152,8 +143,8 @@ class OrganizerForgotPassword extends StatelessWidget {
                   const SizedBox(width: 4),
                   GestureDetector(
                     onTap: () {
-                      Navigator.pushNamed(
-                          context, '/register'); // Arahkan ke halaman Register
+                      Navigator.pushNamed(context,
+                          '/registerOrganizer'); // Arahkan ke halaman Register
                     },
                     child: Text(
                       'Sign Up',

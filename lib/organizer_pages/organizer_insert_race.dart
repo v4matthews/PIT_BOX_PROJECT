@@ -1,8 +1,8 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart'; // Untuk kIsWeb
+import 'package:flutter/foundation.dart'; // For kIsWeb
 import 'package:image_picker/image_picker.dart';
+import 'package:pit_box/components/asset_button_login.dart';
 import 'package:pit_box/components/asset_textfield.dart';
 
 class EventFormPage extends StatefulWidget {
@@ -21,22 +21,24 @@ class _EventFormPageState extends State<EventFormPage> {
   final TextEditingController tanggalController = TextEditingController();
   final TextEditingController lokasiController = TextEditingController();
 
+  // Function to pick image from gallery
   Future<void> _pickImageFromGallery() async {
     final XFile? pickedFile =
         await _imagePicker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
         if (kIsWeb) {
-          // Jika berjalan di Web
+          // For Web
           _webImagePath = pickedFile.path;
         } else {
-          // Jika berjalan di Android/iOS
+          // For Android/iOS
           _selectedImage = File(pickedFile.path);
         }
       });
     }
   }
 
+  // Function to reset the image
   Future<void> _resetImage() async {
     setState(() {
       _selectedImage = null;
@@ -49,56 +51,74 @@ class _EventFormPageState extends State<EventFormPage> {
     final screenWidth = MediaQuery.of(context).size.width;
     final width = screenWidth * 0.8;
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('Tambah Event'),
-        leading: BackButton(),
+        title: const Text(
+          "Create Event",
+          style: TextStyle(
+            fontWeight: FontWeight.bold, // Membuat teks bold
+            fontSize: 20, // Ukuran teks
+          ),
+        ),
+        backgroundColor: const Color(0xFF4A59A9), // Warna biru untuk AppBar
+        foregroundColor: Colors.white, // Warna teks
+        elevation: 0,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            // Image selection preview
+            // Image selection preview dengan GestureDetector dan ikon silang
             Center(
-              child: Container(
-                width: 200,
-                height: 200,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(10),
+              child: GestureDetector(
+                onTap:
+                    _pickImageFromGallery, // Memanggil fungsi pick gambar ketika diklik
+                child: Stack(
+                  alignment: Alignment
+                      .topRight, // Menempatkan ikon di pojok kanan atas
+                  children: [
+                    Container(
+                      width: 200,
+                      height: 200,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: _selectedImage != null
+                          ? Image.file(_selectedImage!,
+                              fit: BoxFit.cover) // For devices
+                          : _webImagePath != null
+                              ? Image.network(_webImagePath!,
+                                  fit: BoxFit.cover) // For Web
+                              : Icon(Icons.image, size: 50, color: Colors.grey),
+                    ),
+                    if (_selectedImage != null || _webImagePath != null)
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: IconButton(
+                          icon: Icon(Icons.clear, color: Colors.white),
+                          onPressed:
+                              _resetImage, // Menghapus gambar saat ikon ditekan
+                        ),
+                      ),
+                  ],
                 ),
-                child: _selectedImage != null
-                    ? Image.file(_selectedImage!,
-                        fit: BoxFit.cover) // Untuk perangkat
-                    : _webImagePath != null
-                        ? Image.network(_webImagePath!,
-                            fit: BoxFit.cover) // Untuk Web
-                        : Icon(Icons.image, size: 50, color: Colors.grey),
               ),
             ),
+
             SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: _pickImageFromGallery,
-                  child: Text('Pick Image'),
-                ),
-                ElevatedButton(
-                  onPressed: _resetImage,
-                  child: Text('Reset'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 16),
+
+            // Event form fields
             MyTextField(
               controller: namaEventController,
               width: width,
               hintText: 'Nama Event',
               obScureText: false,
             ),
+
             SizedBox(height: 16),
             MyTextField(
               controller: kategoriController,
@@ -128,20 +148,12 @@ class _EventFormPageState extends State<EventFormPage> {
               obScureText: false,
             ),
             SizedBox(height: 24),
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  // Tambahkan logika untuk menyimpan data event di sini
-                },
-                child: Text('Post'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.yellow[700],
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 40,
-                    vertical: 16,
-                  ),
-                ),
-              ),
+
+            // Post button
+            MyButton(
+              label: "POST",
+              width: width,
+              ontap: null,
             ),
           ],
         ),

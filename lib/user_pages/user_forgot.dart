@@ -61,111 +61,106 @@ class UserForgetPassword extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final width = screenWidth * 0.8;
-    // final width2 = (screenWidth * 0.8 - 6) / 2;
+    final isSmallScreen = screenWidth < 600; // Deteksi layar kecil
+    final width = screenWidth * (isSmallScreen ? 0.7 : 0.6);
+
     return Scaffold(
-      backgroundColor: Colors.grey[300],
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const SizedBox(height: 50),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 40),
 
-              // Title Page
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                child: Row(
+                // Title Page
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.1),
+                  child: Text(
+                    'Forgot Password',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.grey[700],
+                      fontSize: isSmallScreen ? 24 : 30,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 15),
+
+                // Sub Title Text
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.1),
+                  child: Text(
+                    'Kami akan mengirimkan password Anda melalui email. Pastikan email Anda aktif.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.grey[700],
+                      fontSize: isSmallScreen ? 12 : 14,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 40),
+
+                // Email textfield
+                MyTextField(
+                  controller: emailController,
+                  width: width,
+                  hintText: 'Email',
+                  obScureText: false,
+                ),
+
+                const SizedBox(height: 50),
+
+                // Send Password Button
+                MyButton(
+                  label: 'SEND PASSWORD',
+                  color: const Color(0xFFFFC700),
+                  width: width,
+                  ontap: () => forgotUser(context),
+                ),
+
+                const SizedBox(height: 15),
+
+                // Back to Login Page Button
+                MyButton(
+                  label: 'BACK TO LOGIN PAGE',
+                  width: width,
+                  ontap: () {
+                    Navigator.pushNamed(context, '/login');
+                  },
+                ),
+
+                const SizedBox(height: 60),
+
+                // Sign Up Option
+                Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Forgot Password',
-                      style: TextStyle(
-                        color: Colors.grey[700],
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold,
+                      'Belum memiliki akun?',
+                      style: TextStyle(color: Colors.grey[700]),
+                    ),
+                    const SizedBox(width: 4),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushNamed(context, '/register');
+                      },
+                      child: Text(
+                        'Sign Up',
+                        style: TextStyle(
+                          color: Colors.blue,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ],
                 ),
-              ),
-
-              const SizedBox(height: 15),
-
-              // Sub Title Text
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Kami akan mengirimkan password Anda melalui email Pastikan email anda aktif',
-                      style: TextStyle(
-                        color: Colors.grey[700],
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 40),
-
-              // Username (Email) textfield
-              MyTextField(
-                controller: emailController,
-                width: width,
-                hintText: 'Email',
-                obScureText: false,
-              ),
-
-              const SizedBox(height: 50),
-
-              MyButton(
-                label: 'SEND PASSWORD',
-                width: width,
-                // Warna biru untuk tombol Register
-                ontap: () => forgotUser(
-                    context), // Fungsi login dipanggil saat tombol ditekan
-              ),
-
-              const SizedBox(height: 15),
-
-              MyButton(
-                label: 'BACK TO LOGIN PAGE',
-                color: Color(0xFF4A59A9),
-                width: width,
-                ontap: () {
-                  // Aksi untuk tombol Sign In
-                  Navigator.pushNamed(context, '/login');
-                },
-              ),
-
-              const SizedBox(height: 60),
-
-              // Register Button
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Belum memiliki akun?',
-                    style: TextStyle(color: Colors.grey[700]),
-                  ),
-                  const SizedBox(width: 4),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushNamed(
-                          context, '/register'); // Arahkan ke halaman Register
-                    },
-                    child: Text(
-                      'Sign Up',
-                      style: TextStyle(
-                          color: Colors.blue, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

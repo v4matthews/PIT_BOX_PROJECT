@@ -34,7 +34,7 @@ class MyTextField extends StatelessWidget {
             ),
             focusedBorder: OutlineInputBorder(
               borderSide:
-                  BorderSide(color: Colors.grey.shade400), // Garis saat fokus
+                  BorderSide(color: Colors.grey.shade600), // Garis saat fokus
               borderRadius: BorderRadius.circular(12),
             ),
             fillColor: Colors.grey.shade200, // Warna latar belakang

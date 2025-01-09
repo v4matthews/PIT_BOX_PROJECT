@@ -125,164 +125,110 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final width = screenWidth * 0.8;
+    final isSmallScreen = screenWidth < 600; // Responsivitas
+    final width = screenWidth * (isSmallScreen ? 0.7 : 0.6);
+
     return Scaffold(
-      backgroundColor: Colors.grey[300],
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const SizedBox(height: 40),
+          child: SingleChildScrollView(
+            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 40),
 
-              // Welcome Text
-              Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Register Page',
-                        style: TextStyle(
-                          color: Colors.grey[700],
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  )),
-
-              const SizedBox(height: 15),
-
-              // Username textfield
-              MyTextField(
-                controller: usernameController,
-                width: width,
-                hintText: 'Username',
-                obScureText: false,
-              ),
-
-              // UsernameTextField(
-              //   controller: usernameController,
-              //   width: width,
-              //   hintText: 'Username',
-              //   obScureText: false,
-              //   onChanged: (username) {
-              //     // Memanggil cekUsername setiap kali teks berubah
-              //     if (username.isNotEmpty) {
-              //       cekUsername(context);
-              //     }
-              //   },
-              // ),
-
-              const SizedBox(height: 15),
-
-              // Email textfield
-              EmailTextField(
-                controller: emailController,
-                width: width,
-                hintText: 'Email',
-                obScureText: false,
-              ),
-
-              const SizedBox(height: 15),
-
-              // Nomor Telepon textfield
-              NumberTextField(
-                controller: nomortlpnController,
-                width: width,
-                hintText: 'Nomor Telepon',
-                obScureText: false,
-              ),
-
-              const SizedBox(height: 15),
-
-              // // Kota textfield
-              // MyTextField(
-              //   controller: kotaController,
-              //   width: width,
-              //   hintText: 'Kota',
-              //   obScureText: false,
-              // ),
-
-              MyDropdown(
-                hintText: "Pilih Kota",
-                selectedValue: selectedValue,
-                onChanged: (newValue) {
-                  setState(() {
-                    selectedValue = newValue;
-                  });
-                },
-                items: regionList, // Data dari API
-              ),
-
-              const SizedBox(height: 15),
-
-              // Password textfield
-              PasswordField(
-                controller: passwordController,
-                width: width,
-                hintText: 'Password',
-              ),
-
-              const SizedBox(height: 15),
-
-              // Confirm Password textfield
-              PasswordField(
-                controller: confirmpasswordController,
-                width: width,
-                hintText: 'Password',
-              ),
-
-              const SizedBox(height: 20),
-
-              // Sign in Button
-              MyButton(
-                width: width,
-                label: "REGISTER",
-                ontap: () async {
-                  // Panggil cekUsername terlebih dahulu
-                  bool isUsernameValid = await cekUsername(context);
-                  bool isEmailValid = await cekEmail(context);
-                  // Jika cekUsername berhasil, lanjutkan proses registrasi
-                  if (isUsernameValid) {
-                    if (isEmailValid) {
-                      registerPage(context);
-                    } else {
-                      await ArtSweetAlert.show(
-                        context: context,
-                        artDialogArgs: ArtDialogArgs(
-                          type: ArtSweetAlertType.danger,
-                          // title: "Username sudah digunakan",
-                          text: "Email sudah digunakan",
-                        ),
-                      );
-                    }
-                  } else {
-                    await ArtSweetAlert.show(
-                      context: context,
-                      artDialogArgs: ArtDialogArgs(
-                        type: ArtSweetAlertType.danger,
-                        // title: "Username sudah digunakan",
-                        text: "Username sudah digunakan",
-                      ),
-                    );
-                    // Menangani kasus ketika cekUsername gagal (misalnya, tampilkan pesan error)
-                    // showError("Username sudah digunakan!");
-                  }
-                },
-              ),
-
-              const SizedBox(height: 25),
-
-              // Register Button
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: (MediaQuery.of(context).size.width - width) /
-                      2, // Padding dinamis agar sejajar
+                // Welcome Text
+                Text(
+                  'Register Page',
+                  style: TextStyle(
+                    color: Colors.grey[700],
+                    fontSize: isSmallScreen ? 24 : 30,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+
+                const SizedBox(height: 20),
+
+                // Username textfield
+                MyTextField(
+                  controller: usernameController,
+                  width: width,
+                  hintText: 'Username',
+                  obScureText: false,
+                ),
+
+                const SizedBox(height: 15),
+
+                // Email textfield
+                EmailTextField(
+                  controller: emailController,
+                  width: width,
+                  hintText: 'Email',
+                  obScureText: false,
+                ),
+
+                const SizedBox(height: 15),
+
+                // Nomor Telepon textfield
+                NumberTextField(
+                  controller: nomortlpnController,
+                  width: width,
+                  hintText: 'Nomor Telepon',
+                  obScureText: false,
+                ),
+
+                const SizedBox(height: 15),
+
+                // Dropdown for Kota
+                MyDropdown(
+                  hintText: "Pilih Kota",
+                  selectedValue: selectedValue,
+                  width: width,
+                  onChanged: (newValue) {
+                    setState(() {
+                      selectedValue = newValue;
+                    });
+                  },
+                  items: regionList,
+                ),
+
+                const SizedBox(height: 15),
+
+                // Password textfield
+                PasswordField(
+                  controller: passwordController,
+                  width: width,
+                  hintText: 'Password',
+                ),
+
+                const SizedBox(height: 15),
+
+                // Confirm Password textfield
+                PasswordField(
+                  controller: confirmpasswordController,
+                  width: width,
+                  hintText: 'Konfirmasi Password',
+                ),
+
+                const SizedBox(height: 25),
+
+                // Register Button
+                MyButton(
+                  width: width,
+                  label: "REGISTER",
+                  ontap: () {
+                    registerPage(context);
+                  },
+                ),
+
+                const SizedBox(height: 20),
+
+                // Navigate to Login Page
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       'Sudah memiliki akun?',
@@ -291,7 +237,6 @@ class _RegisterPageState extends State<RegisterPage> {
                     const SizedBox(width: 4),
                     GestureDetector(
                       onTap: () {
-                        // Navigasi ke LoginPage
                         Navigator.pushNamed(context, '/login');
                       },
                       child: Text(
@@ -299,15 +244,15 @@ class _RegisterPageState extends State<RegisterPage> {
                         style: TextStyle(
                           color: Colors.blue,
                           fontWeight: FontWeight.bold,
-                          // decoration: TextDecoration.underline,
-                          // decorationColor: Colors.blue
                         ),
                       ),
                     ),
                   ],
                 ),
-              ),
-            ],
+
+                const SizedBox(height: 20),
+              ],
+            ),
           ),
         ),
       ),

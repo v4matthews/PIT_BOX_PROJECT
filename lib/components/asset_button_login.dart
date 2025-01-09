@@ -10,7 +10,7 @@ class MyButton extends StatelessWidget {
     super.key,
     required this.ontap,
     required this.label,
-    this.color = const Color(0xFFFFC700), // Warna default
+    this.color = const Color(0xFF4A59A9), // Warna default
     this.width = 150.0, // Lebar default
   });
 
@@ -33,7 +33,7 @@ class MyButton extends StatelessWidget {
             style: TextStyle(
               color: Colors.white, // Warna teks putih secara default
               fontWeight: FontWeight.bold,
-              fontSize: 16,
+              fontSize: 14,
             ),
           ),
         ),

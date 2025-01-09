@@ -85,128 +85,118 @@ class _RegisterPageState extends State<OrganizerRegisterPage> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final width = screenWidth * 0.8;
+    final isSmallScreen = screenWidth < 600; // Responsivitas
+    final width = screenWidth * (isSmallScreen ? 0.7 : 0.6);
     return Scaffold(
-      backgroundColor: Colors.grey[300],
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const SizedBox(height: 40),
+          child: SingleChildScrollView(
+            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 40),
 
-              // Welcome Text
-              Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Organizer Register Page',
-                        style: TextStyle(
-                          color: Colors.grey[700],
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  )),
-
-              const SizedBox(height: 15),
-
-              // team textfield
-              MyTextField(
-                controller: teamController,
-                width: width,
-                hintText: 'Nama Tim / Penyelenggara',
-                obScureText: false,
-              ),
-
-              const SizedBox(height: 15),
-
-              // Email textfield
-              EmailTextField(
-                controller: emailController,
-                width: width,
-                hintText: 'Email',
-                obScureText: false,
-              ),
-
-              const SizedBox(height: 15),
-
-              // Nomor Telepon textfield
-              NumberTextField(
-                controller: nomortlpnController,
-                width: width,
-                hintText: 'Nomor Telepon',
-                obScureText: false,
-              ),
-
-              const SizedBox(height: 15),
-
-              // Alamar textfield
-              MyTextField(
-                controller: alamatController,
-                width: width,
-                hintText: 'Alamat',
-                obScureText: false,
-              ),
-
-              const SizedBox(height: 15),
-
-              // Password textfield
-              PasswordField(
-                controller: passwordController,
-                width: width,
-                hintText: 'Password',
-              ),
-
-              const SizedBox(height: 15),
-
-              // Confirm Password textfield
-              PasswordField(
-                controller: confirmpasswordController,
-                width: width,
-                hintText: 'Password',
-              ),
-
-              const SizedBox(height: 20),
-
-              // Sign in Button
-              MyButton(
-                width: width,
-                label: "REGISTER",
-                ontap: () async {
-                  // Panggil cekUsername terlebih dahulu
-
-                  bool isEmailValid = await cekEmail(context);
-                  // Jika cekUsername berhasil, lanjutkan proses registrasi
-
-                  if (isEmailValid) {
-                    registerPage(context);
-                  } else {
-                    await ArtSweetAlert.show(
-                      context: context,
-                      artDialogArgs: ArtDialogArgs(
-                        type: ArtSweetAlertType.danger,
-                        // title: "Username sudah digunakan",
-                        text: "Email sudah digunakan",
-                      ),
-                    );
-                  }
-                },
-              ),
-
-              const SizedBox(height: 25),
-
-              // Register Button
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: (MediaQuery.of(context).size.width - width) /
-                      2, // Padding dinamis agar sejajar
+                // Welcome Text
+                Text(
+                  'Organizer Register Page',
+                  style: TextStyle(
+                    color: Colors.grey[700],
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+
+                const SizedBox(height: 25),
+
+                // team textfield
+                MyTextField(
+                  controller: teamController,
+                  width: width,
+                  hintText: 'Nama Tim / Penyelenggara',
+                  obScureText: false,
+                ),
+
+                const SizedBox(height: 15),
+
+                // Email textfield
+                EmailTextField(
+                  controller: emailController,
+                  width: width,
+                  hintText: 'Email',
+                  obScureText: false,
+                ),
+
+                const SizedBox(height: 15),
+
+                // Nomor Telepon textfield
+                NumberTextField(
+                  controller: nomortlpnController,
+                  width: width,
+                  hintText: 'Nomor Telepon',
+                  obScureText: false,
+                ),
+
+                const SizedBox(height: 15),
+
+                // Alamar textfield
+                MyTextField(
+                  controller: alamatController,
+                  width: width,
+                  hintText: 'Alamat',
+                  obScureText: false,
+                ),
+
+                const SizedBox(height: 15),
+
+                // Password textfield
+                PasswordField(
+                  controller: passwordController,
+                  width: width,
+                  hintText: 'Password',
+                ),
+
+                const SizedBox(height: 15),
+
+                // Confirm Password textfield
+                PasswordField(
+                  controller: confirmpasswordController,
+                  width: width,
+                  hintText: 'Confirm Password',
+                ),
+
+                const SizedBox(height: 20),
+
+                // Sign in Button
+                MyButton(
+                  width: width,
+                  label: "REGISTER",
+                  ontap: () async {
+                    // Panggil cekUsername terlebih dahulu
+
+                    bool isEmailValid = await cekEmail(context);
+                    // Jika cekUsername berhasil, lanjutkan proses registrasi
+
+                    if (isEmailValid) {
+                      registerPage(context);
+                    } else {
+                      await ArtSweetAlert.show(
+                        context: context,
+                        artDialogArgs: ArtDialogArgs(
+                          type: ArtSweetAlertType.danger,
+                          // title: "Username sudah digunakan",
+                          text: "Email sudah digunakan",
+                        ),
+                      );
+                    }
+                  },
+                ),
+
+                const SizedBox(height: 25),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       'Sudah memiliki akun?',
@@ -215,23 +205,20 @@ class _RegisterPageState extends State<OrganizerRegisterPage> {
                     const SizedBox(width: 4),
                     GestureDetector(
                       onTap: () {
-                        // Navigasi ke LoginPage
-                        Navigator.pushNamed(context, '/login');
+                        Navigator.pushNamed(context, '/loginOrganizer');
                       },
                       child: Text(
                         'Sign In',
                         style: TextStyle(
                           color: Colors.blue,
                           fontWeight: FontWeight.bold,
-                          // decoration: TextDecoration.underline,
-                          // decorationColor: Colors.blue
                         ),
                       ),
                     ),
                   ],
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

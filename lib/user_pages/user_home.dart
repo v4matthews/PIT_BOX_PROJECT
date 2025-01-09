@@ -1,3 +1,4 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:pit_box/components/asset_icon_shortcut.dart';
 import 'package:pit_box/components/asset_navbar.dart';
@@ -20,202 +21,117 @@ class UserHome extends StatelessWidget {
 }
 
 class HomePage extends StatelessWidget {
+  final List<String> imagePaths = [
+    'assets/images/banner1.png',
+    'assets/images/banner2.png',
+    'assets/images/banner3.png',
+  ];
+
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
-      backgroundColor: Colors.black,
-      body: Column(
-        children: [
-          // Header section
-          Container(
-            color: Color(0xFF4A59A9),
-            padding: EdgeInsets.all(16),
-            child: Column(
-              children: [
-                Container(
-                  height: 250,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Center(
-                    child: Icon(
-                      Icons.image,
-                      size: 50,
-                      color: Colors.grey[500],
-                    ),
+      appBar: AppBar(
+        title: const Text(
+          "Pitbox",
+          style: TextStyle(
+            fontWeight: FontWeight.bold, // Membuat teks bold
+            fontSize: 20, // Ukuran teks
+          ),
+        ),
+        backgroundColor: const Color(0xFF4A59A9), // Warna biru untuk AppBar
+        foregroundColor: Colors.white, // Warna teks
+        elevation: 0,
+      ),
+      body: Center(
+        child: Column(
+          children: [
+            // Carousel Section
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: CarouselSlider(
+                  items: imagePaths
+                      .map(
+                        (path) => Image.asset(
+                          path,
+                          fit: BoxFit.cover,
+                          width: screenWidth, // Responsif terhadap lebar layar
+                        ),
+                      )
+                      .toList(),
+                  options: CarouselOptions(
+                    height:
+                        screenHeight * 0.3, // Responsif terhadap tinggi layar
+                    autoPlay: true,
+                    viewportFraction: 1, // Item memenuhi seluruh lebar layar
+                    enlargeCenterPage: false,
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
 
-          // Content section
-          Expanded(
-            child: Container(
-              padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  SizedBox(height: 16),
-                  Expanded(
-                    child: GridView.count(
-                      crossAxisCount: 4,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                      children: [
-                        GestureDetector(
+            // Content Section
+            Expanded(
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                ),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    // Responsif jumlah kolom berdasarkan lebar layar
+                    int crossAxisCount = 4;
+
+                    return GridView.builder(
+                      itemCount: 8,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: crossAxisCount,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
+                      ),
+                      itemBuilder: (context, index) {
+                        final items = [
+                          MyIconShortcut(initial: "All", label: "All Class"),
+                          MyIconShortcut(initial: "STO", label: "STO"),
+                          MyIconShortcut(initial: "DS", label: "Damper Style"),
+                          MyIconShortcut(initial: "STB UP", label: "STB UP"),
+                          MyIconShortcut(initial: "STB", label: "STB"),
+                          MyIconShortcut(initial: "SLP", label: "Sloop"),
+                          MyIconShortcut(initial: "NS", label: "Nascar"),
+                          MyIconShortcut(initial: "H", label: "My History"),
+                        ];
+
+                        return GestureDetector(
                           onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => AllCatagories()),
-                            );
-                          },
-                          child: MyIconShortcut(
-                              initial: "All", label: "All Class"),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => AllCatagories(
-                                  selectedClass: "STO",
+                            if (index < 7) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AllCatagories(
+                                    selectedClass:
+                                        index == 0 ? null : items[index].label,
+                                  ),
                                 ),
-                              ),
-                            );
+                              );
+                            }
                           },
-                          child: MyIconShortcut(initial: "STO", label: "STO"),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => AllCatagories(
-                                  selectedClass: "Damper Style",
-                                ),
-                              ),
-                            );
-                          },
-                          child: MyIconShortcut(
-                              initial: "DS", label: "Damper Style"),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => AllCatagories(
-                                  selectedClass: "STB UP",
-                                ),
-                              ),
-                            );
-                          },
-                          child: MyIconShortcut(
-                              initial: "STB UP", label: "STB UP"),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => AllCatagories(
-                                  selectedClass: "STB",
-                                ),
-                              ),
-                            );
-                          },
-                          child: MyIconShortcut(initial: "STB", label: "STB"),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => AllCatagories(
-                                  selectedClass: "Sloop",
-                                ),
-                              ),
-                            );
-                          },
-                          child: MyIconShortcut(initial: "SLP", label: "Sloop"),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => AllCatagories(
-                                  selectedClass: "Nascar",
-                                ),
-                              ),
-                            );
-                          },
-                          child: MyIconShortcut(initial: "NS", label: "Nascar"),
-                        ),
-                        MyIconShortcut(initial: "H", label: "My History"),
-                      ],
-                    ),
-                  ),
-                ],
+                          child: items[index],
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       bottomNavigationBar: MyNavbar(),
     );
   }
-
-  //     bottomNavigationBar: BottomNavigationBar(
-  //       backgroundColor: Colors.white,
-  //       selectedItemColor: Colors.yellow,
-  //       unselectedItemColor: Colors.grey,
-  //       currentIndex: 1, // Highlight "Home"
-  //       items: [
-  //         BottomNavigationBarItem(
-  //           icon: Icon(Icons.confirmation_number),
-  //           label: 'My Ticket',
-  //         ),
-  //         BottomNavigationBarItem(
-  //           icon: Icon(Icons.home),
-  //           label: 'Home',
-  //         ),
-  //         BottomNavigationBarItem(
-  //           icon: Icon(Icons.person),
-  //           label: 'Account',
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  // Widget _buildIconButton(String label, IconData icon) {
-  //   return Column(
-  //     children: [
-  //       CircleAvatar(
-  //         radius: 24,
-  //         backgroundColor: Colors.grey[300],
-  //         child: Icon(
-  //           icon,
-  //           color: Colors.grey[600],
-  //         ),
-  //       ),
-  //       SizedBox(height: 8),
-  //       Text(
-  //         label,
-  //         textAlign: TextAlign.center,
-  //         style: TextStyle(
-  //           fontSize: 12,
-  //           color: Colors.black,
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
 }

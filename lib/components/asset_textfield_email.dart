@@ -43,7 +43,8 @@ class _MyTextFieldState extends State<EmailTextField> {
         children: [
           ConstrainedBox(
             constraints: BoxConstraints(
-              maxWidth: widget.width, // Lebar sesuai parameter
+              maxWidth: widget.width,
+              maxHeight: 50,
             ),
             child: TextField(
               controller: widget.controller,
