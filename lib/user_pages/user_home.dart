@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:pit_box/components/asset_icon_shortcut.dart';
 import 'package:pit_box/components/asset_navbar.dart';
 
-// categori page
+// kategori page
 import 'package:pit_box/race_page/all_page.dart';
 
 void main() {
@@ -35,7 +35,7 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          "Pitbox",
+          "PITBOX",
           style: TextStyle(
             fontWeight: FontWeight.bold, // Membuat teks bold
             fontSize: 20, // Ukuran teks
@@ -49,36 +49,31 @@ class HomePage extends StatelessWidget {
         child: Column(
           children: [
             // Carousel Section
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: CarouselSlider(
-                  items: imagePaths
-                      .map(
-                        (path) => Image.asset(
-                          path,
-                          fit: BoxFit.cover,
-                          width: screenWidth, // Responsif terhadap lebar layar
-                        ),
-                      )
-                      .toList(),
-                  options: CarouselOptions(
-                    height:
-                        screenHeight * 0.3, // Responsif terhadap tinggi layar
-                    autoPlay: true,
-                    viewportFraction: 1, // Item memenuhi seluruh lebar layar
-                    enlargeCenterPage: false,
-                  ),
-                ),
+            CarouselSlider(
+              items: imagePaths
+                  .map(
+                    (path) => Image.asset(
+                      path,
+                      fit: BoxFit.cover,
+                      width: screenWidth, // Responsif terhadap lebar layar
+                    ),
+                  )
+                  .toList(),
+              options: CarouselOptions(
+                height: screenHeight * 0.3, // Responsif terhadap tinggi layar
+                autoPlay: true,
+                viewportFraction: 1.0, // Item memenuhi seluruh lebar layar
+                enlargeCenterPage: false,
               ),
             ),
+
+            const SizedBox(width: 16.0),
 
             // Content Section
             Expanded(
               child: Container(
                 padding:
-                    const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                    const EdgeInsets.symmetric(vertical: 30, horizontal: 16),
                 decoration: const BoxDecoration(
                   color: Colors.white,
                 ),

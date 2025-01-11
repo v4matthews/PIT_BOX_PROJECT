@@ -15,6 +15,8 @@ import 'package:pit_box/organizer_pages/organizer_register_event.dart';
 import 'package:pit_box/organizer_pages/organizer_insert_race.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
+import 'package:pit_box/race_page/test.dart';
+
 void main() {
   runApp(MyApp());
 }
@@ -44,7 +46,7 @@ class MyApp extends StatelessWidget {
       // initialRoute: '/loginOrganizer',
       // initialRoute: '/home',
       // initialRoute: '/insertRace',
-      initialRoute: '/home',
+      initialRoute: '/login',
 
       // Organizer Route
       routes: {
@@ -61,6 +63,11 @@ class MyApp extends StatelessWidget {
         '/homeOrganizer': (context) => organizerHome(),
         // '/insertRace': (context) => EventFormPage(),
         '/insertRace': (context) => OrganizerRegisterEvent(),
+
+        // '/test': (context) => CustomCard(
+        //       title: 'omg',
+        //       description: 'omg too',
+        //     ),
       },
     );
   }
