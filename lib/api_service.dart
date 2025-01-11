@@ -1,10 +1,14 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
 
 class ApiService {
   // URL Base untuk API server Anda
-  static const String _baseUrl =
-      'https://pit-box-project-backend-452431537344.us-central1.run.app';
+  // static const String _baseUrl =
+  //     'https://pit-box-project-backend-452431537344.us-central1.run.app';
+  static const String _baseUrl = 'http://localhost:5000';
 
   // Endpoint API
   static const String _registerUserEndpoint = '/registerUser';
@@ -20,6 +24,7 @@ class ApiService {
   //ON DEV
   static const String _forgetUserEndpoint = '/forgetUserEndpoint';
   static const String _forgetOrganizerEndpoint = '/forgetOrganizerEndpoint';
+  static const String _insertEventEndpoint = '/insertEvent';
 
   // Helper untuk membuat header
   static Map<String, String> _jsonHeaders() => {
@@ -42,6 +47,7 @@ class ApiService {
   // Fungsi Registrasi User
   static Future<bool> registerUser({
     required String username,
+    required String nama,
     required String email,
     required String nomorTelepon,
     required String kota,
@@ -52,11 +58,15 @@ class ApiService {
       throw Exception('Password dan konfirmasi password tidak cocok');
     }
 
+    final String idUser = Uuid().v4();
+
     final response = await _postRequest(_registerUserEndpoint, {
+      'id_user': idUser,
       'username': username,
+      'nama_user': nama,
       'email_user': email,
       'tlpn_user': nomorTelepon,
-      'alamat_user': kota,
+      'kota_user': kota,
       'password_user': password,
     });
 
@@ -69,9 +79,10 @@ class ApiService {
 
   // Fungsi Registrasi Organizer
   static Future<bool> registerOrganizer({
-    required String team,
+    required String nama,
     required String email,
     required String nomorTelepon,
+    required String kota,
     required String alamat,
     required String password,
     required String confirmPassword,
@@ -80,10 +91,14 @@ class ApiService {
       throw Exception('Password dan konfirmasi password tidak cocok');
     }
 
+    final String idOrganizer = Uuid().v4();
+
     final response = await _postRequest(_registerOrganizerEndpoint, {
-      'team': team,
+      'id_organizer': idOrganizer,
+      'nama_organizer': nama,
       'email_organizer': email,
       'tlpn_organizer': nomorTelepon,
+      'kota_organizer': kota,
       'alamat_organizer': alamat,
       'password_organizer': password,
     });
@@ -108,7 +123,7 @@ class ApiService {
     if (response.statusCode == 200) {
       return json.decode(response.body);
     } else {
-      throw Exception('Login gagal: ${response.body}');
+      throw Exception('${response.body}');
     }
   }
 
@@ -125,7 +140,7 @@ class ApiService {
     if (response.statusCode == 200) {
       return json.decode(response.body);
     } else {
-      throw Exception('Login gagal: ${response.body}');
+      throw Exception('${response.body}');
     }
   }
 
@@ -235,6 +250,100 @@ class ApiService {
       return false;
     } else {
       throw Exception('Gagal memeriksa email organizer: ${response.body}');
+    }
+  }
+
+  static Future<Map<String, dynamic>> _uploadImage(String filePath) async {
+    final url = Uri.parse('$_baseUrl/uploadImage'); // Sesuaikan endpoint upload
+    final request = http.MultipartRequest('POST', url);
+
+    // Tambahkan file gambar
+    request.files.add(await http.MultipartFile.fromPath('image', filePath));
+
+    // Kirim permintaan
+    final response = await request.send();
+    if (response.statusCode == 200) {
+      final responseData = await http.Response.fromStream(response);
+      return json.decode(responseData.body);
+    } else {
+      throw Exception('Gagal mengunggah gambar: ${response.statusCode}');
+    }
+  }
+
+  static Future<bool> insertEvent({
+    required String nama,
+    required String kategori,
+    required String htm,
+    required String tanggal,
+    required String kota,
+    required String alamat,
+    required String deskripsi,
+  }) async {
+    final String idEvent = Uuid().v4();
+
+    final response = await _postRequest(_insertEventEndpoint, {
+      'id_event': idEvent,
+      'nama_event': nama,
+      'kategori_event': kategori,
+      'htm_event': htm,
+      'tanggal_event': tanggal,
+      'kota_event': kota,
+      'alamat_event': alamat,
+      'deskripsi_event': deskripsi,
+    });
+
+    if (response.statusCode == 201) {
+      return true;
+    } else {
+      throw Exception('Gagal melakukan registrasi: ${response.body}');
+    }
+  }
+
+  static Future<bool> insertEventPending({
+    required String name,
+    required String location,
+    required String date,
+    required String categoryId,
+    required String organizerId,
+    String? imagePath, // Untuk gambar opsional
+    String? description,
+    double? price, // HTM Event
+  }) async {
+    final String eventId = Uuid().v4(); // Membuat ID unik untuk event
+
+    // Siapkan body permintaan
+    final body = {
+      'id_event': eventId,
+      'name': name,
+      'location': location,
+      'date': date,
+      'category_id': categoryId,
+      'organizer_id': organizerId,
+      'description': description ?? '',
+      'price': price ?? 0.0,
+    };
+
+    // Jika ada gambar, tambahkan proses pengunggahan
+    if (imagePath != null) {
+      try {
+        final imageUploadResponse = await _uploadImage(imagePath);
+        if (imageUploadResponse['success'] == true) {
+          body['image_url'] = imageUploadResponse['url'];
+        } else {
+          throw Exception('Gagal mengunggah gambar');
+        }
+      } catch (e) {
+        throw Exception('Terjadi kesalahan saat mengunggah gambar: $e');
+      }
+    }
+
+    // Kirim permintaan POST
+    final response = await _postRequest(
+        _insertEventEndpoint, body); // Endpoint harus diubah jika berbeda
+    if (response.statusCode == 201) {
+      return true;
+    } else {
+      throw Exception('Gagal menambahkan event: ${response.body}');
     }
   }
 }

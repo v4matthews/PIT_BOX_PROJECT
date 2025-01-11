@@ -1,6 +1,7 @@
 import 'package:art_sweetalert/art_sweetalert.dart';
 import 'package:flutter/material.dart';
 import 'package:pit_box/api_service.dart';
+import 'package:pit_box/components/asset_alert.dart';
 import 'package:pit_box/components/asset_button_login.dart';
 import 'package:pit_box/components/asset_textfield.dart';
 import 'package:pit_box/components/asset_textfield_password.dart';
@@ -15,6 +16,12 @@ class LoginPage extends StatelessWidget {
   // Fungsi login
   void loginUser(BuildContext context) async {
     try {
+      if (usernameController.text.isEmpty) {
+        throw Exception('Username belum diisi');
+      }
+      if (passwordController.text.isEmpty) {
+        throw Exception('Password belum diisi');
+      }
       // Mengambil username dan password dari controller
       final response = await ApiService.loginUser(
         username: usernameController.text, // Menggunakan email sebagai username
@@ -23,41 +30,20 @@ class LoginPage extends StatelessWidget {
 
       // Jika login berhasil, arahkan ke halaman utama
       if (response.isNotEmpty) {
-        await ArtSweetAlert.show(
-          context: context,
-          artDialogArgs: ArtDialogArgs(
-            type: ArtSweetAlertType.success,
-            title: "Login Berhasil",
-            text: "Selamat datang di PIT BOX",
-          ),
-        );
-        Navigator.pushReplacementNamed(context, '/home');
-      } else {
-        await ArtSweetAlert.show(
-          context: context,
-          artDialogArgs: ArtDialogArgs(
-            type: ArtSweetAlertType.danger,
-            title: "Login Gagal",
-            text: "Silahkan pastikan username & password tidak kosong!",
-          ),
-        );
+        showCustomDialog(
+            context: context,
+            isSuccess: true,
+            title: 'Login Berhasil',
+            message: Text('Selamat datang di PITBOX!'),
+            routeName: '/home');
       }
     } catch (e) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) => AlertDialog(
-          title: Text('Login Gagal'),
-          content: Text(e.toString()),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Menutup dialog error
-              },
-              child: Text('OK'),
-            ),
-          ],
-        ),
-      );
+      showCustomDialog(
+          context: context,
+          isSuccess: false,
+          title: 'Login Gagal',
+          message: Text(e.toString()),
+          routeName: '/home');
     }
   }
 

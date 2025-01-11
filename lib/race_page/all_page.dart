@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pit_box/api_service.dart';
 import 'package:intl/intl.dart';
+import 'package:pit_box/race_page/detail_page.dart';
 
 class AllCatagories extends StatefulWidget {
   final String? selectedClass;
@@ -41,7 +42,7 @@ class AllCatagoriesState extends State<AllCatagories> {
         if (widget.selectedClass != null) {
           // Filter berdasarkan selectedClass
           filteredEvents = events.where((event) {
-            return event['kategori'] == widget.selectedClass;
+            return event['kategori_event'] == widget.selectedClass;
           }).toList();
         }
       });
@@ -56,9 +57,9 @@ class AllCatagoriesState extends State<AllCatagories> {
     setState(() {
       filteredEvents = events.where((event) {
         final classMatch =
-            selectedClass == null || event['kategori'] == selectedClass;
-        final locationMatch = selectedLocation == null ||
-            event['lokasi_event'] == selectedLocation;
+            selectedClass == null || event['kategori_event'] == selectedClass;
+        final locationMatch =
+            selectedLocation == null || event['kota_event'] == selectedLocation;
         final date1Match = selectedDate1 == null ||
             DateTime.parse(event['tanggal_event']).isAfter(selectedDate1!);
         final date2Match = selectedDate2 == null ||
@@ -292,33 +293,36 @@ class AllCatagoriesState extends State<AllCatagories> {
         title: Row(
           children: [
             Expanded(
-              child: TextField(
-                controller: _searchController,
-                decoration: InputDecoration(
-                  hintText: 'Cari Lomba Disini',
-                  prefixIcon: Icon(Icons.search, color: Colors.black),
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20.0),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: EdgeInsets.symmetric(
-                      vertical: 5.0,
-                      horizontal:
-                          10.0), // Reduces the height and width of the search bar
+                child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Cari Class Lomba atau Kota',
+                prefixIcon: Icon(Icons.search, color: Colors.black),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20.0),
+                  borderSide: BorderSide.none,
                 ),
-                onSubmitted: (query) {
-                  setState(() {
-                    filteredEvents = events
-                        .where((event) => event['nama_event']
-                            .toLowerCase()
-                            .contains(query.toLowerCase()))
-                        .toList();
-                  });
-                },
+                contentPadding: EdgeInsets.symmetric(
+                  vertical: 5.0,
+                  horizontal: 10.0,
+                ), // Mengurangi tinggi dan lebar search bar
               ),
-            ),
+              onSubmitted: (query) {
+                setState(() {
+                  filteredEvents = events.where((event) {
+                    final namaEvent = event['nama_event'].toLowerCase();
+                    final kotaEvent = event['kota_event'].toLowerCase();
+                    final lowerQuery = query.toLowerCase();
+
+                    // Cari berdasarkan nama_event atau kota_event
+                    return namaEvent.contains(lowerQuery) ||
+                        kotaEvent.contains(lowerQuery);
+                  }).toList();
+                });
+              },
+            )),
             IconButton(
               icon: const Icon(
                 Icons.filter_list_alt,
@@ -349,16 +353,25 @@ class AllCatagoriesState extends State<AllCatagories> {
               itemBuilder: (context, index) {
                 final event = filteredEvents[index];
                 final imageUrl = event['gambar_event'] ??
-                    'assets/images/banner1.png'; // URL gambar fallback
+                    'assets/images/noimage.png'; // URL gambar fallback
 
                 return InkWell(
                   onTap: () {
-                    // Tambahkan aksi jika kartu diklik
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                          content: Text('Klik pada ${event['nama_event']}')),
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EventDetailPage(event: event),
+                      ),
                     );
                   },
+
+                  // onTap: () {
+                  //   // Tambahkan aksi jika kartu diklik
+                  //   ScaffoldMessenger.of(context).showSnackBar(
+                  //     SnackBar(
+                  //         content: Text('Klik pada ${event['nama_event']}')),
+                  //   );
+                  // },
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -405,7 +418,7 @@ class AllCatagoriesState extends State<AllCatagories> {
                               ),
                               const SizedBox(height: 5),
                               Text(
-                                event['lokasi_event'],
+                                event['kota_event'],
                                 style: TextStyle(
                                   fontSize: isSmallScreen ? 14 : 26,
                                 ),

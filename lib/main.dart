@@ -1,5 +1,7 @@
 // User Pages
 import 'package:flutter/material.dart';
+import 'package:pit_box/organizer_pages/organizer_home.dart';
+import 'package:pit_box/race_page/detail_page.dart';
 import 'package:pit_box/user_pages/user_register_page.dart';
 import 'package:pit_box/user_pages/user_login_page.dart';
 import 'package:pit_box/user_pages/user_forgot.dart';
@@ -9,6 +11,7 @@ import 'package:pit_box/user_pages/user_home.dart';
 import 'package:pit_box/organizer_pages/organizer_login_page.dart';
 import 'package:pit_box/organizer_pages/organizer_forgot.dart';
 import 'package:pit_box/organizer_pages/organizer_register_page.dart';
+import 'package:pit_box/organizer_pages/organizer_register_event.dart';
 import 'package:pit_box/organizer_pages/organizer_insert_race.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
@@ -41,7 +44,7 @@ class MyApp extends StatelessWidget {
       // initialRoute: '/loginOrganizer',
       // initialRoute: '/home',
       // initialRoute: '/insertRace',
-      initialRoute: '/login',
+      initialRoute: '/home',
 
       // Organizer Route
       routes: {
@@ -55,7 +58,9 @@ class MyApp extends StatelessWidget {
         '/loginOrganizer': (context) => OrganizerLoginPage(),
         '/forgotOrganizer': (context) => OrganizerForgotPassword(),
         '/registerOrganizer': (context) => OrganizerRegisterPage(),
-        '/insertRace': (context) => EventFormPage(),
+        '/homeOrganizer': (context) => organizerHome(),
+        // '/insertRace': (context) => EventFormPage(),
+        '/insertRace': (context) => OrganizerRegisterEvent(),
       },
     );
   }

@@ -1,6 +1,9 @@
 import 'package:art_sweetalert/art_sweetalert.dart';
 import 'package:flutter/material.dart';
+import 'package:pit_box/components/asset_alert.dart';
 import 'package:pit_box/components/asset_button_login.dart';
+import 'package:pit_box/components/asset_dropdown.dart';
+import 'package:pit_box/components/asset_textarea.dart';
 import 'package:pit_box/components/asset_textfield.dart';
 import 'package:pit_box/components/asset_textfield_password.dart';
 import 'package:pit_box/components/asset_textfield_email.dart';
@@ -15,54 +18,72 @@ class OrganizerRegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<OrganizerRegisterPage> {
-  final teamController = TextEditingController();
+  final namaController = TextEditingController();
   final emailController = TextEditingController();
   final nomortlpnController = TextEditingController();
+  final kotaController = TextEditingController();
   final alamatController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmpasswordController = TextEditingController();
+  String? selectedValue;
+  List<String> regionList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchRegionData();
+  }
 
   // Sign In Method
   void registerPage(BuildContext context) async {
     try {
+      if (namaController.text.isEmpty) {
+        throw Exception('Nama belum diisi');
+      }
+      if (emailController.text.isEmpty) {
+        throw Exception('Email belum diisi');
+      }
+      if (nomortlpnController.text.isEmpty) {
+        throw Exception('Nomor telepon belum diisi');
+      }
+      if (selectedValue == null || selectedValue!.isEmpty) {
+        throw Exception('Kota belum dipilih');
+      }
+      if (alamatController.text.isEmpty) {
+        throw Exception('Alamat belum dipilih');
+      }
+      if (passwordController.text.isEmpty) {
+        throw Exception('Password belum diisi');
+      }
+      if (confirmpasswordController.text.isEmpty) {
+        throw Exception('Konfirmasi password belum diisi');
+      }
+
       final result = await ApiService.registerOrganizer(
-        team: teamController.text,
-        email: emailController.text,
+        nama: namaController.text,
         nomorTelepon: nomortlpnController.text,
+        email: emailController.text,
+        kota: selectedValue!,
         alamat: alamatController.text,
         password: passwordController.text,
         confirmPassword: confirmpasswordController.text,
       );
 
       if (result == true) {
-        // Navigasi ke halaman login setelah sukses registrasi
-        await ArtSweetAlert.show(
-          context: context,
-          artDialogArgs: ArtDialogArgs(
-            type: ArtSweetAlertType.success,
-            title: "Registrasi Berhasil",
-            // text: "Silahkan melakukan login",
-          ),
-        );
-        Navigator.pushReplacementNamed(context, '/loginOrganizer');
+        showCustomDialog(
+            context: context,
+            isSuccess: true,
+            title: 'Registrasi Berhasil',
+            message: Text('Akun berhasil dibuat, silahkan login'),
+            routeName: '/loginOrganizer');
       }
     } catch (e) {
-      // Menampilkan error jika gagal registrasi
-      showDialog(
-        context: context,
-        builder: (BuildContext context) => AlertDialog(
-          title: Text('Gagal Registrasi'),
-          content: Text(e.toString()),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('OK'),
-            ),
-          ],
-        ),
-      );
+      showCustomDialog(
+          context: context,
+          isSuccess: false,
+          title: 'Registrasi Gagal',
+          message: Text(e.toString()),
+          routeName: '/loginOrganizer');
     }
   }
 
@@ -79,6 +100,21 @@ class _RegisterPageState extends State<OrganizerRegisterPage> {
       }
     } catch (e) {
       return false;
+    }
+  }
+
+  Future<void> fetchRegionData() async {
+    try {
+      final result = await ApiService.dataRegion();
+      setState(() {
+        regionList =
+            result.map<String>((region) => region['name'] as String).toList();
+      });
+    } catch (e) {
+      // Menampilkan pesan error jika gagal memuat data
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal memuat data region: $e')),
+      );
     }
   }
 
@@ -112,7 +148,7 @@ class _RegisterPageState extends State<OrganizerRegisterPage> {
 
                 // team textfield
                 MyTextField(
-                  controller: teamController,
+                  controller: namaController,
                   width: width,
                   hintText: 'Nama Tim / Penyelenggara',
                   obScureText: false,
@@ -139,13 +175,28 @@ class _RegisterPageState extends State<OrganizerRegisterPage> {
                 ),
 
                 const SizedBox(height: 15),
-
-                // Alamar textfield
-                MyTextField(
-                  controller: alamatController,
+                // Dropdown for Kota
+                MyDropdown(
+                  hintText: "Pilih Kota",
+                  selectedValue: selectedValue,
                   width: width,
-                  hintText: 'Alamat',
+                  onChanged: (newValue) {
+                    setState(() {
+                      selectedValue = newValue;
+                    });
+                  },
+                  items: regionList,
+                ),
+
+                const SizedBox(height: 15),
+                MyTextArea(
+                  controller: alamatController,
+                  hintText: "Alamat",
                   obScureText: false,
+                  width: width,
+                  maxLines: 3, // Menjadi Text Area dengan 5 baris
+                  keyboardType: TextInputType
+                      .multiline, // Mengatur keyboard agar mendukung multiline
                 ),
 
                 const SizedBox(height: 15),
@@ -181,14 +232,12 @@ class _RegisterPageState extends State<OrganizerRegisterPage> {
                     if (isEmailValid) {
                       registerPage(context);
                     } else {
-                      await ArtSweetAlert.show(
-                        context: context,
-                        artDialogArgs: ArtDialogArgs(
-                          type: ArtSweetAlertType.danger,
-                          // title: "Username sudah digunakan",
-                          text: "Email sudah digunakan",
-                        ),
-                      );
+                      showCustomDialog(
+                          context: context,
+                          isSuccess: false,
+                          title: 'Registrasi Gagal',
+                          message: Text('Email sudah digunakan'),
+                          routeName: '/loginOrganizer');
                     }
                   },
                 ),

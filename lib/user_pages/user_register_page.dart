@@ -1,5 +1,6 @@
 import 'package:art_sweetalert/art_sweetalert.dart';
 import 'package:flutter/material.dart';
+import 'package:pit_box/components/asset_alert.dart';
 import 'package:pit_box/components/asset_button_login.dart';
 import 'package:pit_box/components/asset_textfield.dart';
 import 'package:pit_box/components/asset_textfield_password.dart';
@@ -17,6 +18,7 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   final usernameController = TextEditingController();
+  final namaUserController = TextEditingController();
   final emailController = TextEditingController();
   final nomortlpnController = TextEditingController();
   final kotaController = TextEditingController();
@@ -34,44 +36,54 @@ class _RegisterPageState extends State<RegisterPage> {
   // Sign In Method
   void registerPage(BuildContext context) async {
     try {
+      // Validasi selectedValue sebelum digunakan
+      // Validasi input
+      if (usernameController.text.isEmpty) {
+        throw Exception('Username belum diisi');
+      }
+      if (namaUserController.text.isEmpty) {
+        throw Exception('Nama belum diisi');
+      }
+      if (emailController.text.isEmpty) {
+        throw Exception('Email belum diisi');
+      }
+      if (nomortlpnController.text.isEmpty) {
+        throw Exception('Nomor telepon belum diisi');
+      }
+      if (selectedValue == null || selectedValue!.isEmpty) {
+        throw Exception('Kota belum dipilih');
+      }
+      if (passwordController.text.isEmpty) {
+        throw Exception('Password belum diisi');
+      }
+      if (confirmpasswordController.text.isEmpty) {
+        throw Exception('Konfirmasi password belum diisi');
+      }
       final result = await ApiService.registerUser(
         username: usernameController.text,
+        nama: namaUserController.text,
         email: emailController.text,
         nomorTelepon: nomortlpnController.text,
-        kota: kotaController.text,
+        kota: selectedValue!,
         password: passwordController.text,
         confirmPassword: confirmpasswordController.text,
       );
 
       if (result == true) {
-        // Navigasi ke halaman login setelah sukses registrasi
-        await ArtSweetAlert.show(
-          context: context,
-          artDialogArgs: ArtDialogArgs(
-            type: ArtSweetAlertType.success,
-            title: "Registrasi Berhasil",
-            // text: "Silahkan melakukan login",
-          ),
-        );
-        Navigator.pushReplacementNamed(context, '/login');
+        showCustomDialog(
+            context: context,
+            isSuccess: true,
+            title: 'Registrasi Berhasil',
+            message: Text('Akun berhasil dibuat, silahkan login'),
+            routeName: '/login');
       }
     } catch (e) {
-      // Menampilkan error jika gagal registrasi
-      showDialog(
-        context: context,
-        builder: (BuildContext context) => AlertDialog(
-          title: Text('Gagal Registrasi'),
-          content: Text(e.toString()),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('OK'),
-            ),
-          ],
-        ),
-      );
+      showCustomDialog(
+          context: context,
+          isSuccess: false,
+          title: 'Registrasi Gagal',
+          message: Text(e.toString()),
+          routeName: '/login');
     }
   }
 
@@ -162,6 +174,16 @@ class _RegisterPageState extends State<RegisterPage> {
 
                 const SizedBox(height: 15),
 
+                // Username textfield
+                MyTextField(
+                  controller: namaUserController,
+                  width: width,
+                  hintText: 'Nama',
+                  obScureText: false,
+                ),
+
+                const SizedBox(height: 15),
+
                 // Email textfield
                 EmailTextField(
                   controller: emailController,
@@ -219,8 +241,31 @@ class _RegisterPageState extends State<RegisterPage> {
                 MyButton(
                   width: width,
                   label: "REGISTER",
-                  ontap: () {
-                    registerPage(context);
+                  ontap: () async {
+                    // Panggil cekUsername terlebih dahulu
+
+                    bool isEmailValid = await cekEmail(context);
+                    bool isUsernameValid = await cekUsername(context);
+
+                    if (!isUsernameValid) {
+                      showCustomDialog(
+                        context: context,
+                        isSuccess: false,
+                        title: 'Registrasi Gagal',
+                        message: Text('Username sudah digunakan'),
+                        routeName: '/login',
+                      );
+                    } else if (!isEmailValid) {
+                      showCustomDialog(
+                        context: context,
+                        isSuccess: false,
+                        title: 'Registrasi Gagal',
+                        message: Text('Email sudah digunakan'),
+                        routeName: '/login',
+                      );
+                    } else {
+                      registerPage(context);
+                    }
                   },
                 ),
 

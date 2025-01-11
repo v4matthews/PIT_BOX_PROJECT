@@ -1,13 +1,15 @@
 const express = require('express');
+const multer = require('multer');
 const cors = require('cors');
 const mongoose = require('mongoose');
-const app = express();
 const PORT = 5000;
-const multer = require('multer');
 const { GridFsStorage } = require('multer-gridfs-storage');
 const Grid = require('gridfs-stream');
 const crypto = require('crypto');
 const path = require('path');
+const bodyParser = require('body-parser');
+
+const app = express();
 
 const { format, parseISO } = require('date-fns');
 
@@ -52,21 +54,38 @@ const storage = new GridFsStorage({
 });
 const upload = multer({ storage });
 
+// MongoDB Schema for Event
+const eventSchema = new mongoose.Schema({
+  id_event: { type: String },
+  id_organizer: { type: String },
+  image_event: { type: String },
+  nama_event: { type: String },
+  kategori_event: { type: String },
+  htm_event: { type: Number },
+  tanggal_event: { type: Date },
+  kota_event: { type: String },
+  alamat_event: { type: String },
+  deskripsi_event: { type: String },
+});
+
 // Schema untuk User
 const userSchema = new mongoose.Schema({
+    id_user : { type: String },
     username: { type: String, required: true },
     nama_user: { type: String },
-    alamat_user: { type: String },
+    kota_user: { type: String },
     tlpn_user: { type: String },
     email_user: { type: String },
     password_user: { type: String }
 });
 
 const organizerSchema = new mongoose.Schema({
-    team: { type: String },
+    id_organizer : { type: String },
+    nama_organizer: { type: String },
+    email_organizer: { type: String },
+    kota_organizer: { type: String },
     alamat_organizer: { type: String },
     tlpn_organizer: { type: String },
-    email_organizer: { type: String },
     password_organizer: { type: String }
 });
 
@@ -78,23 +97,11 @@ const regionSchema = new mongoose.Schema({
   longitude: { type: Number }
 });
 
-const eventSchema = new mongoose.Schema({
-  id: { type: String },
-  kategori: { type: String },
-  nama_event: { type: String },
-  htm_event: { type: Number },
-  tanggal_event: { type: Date },
-  lokasi_event: { type: String }
-});
-
 // Mendeklarasikan Model
 const User = mongoose.models.User || mongoose.model('User', userSchema);
 const Organizer = mongoose.models.Organizer || mongoose.model('Organizer', organizerSchema);
 const Region = mongoose.models.Region || mongoose.model('Region', regionSchema);
 const Event = mongoose.models.Event || mongoose.model('Event', eventSchema);
-
-// Secret key untuk JWT (Ganti dengan kunci yang lebih aman di produksi)
-// const JWT_SECRET = '001';
 
 
 // Route Cek Koneksi
@@ -158,9 +165,9 @@ app.post('/loginOrganizer', async (req, res) => {
 
 // Register User DONE
 app.post('/registerUser', async (req, res) => {
-  const { username, nama_user, alamat_user, tlpn_user, email_user, password_user } = req.body;
+  const { id_user, username, nama_user, tlpn_user, email_user, kota_user, password_user } = req.body;
   try {
-    const newItem = new User({ username, nama_user, alamat_user, tlpn_user, email_user, password_user });
+    const newItem = new User({ id_user, username, nama_user, tlpn_user, email_user, kota_user, password_user });
     await newItem.save();
     res.status(201).send("Registrasi berhasil!");
   } catch (err) {
@@ -240,9 +247,9 @@ app.post('/cekEmailOrganizer', async (req, res) => {
 
 // Register Organizer DONE
 app.post('/registerOrganizer', async (req, res) => {
-    const { team, alamat_organizer, tlpn_organizer, email_organizer, password_organizer } = req.body;
+    const { id_organizer, nama_organizer, email_organizer, tlpn_organizer, kota_organizer, alamat_organizer, password_organizer } = req.body;
     try {
-      const newItem = new Organizer({ team, alamat_organizer, tlpn_organizer, email_organizer, password_organizer });
+      const newItem = new Organizer({ id_organizer, nama_organizer, email_organizer, tlpn_organizer, kota_organizer, alamat_organizer, password_organizer });
       await newItem.save();
       res.status(201).send("Registrasi Organizer berhasil!");
     } catch (err) {
@@ -282,104 +289,20 @@ app.get('/getAllCategories', async (req, res) => {
   }
 });
 
-// Get Event STO Categories
-app.get('/getStoCategories', async (req, res) => {
+
+//====================================
+app.post('/insertEvent', async (req, res) => {
+  const { id_event, nama_event, kategori_event, htm_event, tanggal_event, kota_event, alamat_event, deskripsi_event } = req.body;
+  console.log("Ini Nama Event: ", nama_event)
+  console.log("Ini Tanggal Event: ", tanggal_event)
   try {
-    const items = await Event.find({ kategori: "STO" });
-    res.status(200).json(items);
+    const newItem = new Event({ id_event, nama_event, kategori_event, htm_event, tanggal_event, kota_event, alamat_event, deskripsi_event });
+    await newItem.save();
+    res.status(201).send("Event berhasil dibuat");
   } catch (err) {
-    res.status(500).send("Gagal mengambil data: " + err.message);
+    res.status(500).send("Event gagal dibuat: " + err.message);
   }
 });
-
-// Get Event Damper Style Categories
-app.get('/getDsCategories', async (req, res) => {
-  try {
-    const items = await Event.find({ kategori: "DS" });
-    res.status(200).json(items);
-  } catch (err) {
-    res.status(500).send("Gagal mengambil data: " + err.message);
-  }
-});
-
-// Get Event STB Categories
-app.get('/getStbCategories', async (req, res) => {
-  try {
-    const items = await Event.find({ kategori: "STB" });
-    res.status(200).json(items);
-  } catch (err) {
-    res.status(500).send("Gagal mengambil data: " + err.message);
-  }
-});
-
-// Get Event STB UP Categories
-app.get('/getStbUpCategories', async (req, res) => {
-  try {
-    const items = await Event.find({ kategori: "STB UP" });
-    res.status(200).json(items);
-  } catch (err) {
-    res.status(500).send("Gagal mengambil data: " + err.message);
-  }
-});
-
-// Get Event Sloop Categories
-app.get('/getSloopCategories', async (req, res) => {
-  try {
-    const items = await Event.find({ kategori: "SLOOP" });
-    res.status(200).json(items);
-  } catch (err) {
-    res.status(500).send("Gagal mengambil data: " + err.message);
-  }
-});
-
-// Get Event Sloop Categories
-app.get('/getNascarCategories', async (req, res) => {
-  try {
-    const items = await Event.find({ kategori: "NASCAR" });
-    res.status(200).json(items);
-  } catch (err) {
-    res.status(500).send("Gagal mengambil data: " + err.message);
-  }
-});
-
-// Upload Gambar
-app.post('/upload', upload.single('file'), (req, res) => {
-  try {
-    console.log(req.file); // Informasi file yang diupload
-    res.status(200).send("Gambar berhasil diupload!");
-  } catch (err) {
-    res.status(500).send("Terjadi kesalahan saat mengupload gambar.");
-  }
-});
-
-
-// Get Gambar
-app.get('/file/:filename', (req, res) => {
-  gfs.files.findOne({ filename: req.params.filename }, (err, file) => {
-      if (!file || file.length === 0) {
-          return res.status(404).json({ error: 'File tidak ditemukan' });
-      }
-      // Cek apakah file adalah gambar
-      if (file.contentType === 'image/jpeg' || file.contentType === 'image/png') {
-          const readStream = gfs.createReadStream(file.filename);
-          readStream.pipe(res);
-      } else {
-          res.status(400).json({ error: 'Bukan file gambar' });
-      }
-  });
-});
-
-// Delete Gambar
-app.delete('/file/:id', (req, res) => {
-  gfs.remove({ _id: req.params.id, root: 'uploads' }, (err) => {
-      if (err) {
-          return res.status(500).json({ error: err.message });
-      }
-      res.status(200).send('File berhasil dihapus');
-  });
-});
-
-
 
 // Start Server
 app.listen(PORT, () => {
