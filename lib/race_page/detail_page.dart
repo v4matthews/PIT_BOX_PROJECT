@@ -48,11 +48,11 @@ class EventDetailPage extends StatelessWidget {
                       )
                     : Container(
                         color: Colors.grey[300],
-                        child: const Center(
+                        child: Center(
                           child: Text(
                             'Foto Tidak Tersedia',
                             style: TextStyle(
-                              fontSize: 18,
+                              fontSize: isSmallScreen ? 14 : 20,
                               color: Colors.grey,
                             ),
                           ),
@@ -108,7 +108,7 @@ class EventDetailPage extends StatelessWidget {
                     Text(
                       'DAY & TIME',
                       style: TextStyle(
-                        fontSize: isSmallScreen ? 14 : 18,
+                        fontSize: isSmallScreen ? 14 : 20,
                         color: Colors.grey,
                         fontWeight: FontWeight.w300,
                       ),
@@ -117,8 +117,8 @@ class EventDetailPage extends StatelessWidget {
                     Text(
                       '${event['tanggal_event'] ?? 'Tanggal tidak tersedia'}',
                       style: TextStyle(
-                        fontSize: isSmallScreen ? 14 : 18,
-                        fontWeight: FontWeight.w100,
+                        fontSize: isSmallScreen ? 14 : 20,
+                        fontWeight: FontWeight.w400,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -130,7 +130,7 @@ class EventDetailPage extends StatelessWidget {
                     Text(
                       'PRICE',
                       style: TextStyle(
-                        fontSize: isSmallScreen ? 14 : 18,
+                        fontSize: isSmallScreen ? 14 : 20,
                         color: Colors.grey,
                         fontWeight: FontWeight.w300,
                       ),
@@ -138,7 +138,10 @@ class EventDetailPage extends StatelessWidget {
                     const SizedBox(height: 5),
                     Text(
                       'Rp: ${event['htm_event'] ?? '-'}',
-                      style: const TextStyle(fontSize: 14),
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 14 : 20,
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
                   ],
                 ),
@@ -166,7 +169,7 @@ class EventDetailPage extends StatelessWidget {
                     Text(
                       'LOCATION',
                       style: TextStyle(
-                        fontSize: isSmallScreen ? 14 : 18,
+                        fontSize: isSmallScreen ? 14 : 20,
                         color: Colors.grey,
                         fontWeight: FontWeight.w300,
                       ),
@@ -174,12 +177,18 @@ class EventDetailPage extends StatelessWidget {
                     const SizedBox(height: 5),
                     Text(
                       '${event['kota_event']}',
-                      style: const TextStyle(fontSize: 14),
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 14 : 20,
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
                     const SizedBox(height: 5),
                     Text(
                       '${event['alamat_event']}',
-                      style: const TextStyle(fontSize: 14),
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 14 : 20,
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Divider(
@@ -190,7 +199,7 @@ class EventDetailPage extends StatelessWidget {
                     Text(
                       'DESCRIPTION',
                       style: TextStyle(
-                        fontSize: isSmallScreen ? 14 : 18,
+                        fontSize: isSmallScreen ? 14 : 20,
                         color: Colors.grey,
                         fontWeight: FontWeight.w300,
                       ),
@@ -198,7 +207,10 @@ class EventDetailPage extends StatelessWidget {
                     const SizedBox(height: 5),
                     Text(
                       event['deskripsi_event'] ?? '-',
-                      style: const TextStyle(fontSize: 14),
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 14 : 20,
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
                   ],
                 ),
@@ -211,19 +223,19 @@ class EventDetailPage extends StatelessWidget {
       bottomNavigationBar: BottomAppBar(
         color: Colors.white,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
           child: ElevatedButton(
             onPressed: () {
               // Tambahkan aksi untuk tombol "Get Ticket"
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF4A59A9),
-              padding: const EdgeInsets.symmetric(vertical: 12),
+              padding: const EdgeInsets.symmetric(vertical: 5),
             ),
             child: Text(
               'GET TICKET',
               style: TextStyle(
-                  fontSize: isSmallScreen ? 14 : 18, color: Colors.white),
+                  fontSize: isSmallScreen ? 14 : 20, color: Colors.white),
             ),
           ),
         ),

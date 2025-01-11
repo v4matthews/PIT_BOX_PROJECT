@@ -279,177 +279,201 @@ class AllCatagoriesState extends State<AllCatagories> {
     final isSmallScreen = screenWidth < 600;
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back,
-            color: Colors.white, // Set the back button color to white
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(
+              Icons.arrow_back,
+              color: Colors.white, // Set the back button color to white
+            ),
+            onPressed: () {
+              Navigator.pop(context); // Action when back button is pressed
+            },
           ),
-          onPressed: () {
-            Navigator.pop(context); // Action when back button is pressed
-          },
-        ),
-        title: Row(
-          children: [
-            Expanded(
-                child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Cari Class Lomba atau Kota',
-                prefixIcon: Icon(Icons.search, color: Colors.black),
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20.0),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding: EdgeInsets.symmetric(
-                  vertical: 5.0,
-                  horizontal: 10.0,
-                ), // Mengurangi tinggi dan lebar search bar
-              ),
-              onSubmitted: (query) {
-                setState(() {
-                  filteredEvents = events.where((event) {
-                    final namaEvent = event['nama_event'].toLowerCase();
-                    final kotaEvent = event['kota_event'].toLowerCase();
-                    final lowerQuery = query.toLowerCase();
-
-                    // Cari berdasarkan nama_event atau kota_event
-                    return namaEvent.contains(lowerQuery) ||
-                        kotaEvent.contains(lowerQuery);
-                  }).toList();
-                });
-              },
-            )),
-            IconButton(
-              icon: const Icon(
-                Icons.filter_list_alt,
-                color: Colors.white,
-              ),
-              onPressed: () => _showFilterModal(context),
-            ),
-          ],
-        ),
-        backgroundColor: const Color(0xFF4A59A9),
-      ),
-      body: filteredEvents.isEmpty
-          ? Center(
-              child: Text(
-                'Data tidak ditemukan',
-                style: TextStyle(fontSize: 16, color: Colors.grey),
-              ),
-            )
-          : GridView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: filteredEvents.length,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2, // Dua item dalam satu baris
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                childAspectRatio: 0.67,
-              ),
-              itemBuilder: (context, index) {
-                final event = filteredEvents[index];
-                final imageUrl = event['gambar_event'] ??
-                    'assets/images/noimage.png'; // URL gambar fallback
-
-                return InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => EventDetailPage(event: event),
-                      ),
-                    );
-                  },
-
-                  // onTap: () {
-                  //   // Tambahkan aksi jika kartu diklik
-                  //   ScaffoldMessenger.of(context).showSnackBar(
-                  //     SnackBar(
-                  //         content: Text('Klik pada ${event['nama_event']}')),
-                  //   );
-                  // },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.3),
-                          spreadRadius: 2,
-                          blurRadius: 5,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Menampilkan gambar dengan rasio 1.1
-                        AspectRatio(
-                          aspectRatio: 1.1, // Rasio 1.1
-                          child: ClipRRect(
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(12),
-                              topRight: Radius.circular(12),
-                            ),
-                            child: Image.network(
-                              imageUrl,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                event['nama_event'],
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: isSmallScreen ? 16 : 28,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 5),
-                              Text(
-                                event['kota_event'],
-                                style: TextStyle(
-                                  fontSize: isSmallScreen ? 14 : 26,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 5),
-                              Text(
-                                'HTM: Rp ${event['htm_event']}',
-                                style: TextStyle(
-                                  fontSize: isSmallScreen ? 12 : 24,
-                                  color: Colors.grey[700],
-                                ),
-                              ),
-                              const SizedBox(height: 5),
-                              Text(
-                                DateFormat('dd-MMM-yyyy').format(
-                                    DateTime.parse(event['tanggal_event'])),
-                                style: TextStyle(
-                                  fontSize: isSmallScreen ? 12 : 24,
-                                  color: Colors.grey[700],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+          title: Row(
+            children: [
+              Expanded(
+                  child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  hintText: 'Cari Class Lomba atau Kota',
+                  prefixIcon: Icon(Icons.search, color: Colors.black),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20.0),
+                    borderSide: BorderSide.none,
                   ),
-                );
-              },
-            ),
-    );
+                  contentPadding: EdgeInsets.symmetric(
+                    vertical: 5.0,
+                    horizontal: 10.0,
+                  ), // Mengurangi tinggi dan lebar search bar
+                ),
+                onSubmitted: (query) {
+                  setState(() {
+                    filteredEvents = events.where((event) {
+                      final namaEvent = event['nama_event'].toLowerCase();
+                      final kotaEvent = event['kota_event'].toLowerCase();
+                      final lowerQuery = query.toLowerCase();
+
+                      // Cari berdasarkan nama_event atau kota_event
+                      return namaEvent.contains(lowerQuery) ||
+                          kotaEvent.contains(lowerQuery);
+                    }).toList();
+                  });
+                },
+              )),
+              IconButton(
+                icon: const Icon(
+                  Icons.filter_list_alt,
+                  color: Colors.white,
+                ),
+                onPressed: () => _showFilterModal(context),
+              ),
+            ],
+          ),
+          backgroundColor: const Color(0xFF4A59A9),
+        ),
+        body: filteredEvents.isEmpty
+            ? Center(
+                child: Text(
+                  'Data tidak ditemukan',
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                ),
+              )
+            : GridView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: filteredEvents.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2, // Dua item dalam satu baris
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  childAspectRatio: 0.7,
+                ),
+                itemBuilder: (context, index) {
+                  final event = filteredEvents[index];
+                  final String? imageUrl =
+                      event['gambar_event']; // Mengambil URL gambar dari event
+
+                  return InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => EventDetailPage(event: event),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.3),
+                            spreadRadius: 2,
+                            blurRadius: 5,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Menampilkan gambar dengan rasio 1.1
+                          AspectRatio(
+                            aspectRatio: 1.1, // Rasio 1.1
+                            child: ClipRRect(
+                              borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(12),
+                                topRight: Radius.circular(12),
+                              ),
+                              child: imageUrl != null && imageUrl.isNotEmpty
+                                  ? Image.network(
+                                      imageUrl,
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
+                                      loadingBuilder:
+                                          (context, child, loadingProgress) {
+                                        if (loadingProgress == null) {
+                                          return child;
+                                        } else {
+                                          return Center(
+                                            child: CircularProgressIndicator(
+                                              value: loadingProgress
+                                                          .expectedTotalBytes !=
+                                                      null
+                                                  ? loadingProgress
+                                                          .cumulativeBytesLoaded /
+                                                      (loadingProgress
+                                                              .expectedTotalBytes ??
+                                                          1)
+                                                  : null,
+                                            ),
+                                          );
+                                        }
+                                      },
+                                    )
+                                  : Container(
+                                      color: Colors.grey[300],
+                                      child: Center(
+                                        child: Text(
+                                          'Foto Tidak Tersedia',
+                                          style: TextStyle(
+                                            fontSize: isSmallScreen ? 14 : 20,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  event['nama_event'],
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: isSmallScreen ? 14 : 24,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 5),
+                                Text(
+                                  event['kota_event'],
+                                  style: TextStyle(
+                                    fontSize: isSmallScreen ? 12 : 20,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 5),
+                                Text(
+                                  'HTM: Rp ${event['htm_event']}',
+                                  style: TextStyle(
+                                    fontSize: isSmallScreen ? 12 : 20,
+                                    color: Colors.grey[700],
+                                  ),
+                                ),
+                                const SizedBox(height: 5),
+                                Text(
+                                  DateFormat('dd-MMM-yyyy').format(
+                                      DateTime.parse(event['tanggal_event'])),
+                                  style: TextStyle(
+                                    fontSize: isSmallScreen ? 12 : 20,
+                                    color: Colors.grey[700],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ));
   }
 }

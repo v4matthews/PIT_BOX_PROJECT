@@ -6,9 +6,9 @@ import 'package:uuid/uuid.dart';
 
 class ApiService {
   // URL Base untuk API server Anda
-  // static const String _baseUrl =
-  //     'https://pit-box-project-backend-452431537344.us-central1.run.app';
-  static const String _baseUrl = 'http://localhost:5000';
+  static const String _baseUrl =
+      'https://pit-box-project-backend-452431537344.us-central1.run.app';
+  // static const String _baseUrl = 'http://localhost:5000';
 
   // Endpoint API
   static const String _registerUserEndpoint = '/registerUser';
