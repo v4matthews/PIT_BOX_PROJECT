@@ -459,8 +459,10 @@ class AllCatagoriesState extends State<AllCatagories> {
                                 ),
                                 const SizedBox(height: 5),
                                 Text(
-                                  DateFormat('dd-MMM-yyyy').format(
-                                      DateTime.parse(event['tanggal_event'])),
+                                  (event['tanggal_event'] != null &&
+                                          event['waktu_event'] != null)
+                                      ? '${DateFormat('dd-MMM-yyyy').format(DateTime.parse(event['tanggal_event']))} ${event['waktu_event']}'
+                                      : '-',
                                   style: TextStyle(
                                     fontSize: isSmallScreen ? 12 : 20,
                                     color: Colors.grey[700],

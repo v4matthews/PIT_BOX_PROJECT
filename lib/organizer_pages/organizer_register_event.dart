@@ -22,6 +22,7 @@ class OrganizerRegisterEvent extends StatefulWidget {
 class _RegisterPageState extends State<OrganizerRegisterEvent> {
   final TextEditingController namaEventController = TextEditingController();
   // TextEditingController kategoriController = TextEditingController();
+  final TextEditingController waktuController = TextEditingController();
   final TextEditingController htmController = TextEditingController();
   final TextEditingController tanggalController = TextEditingController();
   final TextEditingController kotaController = TextEditingController();
@@ -31,6 +32,7 @@ class _RegisterPageState extends State<OrganizerRegisterEvent> {
   String? selectedValue;
   String? kategoriController;
   DateTime? selectedDate;
+  TimeOfDay? selectedTime;
   List<String> regionList = [];
 
   @override
@@ -65,14 +67,14 @@ class _RegisterPageState extends State<OrganizerRegisterEvent> {
       }
 
       final result = await ApiService.insertEvent(
-        nama: namaEventController.text,
-        kategori: kategoriController!,
-        htm: htmController.text,
-        kota: selectedValue!,
-        tanggal: tanggalController.text,
-        alamat: alamatController.text,
-        deskripsi: deskripsiController.text,
-      );
+          nama: namaEventController.text,
+          kategori: kategoriController!,
+          htm: htmController.text,
+          kota: selectedValue!,
+          tanggal: tanggalController.text,
+          alamat: alamatController.text,
+          deskripsi: deskripsiController.text,
+          waktu: waktuController.text);
 
       if (result == true) {
         showCustomDialog(
@@ -104,6 +106,20 @@ class _RegisterPageState extends State<OrganizerRegisterEvent> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Gagal memuat data region: $e')),
       );
+    }
+  }
+
+  void pickTime() async {
+    final time = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+
+    if (time != null) {
+      setState(() {
+        selectedTime = time;
+        waktuController.text = time.format(context);
+      });
     }
   }
 
@@ -196,6 +212,25 @@ class _RegisterPageState extends State<OrganizerRegisterEvent> {
                       tanggalController.text = formattedDate;
                     });
                   },
+                ),
+
+                SizedBox(height: 16),
+                // Time Picker
+                GestureDetector(
+                  onTap: pickTime,
+                  child: AbsorbPointer(
+                    child: MyTextField(
+                      controller: waktuController,
+                      width: width,
+                      hintText: 'Waktu Event',
+                      obScureText: false,
+                      suffixIcon: Icons.access_time,
+                      onSuffixIconTap: () {
+                        print("Ikon jam ditekan!");
+                        // Tambahkan logika, seperti membuka pemilih waktu
+                      },
+                    ),
+                  ),
                 ),
 
                 SizedBox(height: 16),

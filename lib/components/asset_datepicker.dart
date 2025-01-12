@@ -45,7 +45,10 @@ class MyDateField extends StatelessWidget {
             hintStyle: TextStyle(
               color: Colors.grey[500], // Warna hint teks
             ),
-            suffixIcon: Icon(Icons.calendar_today), // Ikon kalender
+            suffixIcon: Icon(
+              Icons.calendar_today,
+              color: Colors.grey[600],
+            ), // Ikon kalender
           ),
           onTap: () async {
             final pickedDate = await showDatePicker(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class EventDetailPage extends StatelessWidget {
   final Map<String, dynamic> event;
@@ -115,7 +116,10 @@ class EventDetailPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 5),
                     Text(
-                      '${event['tanggal_event'] ?? 'Tanggal tidak tersedia'}',
+                      (event['tanggal_event'] != null &&
+                              event['waktu_event'] != null)
+                          ? '${DateFormat('dd-MMM-yyyy').format(DateTime.parse(event['tanggal_event']))} | ${event['waktu_event']}'
+                          : '-',
                       style: TextStyle(
                         fontSize: isSmallScreen ? 14 : 20,
                         fontWeight: FontWeight.w400,

@@ -2,7 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const cors = require('cors');
 const mongoose = require('mongoose');
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 const { GridFsStorage } = require('multer-gridfs-storage');
 const Grid = require('gridfs-stream');
 const crypto = require('crypto');
@@ -63,6 +63,7 @@ const eventSchema = new mongoose.Schema({
   kategori_event: { type: String },
   htm_event: { type: Number },
   tanggal_event: { type: Date },
+  waktu_event: { type: String },
   kota_event: { type: String },
   alamat_event: { type: String },
   deskripsi_event: { type: String },
@@ -292,11 +293,12 @@ app.get('/getAllCategories', async (req, res) => {
 
 //====================================
 app.post('/insertEvent', async (req, res) => {
-  const { id_event, nama_event, kategori_event, htm_event, tanggal_event, kota_event, alamat_event, deskripsi_event } = req.body;
+  const { id_event, nama_event, kategori_event, htm_event, tanggal_event, waktu_event, kota_event, alamat_event, deskripsi_event } = req.body;
   console.log("Ini Nama Event: ", nama_event)
   console.log("Ini Tanggal Event: ", tanggal_event)
+  console.log("Ini Waktu Event: ", waktu_event)
   try {
-    const newItem = new Event({ id_event, nama_event, kategori_event, htm_event, tanggal_event, kota_event, alamat_event, deskripsi_event });
+    const newItem = new Event({ id_event, nama_event, kategori_event, htm_event, tanggal_event, waktu_event, kota_event, alamat_event, deskripsi_event });
     await newItem.save();
     res.status(201).send("Event berhasil dibuat");
   } catch (err) {
