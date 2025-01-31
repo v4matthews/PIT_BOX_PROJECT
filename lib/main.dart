@@ -1,11 +1,11 @@
-// User Pages
 import 'package:flutter/material.dart';
 import 'package:pit_box/organizer_pages/organizer_home.dart';
 import 'package:pit_box/race_page/detail_page.dart';
+import 'package:pit_box/session_service.dart';
 import 'package:pit_box/user_pages/user_register_page.dart';
 import 'package:pit_box/user_pages/user_login_page.dart';
 import 'package:pit_box/user_pages/user_forgot.dart';
-import 'package:pit_box/user_pages/user_home.dart';
+import 'package:pit_box/user_pages/user_home_page.dart';
 
 // Organizer Pages
 import 'package:pit_box/organizer_pages/organizer_login_page.dart';
@@ -17,11 +17,20 @@ import 'package:responsive_framework/responsive_framework.dart';
 
 import 'package:pit_box/race_page/test.dart';
 
-void main() {
-  runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  bool isLoggedIn = await SessionService.isLoggedIn();
+
+  runApp(MyApp(
+    initialRoute: isLoggedIn ? '/home' : '/login',
+  ));
 }
 
 class MyApp extends StatelessWidget {
+  final String initialRoute;
+
+  MyApp({required this.initialRoute});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -37,37 +46,17 @@ class MyApp extends StatelessWidget {
         ],
         background: Container(color: Colors.grey[300]),
       ),
-      // title: 'Pit Box',
-      // theme: ThemeData(
-      //   primarySwatch: Colors.blue,
-      // ),
-
-      // initialRoute: '/register',
-      // initialRoute: '/loginOrganizer',
-      // initialRoute: '/home',
-      // initialRoute: '/insertRace',
-      initialRoute: '/login',
-
-      // Organizer Route
+      initialRoute: initialRoute,
       routes: {
-        // User Route
         '/register': (context) => RegisterPage(),
         '/login': (context) => LoginPage(),
         '/home': (context) => UserHome(),
         '/forgotUser': (context) => UserForgetPassword(),
-
-        // Organizer Route
         '/loginOrganizer': (context) => OrganizerLoginPage(),
         '/forgotOrganizer': (context) => OrganizerForgotPassword(),
         '/registerOrganizer': (context) => OrganizerRegisterPage(),
         '/homeOrganizer': (context) => organizerHome(),
-        // '/insertRace': (context) => EventFormPage(),
         '/insertRace': (context) => OrganizerRegisterEvent(),
-
-        // '/test': (context) => CustomCard(
-        //       title: 'omg',
-        //       description: 'omg too',
-        //     ),
       },
     );
   }

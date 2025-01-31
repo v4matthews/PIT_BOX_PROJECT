@@ -40,6 +40,10 @@ dependencies:
   image_picker: ^0.8.6
   responsive_framework: ^0.2.0
   carousel_slider: ^5.0.0
+  shared_preferences: ^2.0.6
+  midtrans_sdk: ^0.4.0
+  url_launcher: ^6.0.20
+  webview_flutter: ^2.0.10
 
 dev_dependencies:
   flutter_test:
@@ -58,7 +62,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
-  #   - images/a_dot_ham.jpeg
+  #   - images/a_dot_ham.jpg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
   # For details regarding adding assets from package dependencies, see

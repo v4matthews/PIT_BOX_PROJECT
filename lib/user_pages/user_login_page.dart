@@ -1,4 +1,3 @@
-import 'package:art_sweetalert/art_sweetalert.dart';
 import 'package:flutter/material.dart';
 import 'package:pit_box/api_service.dart';
 import 'package:pit_box/components/asset_alert.dart';
@@ -6,6 +5,7 @@ import 'package:pit_box/components/asset_button_login.dart';
 import 'package:pit_box/components/asset_textfield.dart';
 import 'package:pit_box/components/asset_textfield_password.dart';
 import 'package:pit_box/components/square_tile.dart';
+import 'package:pit_box/session_service.dart';
 
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
@@ -22,28 +22,32 @@ class LoginPage extends StatelessWidget {
       if (passwordController.text.isEmpty) {
         throw Exception('Password belum diisi');
       }
-      // Mengambil username dan password dari controller
+
       final response = await ApiService.loginUser(
-        username: usernameController.text, // Menggunakan email sebagai username
+        username: usernameController.text,
         password: passwordController.text,
       );
 
-      // Jika login berhasil, arahkan ke halaman utama
       if (response.isNotEmpty) {
+        // Simpan session login
+        await SessionService.saveLoginSession(usernameController.text);
+
         showCustomDialog(
-            context: context,
-            isSuccess: true,
-            title: 'Login Berhasil',
-            message: Text('Selamat datang di PITBOX!'),
-            routeName: '/home');
+          context: context,
+          isSuccess: true,
+          title: 'Login Berhasil',
+          message: Text('Selamat datang di PITBOX!'),
+          routeName: '/home',
+        );
       }
     } catch (e) {
       showCustomDialog(
-          context: context,
-          isSuccess: false,
-          title: 'Login Gagal',
-          message: Text(e.toString()),
-          routeName: '/home');
+        context: context,
+        isSuccess: false,
+        title: 'Login Gagal',
+        message: Text(e.toString()),
+        routeName: '/home',
+      );
     }
   }
 

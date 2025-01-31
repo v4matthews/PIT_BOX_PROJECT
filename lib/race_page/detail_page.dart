@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:pit_box/api_service.dart';
+import 'package:pit_box/webview_page.dart';
 
 class EventDetailPage extends StatelessWidget {
   final Map<String, dynamic> event;
@@ -15,9 +17,9 @@ class EventDetailPage extends StatelessWidget {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: const Color(0xFF4A59A9),
-        title: Text(
+        title: const Text(
           'DETAIL EVENT',
-          style: const TextStyle(
+          style: TextStyle(
             color: Colors.white,
             fontSize: 18,
             fontWeight: FontWeight.bold, // Set the title text color to white
@@ -65,7 +67,7 @@ class EventDetailPage extends StatelessWidget {
 
             // Nama Event
             Padding(
-              padding: EdgeInsets.symmetric(
+              padding: const EdgeInsets.symmetric(
                   horizontal: 18.0, vertical: 6.0), // Reduced vertical padding
               child: Text(
                 event['nama_event'] ?? 'Nama Race',
@@ -76,7 +78,7 @@ class EventDetailPage extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: EdgeInsets.symmetric(
+              padding: const EdgeInsets.symmetric(
                   horizontal: 18.0, vertical: 2.0), // Reduced vertical padding
               child: Text(
                 'Class: ${event['kategori_event'] ?? '-'}',
@@ -96,7 +98,7 @@ class EventDetailPage extends StatelessWidget {
                   BoxShadow(
                     color: Colors.black26,
                     blurRadius: 6.0, // Radius blur
-                    offset: Offset(3, 3), // Posisi bayangan (x, y)
+                    offset: const Offset(3, 3), // Posisi bayangan (x, y)
                   ),
                 ],
               ),
@@ -160,7 +162,7 @@ class EventDetailPage extends StatelessWidget {
                   BoxShadow(
                     color: Colors.black26,
                     blurRadius: 6.0, // Radius blur
-                    offset: Offset(3, 3), // Posisi bayangan (x, y)
+                    offset: const Offset(3, 3), // Posisi bayangan (x, y)
                   ),
                 ],
               ),
@@ -229,9 +231,7 @@ class EventDetailPage extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
           child: ElevatedButton(
-            onPressed: () {
-              // Tambahkan aksi untuk tombol "Get Ticket"
-            },
+            onPressed: () => _getTicket(context),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF4A59A9),
               padding: const EdgeInsets.symmetric(vertical: 5),
@@ -239,11 +239,40 @@ class EventDetailPage extends StatelessWidget {
             child: Text(
               'GET TICKET',
               style: TextStyle(
-                  fontSize: isSmallScreen ? 14 : 20, color: Colors.white),
+                fontSize: isSmallScreen ? 14 : 20,
+                color: Colors.white,
+              ),
             ),
           ),
         ),
       ),
     );
+  }
+
+  Future<void> _getTicket(BuildContext context) async {
+    final transactionData = {
+      "id_event": event['id_event'],
+      "nama_event": event['nama_event'],
+      "htm_event": event['htm_event'],
+      "nama_user": "Nama User", // Replace with actual user name
+      "email_user": "user@example.com", // Replace with actual user email
+    };
+
+    final redirectUrl = await ApiService.createTransaction(transactionData);
+
+    if (redirectUrl != null) {
+      // Open the payment URL in a webview or browser
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => WebViewPage(url: redirectUrl),
+        ),
+      );
+    } else {
+      // Handle error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to create transaction')),
+      );
+    }
   }
 }

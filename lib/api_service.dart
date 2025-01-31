@@ -26,6 +26,8 @@ class ApiService {
   static const String _forgetOrganizerEndpoint = '/forgetOrganizerEndpoint';
   static const String _insertEventEndpoint = '/insertEvent';
 
+  static const String _createTransactionEndpoint = '/create-transaction';
+
   // Helper untuk membuat header
   static Map<String, String> _jsonHeaders() => {
         'Content-Type': 'application/json',
@@ -42,6 +44,21 @@ class ApiService {
   static Future<http.Response> _getRequest(String endpoint) async {
     final url = Uri.parse(_baseUrl + endpoint);
     return await http.get(url, headers: _jsonHeaders());
+  }
+
+  // Fungsi untuk membuat transaksi
+  static Future<String?> createTransaction(
+      Map<String, dynamic> transactionData) async {
+    final response =
+        await _postRequest(_createTransactionEndpoint, transactionData);
+
+    if (response.statusCode == 201) {
+      final responseData = json.decode(response.body);
+      return responseData['redirect_url'];
+    } else {
+      print('Failed to create transaction: ${response.body}');
+      return null;
+    }
   }
 
   // Fungsi Registrasi User
@@ -346,6 +363,36 @@ class ApiService {
       return true;
     } else {
       throw Exception('Gagal menambahkan event: ${response.body}');
+    }
+  }
+
+  //=================================
+
+  static Future<Map<String, dynamic>> getFilteredEvents({
+    String? category,
+    String? location,
+    String? date1,
+    String? date2,
+    int page = 1,
+    int limit = 10,
+  }) async {
+    final url =
+        Uri.parse('$_baseUrl/getFilteredEvents').replace(queryParameters: {
+      if (category != null) 'category': category,
+      if (location != null) 'location': location,
+      if (date1 != null) 'date1': date1,
+      if (date2 != null) 'date2': date2,
+      'page': page.toString(),
+      'limit': limit.toString(),
+    });
+
+    final response = await http.get(url, headers: _jsonHeaders());
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      return data;
+    } else {
+      throw Exception('Gagal memuat data yang difilter: ${response.body}');
     }
   }
 }
