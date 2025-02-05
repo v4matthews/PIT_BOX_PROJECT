@@ -1,21 +1,19 @@
 import 'package:flutter/material.dart';
 
-class MyDropdown extends StatelessWidget {
+class AssetDropdown extends StatelessWidget {
   final String hintText;
-  final List<String> items; // Daftar item dropdown
-  final String? selectedValue; // Nilai terpilih
-  final ValueChanged<String?> onChanged; // Callback ketika nilai berubah
+  final List<String> items;
+  final String? selectedValue;
+  final ValueChanged<String?> onChanged;
   final double width;
-  final IconData? suffixIcon;
 
-  const MyDropdown({
+  const AssetDropdown({
     super.key,
     required this.hintText,
     required this.items,
-    required this.selectedValue,
+    this.selectedValue,
     required this.onChanged,
-    this.width = 500,
-    this.suffixIcon = Icons.arrow_drop_down, // Default ikon dropdown
+    this.width = 500, // Default width
   });
 
   @override
@@ -24,48 +22,37 @@ class MyDropdown extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: ConstrainedBox(
         constraints: BoxConstraints(
-          maxWidth: width,
-          maxHeight: 50,
+          maxWidth: width, // Match width
+          maxHeight: 50, // Match height
         ),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: Colors.grey.shade200, // Warna latar belakang
-            borderRadius: BorderRadius.circular(12),
-
-            // border: Border.all(
-            //   color: Colors.grey.shade300, // Warna border
-            //   width: 0,
-            // ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-                value: selectedValue,
-                hint: Text(
-                  hintText,
-                  style: TextStyle(color: Colors.grey[500]),
-                ),
-                icon: Icon(
-                  suffixIcon,
-                  color: Colors.grey[600],
-                ),
-                items: items
-                    .map(
-                      (item) => DropdownMenuItem<String>(
-                        value: item,
-                        child: Text(
-                          item,
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ),
-                    )
-                    .toList(),
-                onChanged: onChanged,
-                isExpanded: true, // Dropdown mengisi lebar penuh
-              ),
+        child: DropdownButtonFormField<String>(
+          value: selectedValue,
+          onChanged: onChanged,
+          decoration: InputDecoration(
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey.shade600),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey.shade400),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            fillColor: Colors.white,
+            filled: true,
+            labelText: hintText,
+            labelStyle: TextStyle(
+              color: Colors.grey[500],
             ),
           ),
+          dropdownColor: Colors.white,
+          items: items
+              .map(
+                (item) => DropdownMenuItem<String>(
+                  value: item,
+                  child: Text(item),
+                ),
+              )
+              .toList(),
         ),
       ),
     );

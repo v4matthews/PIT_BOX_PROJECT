@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pit_box/components/asset_icon_shortcut.dart';
 import 'package:pit_box/components/asset_navbar.dart';
+import 'package:pit_box/components/asset_warna.dart';
 import 'package:pit_box/session_service.dart'; // Import SessionService
 import 'package:pit_box/race_page/all_page.dart';
 import 'package:pit_box/user_pages/user_login_page.dart'; // Kategori Page
@@ -40,8 +41,10 @@ class _HomePageState extends State<HomePage> {
 
   void _getUserInfo() async {
     String name = await SessionService.getUsername() ?? 'Default Name';
+    final lokasi = await SessionService.getUserData();
     setState(() {
       userName = name;
+      userLocation = lokasi['kota_user'] ?? '';
     });
   }
 
@@ -53,40 +56,39 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.backgroundSecondary,
       body: SafeArea(
         child: Column(
           children: [
             _buildHeader(),
+            _buildCarousel(),
             _buildContent(),
           ],
         ),
       ),
-      bottomNavigationBar: MyNavbar(),
     );
   }
 
   Widget _buildHeader() {
     return Container(
-      height: 250,
-      color: Color(0xFF4A59A9),
-      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      height: 120,
+      color: AppColors.primaryColor,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildUserInfo(),
-          SizedBox(height: 50),
-          _buildSearchBar(),
         ],
       ),
     );
   }
 
   Widget _buildUserInfo() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 600;
     return Padding(
-      padding: const EdgeInsets.symmetric(
-          horizontal: 16.0), // Padding kanan dan kiri
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -94,18 +96,18 @@ class _HomePageState extends State<HomePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Halo, $userName',
+                'Halo, $userName', //Nanti rubah jadi nama
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 20,
+                  fontSize: isSmallScreen ? 20 : 24,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               Text(
-                userLocation,
+                userLocation, //Nanti rubah jadi lokasi
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 16,
+                  fontSize: isSmallScreen ? 16 : 20,
                 ),
               ),
             ],
@@ -119,51 +121,58 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildSearchBar() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-          horizontal: 16.0), // Padding kanan dan kiri
-      child: Row(
+  Widget _buildCarousel() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 800;
+    final double screenHeight = MediaQuery.of(context).size.height;
+    final double carouselHeight = isSmallScreen
+        ? screenHeight * 0.2
+        : screenHeight * 0.3; // Adjusted height
+    return Container(
+      height: carouselHeight,
+      child: PageView(
         children: [
-          // Tombol tiket
-          Container(
-            height: 48,
-            width: 48,
-            decoration: BoxDecoration(
-              color: Color(0xFFFFC700),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: IconButton(
-              icon: Icon(
-                Icons.confirmation_number_outlined,
-                color: Colors.black,
-              ),
-              onPressed: () {
-                // Handle ticket button press
-              },
-            ),
+          Image.asset(
+            'assets/images/banner_imlek.jpg',
+            fit: BoxFit.cover,
           ),
-          SizedBox(width: 10), // Jarak antara tombol tiket dan TextField
-          // Kolom pencarian
-          Expanded(
-            child: TextField(
-              onChanged: (value) {
-                // Implement your filter logic here
-              },
-              decoration: InputDecoration(
-                hintText: 'Search...',
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                prefixIcon: Icon(Icons.search),
-              ),
-            ),
+          Image.asset(
+            'assets/images/banner.png',
+            fit: BoxFit.cover,
           ),
         ],
       ),
+    );
+  }
+
+  // Fungsi untuk membangun GridView
+  Widget _buildGrid(List items, int crossAxisCount) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: items.length,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+      ),
+      itemBuilder: (context, index) {
+        return GestureDetector(
+          onTap: () {
+            if (index < items.length) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AllCatagories(
+                    selectedClass: index == 0 ? null : items[index].label,
+                  ),
+                ),
+              );
+            }
+          },
+          child: items[index],
+        );
+      },
     );
   }
 
@@ -190,193 +199,40 @@ class _HomePageState extends State<HomePage> {
     ];
 
     return Expanded(
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Container untuk Card
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-              ),
-              width: double.infinity,
-              padding:
-                  EdgeInsets.only(top: 30, left: 16, right: 16, bottom: 30),
-              child: Column(
-                children: [
-                  // Grid Items
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemCount: items.length,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 4,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                    ),
-                    itemBuilder: (context, index) {
-                      return GestureDetector(
-                        onTap: () {
-                          if (index < 7) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => AllCatagories(
-                                  selectedClass:
-                                      index == 0 ? null : items[index].label,
-                                ),
-                              ),
-                            );
-                          }
-                        },
-                        child: items[index],
-                      );
-                    },
-                  ),
-                  SizedBox(height: 30),
+      child: ListView(
+        padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 16),
+        children: [
+          // Container untuk Card
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 30),
+            child: _buildGrid(items, 4),
+          ),
 
-                  // Card Section
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        // Card 1
-                        Container(
-                          width: (MediaQuery.of(context).size.width - 64) / 2,
-                          child: Card(
-                            color: Colors.white,
-                            elevation: 5,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
-                              side: BorderSide(color: Colors.grey, width: 1),
-                            ),
-                            child: Container(
-                              height: isSmallScreen ? 100 : 130,
-                              padding: EdgeInsets.only(left: 30),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    'Point Anda',
-                                    style: TextStyle(
-                                      fontSize: isSmallScreen ? 18 : 24,
-                                      fontWeight: FontWeight.w300,
-                                    ),
-                                  ),
-                                  Text(
-                                    '0',
-                                    style: TextStyle(
-                                      fontSize: isSmallScreen ? 24 : 30,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        // Card 2
-                        Container(
-                          width: (MediaQuery.of(context).size.width - 64) / 2,
-                          child: Card(
-                            color: Colors.white,
-                            elevation: 5,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
-                              side: BorderSide(color: Colors.grey, width: 1),
-                            ),
-                            child: Container(
-                              height: isSmallScreen ? 100 : 130,
-                              padding: EdgeInsets.all(20),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    'Anda belum memiliki jadwal perlombaan',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w300,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 35.0, vertical: 20),
-              child: Row(
-                children: [
-                  // Tulisan "Category"
-                  Text(
-                    'Category',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(width: 8), // Jarak antara teks dan garis
-                  // Garis horizontal
-                  Expanded(
-                    child: Container(
-                      height: 2, // Tinggi garis
-                      color: Colors.grey, // Warna garis
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Grid View Category
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-              ),
-              width: double.infinity,
-              padding: EdgeInsets.all(16),
-              child: GridView.builder(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                itemCount: categoryItems.length,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 4,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
+          // Category Header
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            child: Row(
+              children: [
+                const Text(
+                  'Category',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () {
-                      if (index < 8) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => AllCatagories(
-                              selectedClass: index == 0
-                                  ? null
-                                  : categoryItems[index].label,
-                            ),
-                          ),
-                        );
-                      }
-                    },
-                    child: categoryItems[index],
-                  );
-                },
-              ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Container(height: 2, color: Colors.grey),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+
+          // GridView Category
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.only(top: 20),
+            child: _buildGrid(categoryItems, 4),
+          ),
+        ],
       ),
     );
   }

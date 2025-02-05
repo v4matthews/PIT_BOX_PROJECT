@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pit_box/api_service.dart';
 import 'package:intl/intl.dart';
 import 'package:pit_box/race_page/detail_page.dart';
+import 'package:pit_box/user_pages/user_home_page.dart';
 
 class AllCatagories extends StatefulWidget {
   final String? selectedClass;
@@ -15,7 +16,7 @@ class AllCatagories extends StatefulWidget {
 class AllCatagoriesState extends State<AllCatagories> {
   int currentPage = 1;
   int totalPages = 1;
-  final int itemsPerPage = 10; // Jumlah item per halaman
+  final int itemsPerPage = 10;
   bool isLoadingMore = false;
 
   final TextEditingController _searchController = TextEditingController();
@@ -23,8 +24,8 @@ class AllCatagoriesState extends State<AllCatagories> {
   final TextEditingController _dateController2 = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
-  List events = []; // Data lomba dari API
-  List filteredEvents = []; // Data lomba yang telah difilter
+  List events = [];
+  List filteredEvents = [];
   List<String> regionList = [];
 
   String? selectedClass;
@@ -38,7 +39,7 @@ class AllCatagoriesState extends State<AllCatagories> {
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(_onScroll); // Tambahkan listener untuk scroll
+    _scrollController.addListener(_onScroll);
     fetchEvents();
     fetchRegionData();
   }
@@ -46,13 +47,13 @@ class AllCatagoriesState extends State<AllCatagories> {
   void _onScroll() {
     if (_scrollController.position.pixels ==
         _scrollController.position.maxScrollExtent) {
-      loadMoreEvents(); // Memuat data tambahan saat mencapai bagian bawah
+      loadMoreEvents();
     }
   }
 
   @override
   void dispose() {
-    _scrollController.dispose(); // Jangan lupa untuk dispose controller
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -60,7 +61,7 @@ class AllCatagoriesState extends State<AllCatagories> {
     setState(() {
       isLoading = true;
       isError = false;
-      currentPage = 1; // Reset halaman ke 1 saat filter berubah
+      currentPage = 1;
     });
     try {
       final response = await ApiService.getFilteredEvents(
@@ -88,7 +89,7 @@ class AllCatagoriesState extends State<AllCatagories> {
   void filterEvents() async {
     setState(() {
       isLoading = true;
-      currentPage = 1; // Reset halaman ke 1 saat filter berubah
+      currentPage = 1;
     });
     try {
       final response = await ApiService.getFilteredEvents(
@@ -146,8 +147,9 @@ class AllCatagoriesState extends State<AllCatagories> {
   }
 
   Future<void> _showFilterModal(BuildContext context) async {
-    double screenWidth = MediaQuery.of(context).size.width;
-    bool isSmallScreen = screenWidth < 600;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 600;
+    final isMediumScreen = screenWidth >= 600 && screenWidth < 1024;
 
     showModalBottomSheet(
       context: context,
@@ -344,246 +346,265 @@ class AllCatagoriesState extends State<AllCatagories> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isSmallScreen = screenWidth < 600;
+    final isMediumScreen = screenWidth >= 600 && screenWidth < 1024;
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back,
-            color: Colors.white,
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  UserHome()), // Replace with your target page
+        );
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(
+              Icons.arrow_back,
+              color: Colors.white,  
+            ),
+            onPressed: () {
+              Navigator.pop(context);
+            },
           ),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        title: Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _searchController,
-                decoration: InputDecoration(
-                  hintText: 'Cari Class Lomba atau Kota',
-                  prefixIcon: Icon(Icons.search, color: Colors.black),
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20.0),
-                    borderSide: BorderSide.none,
+          title: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: 'Cari Class Lomba atau Kota',
+                    prefixIcon: Icon(Icons.search, color: Colors.black),
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: EdgeInsets.symmetric(
+                      vertical: 5.0,
+                      horizontal: 10.0,
+                    ),
                   ),
-                  contentPadding: EdgeInsets.symmetric(
-                    vertical: 5.0,
-                    horizontal: 10.0,
-                  ),
+                  onSubmitted: (query) {
+                    setState(() {
+                      filteredEvents = events.where((event) {
+                        final namaEvent = event['nama_event'].toLowerCase();
+                        final kotaEvent = event['kota_event'].toLowerCase();
+                        final lowerQuery = query.toLowerCase();
+
+                        return namaEvent.contains(lowerQuery) ||
+                            kotaEvent.contains(lowerQuery);
+                      }).toList();
+                    });
+                  },
                 ),
-                onSubmitted: (query) {
-                  setState(() {
-                    filteredEvents = events.where((event) {
-                      final namaEvent = event['nama_event'].toLowerCase();
-                      final kotaEvent = event['kota_event'].toLowerCase();
-                      final lowerQuery = query.toLowerCase();
-
-                      return namaEvent.contains(lowerQuery) ||
-                          kotaEvent.contains(lowerQuery);
-                    }).toList();
-                  });
-                },
               ),
-            ),
-            IconButton(
-              icon: const Icon(
-                Icons.filter_list_alt,
-                color: Colors.white,
+              IconButton(
+                icon: const Icon(
+                  Icons.filter_list_alt,
+                  color: Colors.white,
+                ),
+                onPressed: () => _showFilterModal(context),
               ),
-              onPressed: () => _showFilterModal(context),
-            ),
-          ],
+            ],
+          ),
+          backgroundColor: const Color(0xFF4A59A9),
         ),
-        backgroundColor: const Color(0xFF4A59A9),
-      ),
-      body: isLoading
-          ? Center(
-              child: CircularProgressIndicator(),
-            )
-          : isError
-              ? Center(
-                  child: Text(
-                    'Gagal memuat data',
-                    style: TextStyle(fontSize: 16, color: Colors.grey),
-                  ),
-                )
-              : filteredEvents.isEmpty
-                  ? Center(
-                      child: Text(
-                        'Data tidak ditemukan',
-                        style: TextStyle(fontSize: 16, color: Colors.grey),
-                      ),
-                    )
-                  : Column(
-                      children: [
-                        Expanded(
-                          child: GridView.builder(
-                            controller: _scrollController,
-                            padding: const EdgeInsets.all(16),
-                            itemCount:
-                                filteredEvents.length + (isLoadingMore ? 1 : 0),
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: isSmallScreen ? 2 : 3,
-                              crossAxisSpacing: 12,
-                              mainAxisSpacing: 12,
-                              childAspectRatio: 0.65,
-                            ),
-                            itemBuilder: (context, index) {
-                              if (index == filteredEvents.length &&
-                                  isLoadingMore) {
-                                return Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              }
-
-                              final event = filteredEvents[index];
-                              final String? imageUrl = event['gambar_event'];
-
-                              return InkWell(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          EventDetailPage(event: event),
-                                    ),
+        body: isLoading
+            ? Center(
+                child: CircularProgressIndicator(),
+              )
+            : isError
+                ? Center(
+                    child: Text(
+                      'Gagal memuat data',
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                    ),
+                  )
+                : filteredEvents.isEmpty
+                    ? Center(
+                        child: Text(
+                          'Data tidak ditemukan',
+                          style: TextStyle(fontSize: 16, color: Colors.grey),
+                        ),
+                      )
+                    : Column(
+                        children: [
+                          Expanded(
+                            child: GridView.builder(
+                              controller: _scrollController,
+                              padding: const EdgeInsets.all(16),
+                              itemCount: filteredEvents.length +
+                                  (isLoadingMore ? 1 : 0),
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: isSmallScreen
+                                    ? 2
+                                    : isMediumScreen
+                                        ? 3
+                                        : 4,
+                                crossAxisSpacing: 12,
+                                mainAxisSpacing: 12,
+                                childAspectRatio: 0.65,
+                              ),
+                              itemBuilder: (context, index) {
+                                if (index == filteredEvents.length &&
+                                    isLoadingMore) {
+                                  return Center(
+                                    child: CircularProgressIndicator(),
                                   );
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(12),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.grey.withOpacity(0.3),
-                                        spreadRadius: 2,
-                                        blurRadius: 5,
-                                        offset: const Offset(0, 3),
+                                }
+
+                                final event = filteredEvents[index];
+                                final String? imageUrl = event['gambar_event'];
+
+                                return InkWell(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            EventDetailPage(event: event),
                                       ),
-                                    ],
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      AspectRatio(
-                                        aspectRatio:
-                                            1.1, // Sesuaikan rasio aspek gambar
-                                        child: ClipRRect(
-                                          borderRadius: const BorderRadius.only(
-                                            topLeft: Radius.circular(12),
-                                            topRight: Radius.circular(12),
-                                          ),
-                                          child: imageUrl != null &&
-                                                  imageUrl.isNotEmpty
-                                              ? Image.network(
-                                                  imageUrl,
-                                                  width: double.infinity,
-                                                  fit: BoxFit.cover,
-                                                  loadingBuilder: (context,
-                                                      child, loadingProgress) {
-                                                    if (loadingProgress ==
-                                                        null) {
-                                                      return child;
-                                                    } else {
-                                                      return Center(
-                                                        child:
-                                                            CircularProgressIndicator(
-                                                          value: loadingProgress
-                                                                      .expectedTotalBytes !=
-                                                                  null
-                                                              ? loadingProgress
-                                                                      .cumulativeBytesLoaded /
-                                                                  (loadingProgress
-                                                                          .expectedTotalBytes ??
-                                                                      1)
-                                                              : null,
+                                    );
+                                  },
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(12),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.grey.withOpacity(0.3),
+                                          spreadRadius: 2,
+                                          blurRadius: 5,
+                                          offset: const Offset(0, 3),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        AspectRatio(
+                                          aspectRatio: 1.1,
+                                          child: ClipRRect(
+                                            borderRadius:
+                                                const BorderRadius.only(
+                                              topLeft: Radius.circular(12),
+                                              topRight: Radius.circular(12),
+                                            ),
+                                            child: imageUrl != null &&
+                                                    imageUrl.isNotEmpty
+                                                ? Image.network(
+                                                    imageUrl,
+                                                    width: double.infinity,
+                                                    fit: BoxFit.cover,
+                                                    loadingBuilder: (context,
+                                                        child,
+                                                        loadingProgress) {
+                                                      if (loadingProgress ==
+                                                          null) {
+                                                        return child;
+                                                      } else {
+                                                        return Center(
+                                                          child:
+                                                              CircularProgressIndicator(
+                                                            value: loadingProgress
+                                                                        .expectedTotalBytes !=
+                                                                    null
+                                                                ? loadingProgress
+                                                                        .cumulativeBytesLoaded /
+                                                                    (loadingProgress
+                                                                            .expectedTotalBytes ??
+                                                                        1)
+                                                                : null,
+                                                          ),
+                                                        );
+                                                      }
+                                                    },
+                                                  )
+                                                : Container(
+                                                    color: Colors.grey[300],
+                                                    child: Center(
+                                                      child: Text(
+                                                        'Foto Tidak Tersedia',
+                                                        style: TextStyle(
+                                                          fontSize:
+                                                              isSmallScreen
+                                                                  ? 14
+                                                                  : 18,
+                                                          color: Colors.grey,
                                                         ),
-                                                      );
-                                                    }
-                                                  },
-                                                )
-                                              : Container(
-                                                  color: Colors.grey[300],
-                                                  child: Center(
-                                                    child: Text(
-                                                      'Foto Tidak Tersedia',
-                                                      style: TextStyle(
-                                                        fontSize: isSmallScreen
-                                                            ? 14
-                                                            : 18,
-                                                        color: Colors.grey,
                                                       ),
                                                     ),
                                                   ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(12.0),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                event['nama_event'],
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize:
+                                                      isSmallScreen ? 14 : 18,
                                                 ),
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                              const SizedBox(height: 5),
+                                              Text(
+                                                event['kota_event'],
+                                                style: TextStyle(
+                                                  fontSize:
+                                                      isSmallScreen ? 12 : 16,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                              const SizedBox(height: 5),
+                                              Text(
+                                                'HTM: Rp ${event['htm_event']}',
+                                                style: TextStyle(
+                                                  fontSize:
+                                                      isSmallScreen ? 12 : 16,
+                                                  color: Colors.grey[700],
+                                                ),
+                                              ),
+                                              const SizedBox(height: 5),
+                                              Text(
+                                                (event['tanggal_event'] !=
+                                                            null &&
+                                                        event['waktu_event'] !=
+                                                            null)
+                                                    ? '${DateFormat('dd-MMM-yyyy').format(DateTime.parse(event['tanggal_event']))} ${event['waktu_event']}'
+                                                    : '-',
+                                                style: TextStyle(
+                                                  fontSize:
+                                                      isSmallScreen ? 12 : 16,
+                                                  color: Colors.grey[700],
+                                                ),
+                                              ),
+                                              const SizedBox(height: 5),
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(12.0),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              event['nama_event'],
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize:
-                                                    isSmallScreen ? 14 : 18,
-                                              ),
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                            const SizedBox(height: 5),
-                                            Text(
-                                              event['kota_event'],
-                                              style: TextStyle(
-                                                fontSize:
-                                                    isSmallScreen ? 12 : 16,
-                                              ),
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                            const SizedBox(height: 5),
-                                            Text(
-                                              'HTM: Rp ${event['htm_event']}',
-                                              style: TextStyle(
-                                                fontSize:
-                                                    isSmallScreen ? 12 : 16,
-                                                color: Colors.grey[700],
-                                              ),
-                                            ),
-                                            const SizedBox(height: 5),
-                                            Text(
-                                              (event['tanggal_event'] != null &&
-                                                      event['waktu_event'] !=
-                                                          null)
-                                                  ? '${DateFormat('dd-MMM-yyyy').format(DateTime.parse(event['tanggal_event']))} ${event['waktu_event']}'
-                                                  : '-',
-                                              style: TextStyle(
-                                                fontSize:
-                                                    isSmallScreen ? 12 : 16,
-                                                color: Colors.grey[700],
-                                              ),
-                                            ),
-                                            const SizedBox(height: 5),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              );
-                            },
+                                );
+                              },
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
+      ),
     );
   }
 }

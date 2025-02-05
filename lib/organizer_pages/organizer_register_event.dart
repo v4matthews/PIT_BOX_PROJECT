@@ -1,7 +1,7 @@
 import 'package:art_sweetalert/art_sweetalert.dart';
 import 'package:flutter/material.dart';
 import 'package:pit_box/components/asset_alert.dart';
-import 'package:pit_box/components/asset_button_login.dart';
+import 'package:pit_box/components/asset_button.dart';
 import 'package:pit_box/components/asset_datepicker.dart';
 import 'package:pit_box/components/asset_dropdown.dart';
 import 'package:pit_box/components/asset_textarea.dart';
@@ -166,7 +166,7 @@ class _RegisterPageState extends State<OrganizerRegisterEvent> {
                 //   obScureText: false,
                 // ),
 
-                MyDropdown(
+                AssetDropdown(
                   hintText: "Kategori Event",
                   width: width,
                   items: [
@@ -236,7 +236,7 @@ class _RegisterPageState extends State<OrganizerRegisterEvent> {
                 SizedBox(height: 16),
 
                 // Dropdown for Kota
-                MyDropdown(
+                AssetDropdown(
                   hintText: "Pilih Kota",
                   selectedValue: selectedValue,
                   width: width,

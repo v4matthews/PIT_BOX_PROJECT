@@ -34,20 +34,18 @@ class _PasswordFieldState extends State<PasswordField> {
           obscureText: _obscureText, // Menyembunyikan atau menampilkan password
           decoration: InputDecoration(
             enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide.none, // Hilangkan garis saat tidak fokus
-              borderRadius: BorderRadius.circular(12), // Sudut melengkung
+              borderSide: BorderSide(color: Colors.grey.shade600),
+              borderRadius: BorderRadius.circular(16),
             ),
             focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(
-                color: Colors.grey.shade400, // Garis saat fokus
-              ),
-              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey.shade600),
+              borderRadius: BorderRadius.circular(16),
             ),
-            fillColor: Colors.grey.shade200, // Warna latar belakang
+            fillColor: Colors.white,
             filled: true,
-            hintText: widget.hintText,
-            hintStyle: TextStyle(
-              color: Colors.grey[500], // Warna hint teks
+            label: Text(widget.hintText),
+            labelStyle: TextStyle(
+              color: Colors.grey[500],
             ),
             suffixIcon: Padding(
               padding:

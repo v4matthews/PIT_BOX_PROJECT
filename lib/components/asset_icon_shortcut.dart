@@ -11,23 +11,29 @@ class MyIconShortcut extends StatelessWidget {
     required this.initial,
     required this.label,
     this.initialSize = 14,
-    this.backgroundColor = const Color(0xFF4A59A9),
-    // this.backgroundColor = const Color(0xFFD3D3D3),
-    // this.backgroundColor = const Color(0xFFA9A9A9),
+    this.backgroundColor = const Color(0xFFD9D9D9),
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final isSmallScreen = screenWidth < 600; // Menyesuaikan untuk layar kecil
-    final width = screenWidth * (isSmallScreen ? 0.12 : 0.09);
+    final isSmallScreen = screenWidth < 800;
+    final double screenHeight = MediaQuery.of(context).size.height;
+    final double iconSize =
+        isSmallScreen ? screenHeight * 0.06 : screenHeight * 0.08;
+
+    // Menyesuaikan ukuran berdasarkan kategori layar
+
+    final fontSize = isSmallScreen ? 12.0 : 16.0;
+    final labelFontSize = isSmallScreen ? 14.0 : 18.0;
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         // Lingkaran dengan inisial huruf
         Container(
-          width: width,
-          height: width,
+          width: iconSize,
+          height: iconSize,
           decoration: BoxDecoration(
             color: backgroundColor,
             shape: BoxShape.circle,
@@ -37,7 +43,7 @@ class MyIconShortcut extends StatelessWidget {
               initial,
               style: TextStyle(
                 color: Colors.white,
-                fontSize: initialSize,
+                fontSize: fontSize,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -48,7 +54,9 @@ class MyIconShortcut extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-              color: Colors.grey[700], fontSize: isSmallScreen ? 14 : 18),
+            color: Colors.grey[700],
+            fontSize: labelFontSize,
+          ),
           textAlign: TextAlign.center,
         ),
       ],

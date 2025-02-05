@@ -1,7 +1,7 @@
 import 'package:art_sweetalert/art_sweetalert.dart';
 import 'package:flutter/material.dart';
 import 'package:pit_box/api_service.dart';
-import 'package:pit_box/components/asset_button_login.dart';
+import 'package:pit_box/components/asset_button.dart';
 import 'package:pit_box/components/asset_textfield.dart';
 
 class UserForgetPassword extends StatelessWidget {

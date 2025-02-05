@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
+import 'package:pit_box/session_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 class ApiService {
@@ -20,13 +21,12 @@ class ApiService {
   static const String _cekEmailOrganizerEndpoint = '/cekEmailOrganizer';
   static const String _getRegionEndpoint = '/getRegion';
   static const String _getAllCategoriesEndpoint = '/getAllCategories';
-
-  //ON DEV
+  static const String _updateUserEndpoint = '/updateUser';
   static const String _forgetUserEndpoint = '/forgetUserEndpoint';
   static const String _forgetOrganizerEndpoint = '/forgetOrganizerEndpoint';
   static const String _insertEventEndpoint = '/insertEvent';
-
   static const String _createTransactionEndpoint = '/create-transaction';
+  static const String _verifyPasswordEndpoint = '/verifyPassword';
 
   // Helper untuk membuat header
   static Map<String, String> _jsonHeaders() => {
@@ -38,6 +38,13 @@ class ApiService {
       String endpoint, Map<String, dynamic> body) async {
     final url = Uri.parse(_baseUrl + endpoint);
     return await http.post(url,
+        headers: _jsonHeaders(), body: json.encode(body));
+  }
+
+  static Future<http.Response> _putRequest(
+      String endpoint, Map<String, dynamic> body) async {
+    final url = Uri.parse(_baseUrl + endpoint);
+    return await http.put(url,
         headers: _jsonHeaders(), body: json.encode(body));
   }
 
@@ -91,6 +98,38 @@ class ApiService {
       return true;
     } else {
       throw Exception('Gagal melakukan registrasi: ${response.body}');
+    }
+  }
+
+  // Optimized updateUser function
+  static Future<bool> updateUser({
+    required String idUser,
+    required String username,
+    required String nama,
+    required String email,
+    required String nomorTelepon,
+    required String kota,
+    required String password,
+    required String confirmPassword,
+  }) async {
+    if (password != confirmPassword) {
+      throw Exception('Password dan konfirmasi password tidak cocok');
+    }
+
+    final response = await _putRequest(_updateUserEndpoint, {
+      'id_user': idUser,
+      'username': username,
+      'nama_user': nama,
+      'email_user': email,
+      'tlpn_user': nomorTelepon,
+      'kota_user': kota,
+      'password_user': password,
+    });
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      throw Exception('Gagal memperbarui data pengguna: ${response.body}');
     }
   }
 
@@ -170,10 +209,8 @@ class ApiService {
     });
 
     if (response.statusCode == 200) {
-      // Jika login berhasil, kembalikan data pengguna dan token (jika ada)
-      return json.decode(response.body); // Mengembalikan data dalam bentuk Map
+      return json.decode(response.body);
     } else {
-      // Jika login gagal, lemparkan exception dengan pesan error
       throw Exception('Login gagal: ${response.body}, ${response.statusCode}');
     }
   }
@@ -187,10 +224,8 @@ class ApiService {
     });
 
     if (response.statusCode == 200) {
-      // Jika login berhasil, kembalikan data pengguna dan token (jika ada)
-      return json.decode(response.body); // Mengembalikan data dalam bentuk Map
+      return json.decode(response.body);
     } else {
-      // Jika login gagal, lemparkan exception dengan pesan error
       throw Exception('Login gagal: ${response.body}, ${response.statusCode}');
     }
   }
@@ -236,6 +271,25 @@ class ApiService {
     }
   }
 
+  // Fungsi untuk verifikasi password
+  static Future<bool> verifyPassword(String password) async {
+    final username = await SessionService.getUsername();
+    if (username == null) {
+      throw Exception('Username tidak ditemukan di sesi');
+    }
+
+    final response = await _postRequest(_verifyPasswordEndpoint, {
+      'username': username,
+      'password': password,
+    });
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   // Fungsi Cek Email
   static Future<bool> getEmail({
     required String email,
@@ -271,13 +325,11 @@ class ApiService {
   }
 
   static Future<Map<String, dynamic>> _uploadImage(String filePath) async {
-    final url = Uri.parse('$_baseUrl/uploadImage'); // Sesuaikan endpoint upload
+    final url = Uri.parse('$_baseUrl/uploadImage');
     final request = http.MultipartRequest('POST', url);
 
-    // Tambahkan file gambar
     request.files.add(await http.MultipartFile.fromPath('image', filePath));
 
-    // Kirim permintaan
     final response = await request.send();
     if (response.statusCode == 200) {
       final responseData = await http.Response.fromStream(response);
@@ -324,13 +376,12 @@ class ApiService {
     required String date,
     required String categoryId,
     required String organizerId,
-    String? imagePath, // Untuk gambar opsional
+    String? imagePath,
     String? description,
-    double? price, // HTM Event
+    double? price,
   }) async {
-    final String eventId = Uuid().v4(); // Membuat ID unik untuk event
+    final String eventId = Uuid().v4();
 
-    // Siapkan body permintaan
     final body = {
       'id_event': eventId,
       'name': name,
@@ -342,7 +393,6 @@ class ApiService {
       'price': price ?? 0.0,
     };
 
-    // Jika ada gambar, tambahkan proses pengunggahan
     if (imagePath != null) {
       try {
         final imageUploadResponse = await _uploadImage(imagePath);
@@ -356,17 +406,13 @@ class ApiService {
       }
     }
 
-    // Kirim permintaan POST
-    final response = await _postRequest(
-        _insertEventEndpoint, body); // Endpoint harus diubah jika berbeda
+    final response = await _postRequest(_insertEventEndpoint, body);
     if (response.statusCode == 201) {
       return true;
     } else {
       throw Exception('Gagal menambahkan event: ${response.body}');
     }
   }
-
-  //=================================
 
   static Future<Map<String, dynamic>> getFilteredEvents({
     String? category,
@@ -393,6 +439,43 @@ class ApiService {
       return data;
     } else {
       throw Exception('Gagal memuat data yang difilter: ${response.body}');
+    }
+  }
+
+  // ON DEV ============================
+  static Future<void> saveUserData(Map<String, String> userData) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('id_user', userData['id_user'] ?? '');
+    await prefs.setString('username', userData['username'] ?? '');
+    await prefs.setString('nama_user', userData['nama_user'] ?? '');
+    await prefs.setString('email_user', userData['email_user'] ?? '');
+    await prefs.setString('tlpn_user', userData['tlpn_user'] ?? '');
+    await prefs.setString('kota_user', userData['kota_user'] ?? '');
+    print('Saved user data: $userData'); // Debug print statement
+  }
+
+  static Future<Map<String, String>> getUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final username = prefs.getString('username');
+    if (username == null) {
+      return {};
+    }
+
+    final response = await http.get(Uri.parse('$_baseUrl/getUser/$username'));
+    if (response.statusCode == 200) {
+      final userData = json.decode(response.body);
+      print('Data User: $userData'); // Debug print statement
+      return {
+        'id_user': userData['id_user'] ?? '',
+        'username': userData['username'] ?? '',
+        'nama_user': userData['nama_user'] ?? '',
+        'email_user': userData['email_user'] ?? '',
+        'tlpn_user': userData['tlpn_user'] ?? '',
+        'kota_user': userData['kota_user'] ?? '',
+      };
+    } else {
+      print('Failed to retrieve user data: ${response.body}');
+      return {};
     }
   }
 }

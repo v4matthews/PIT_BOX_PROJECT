@@ -15,10 +15,10 @@ class EmailTextField extends StatefulWidget {
   });
 
   @override
-  _MyTextFieldState createState() => _MyTextFieldState();
+  _EmailTextFieldState createState() => _EmailTextFieldState();
 }
 
-class _MyTextFieldState extends State<EmailTextField> {
+class _EmailTextFieldState extends State<EmailTextField> {
   String? _errorMessage; // Pesan error untuk ditampilkan
 
   // Validasi email menggunakan RegEx sederhana
@@ -49,10 +49,11 @@ class _MyTextFieldState extends State<EmailTextField> {
             child: TextField(
               controller: widget.controller,
               obscureText: widget.obScureText,
+              onChanged: _validateEmail, // Validasi setiap kali teks berubah
               decoration: InputDecoration(
                 enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide.none,
-                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.grey.shade600),
+                  borderRadius: BorderRadius.circular(16),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(
@@ -60,19 +61,33 @@ class _MyTextFieldState extends State<EmailTextField> {
                         ? Colors.red
                         : Colors.grey.shade400,
                   ),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(16),
                 ),
-                fillColor: Colors.grey.shade200,
+                errorBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.red),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                focusedErrorBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.red),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                fillColor: Colors.white,
                 filled: true,
                 hintText: widget.hintText,
                 hintStyle: TextStyle(
                   color: Colors.grey[500],
                 ),
-                errorText: _errorMessage, // Tampilkan error di dalam TextField
               ),
-              onChanged: _validateEmail, // Validasi setiap kali teks berubah
             ),
           ),
+          if (_errorMessage != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Text(
+                _errorMessage!,
+                style: TextStyle(color: Colors.red, fontSize: 12),
+              ),
+            ),
         ],
       ),
     );

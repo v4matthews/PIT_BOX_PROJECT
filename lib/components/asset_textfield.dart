@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pit_box/components/asset_warna.dart';
 
 class MyTextField extends StatelessWidget {
   final TextEditingController controller;
@@ -32,17 +33,17 @@ class MyTextField extends StatelessWidget {
           obscureText: obScureText,
           decoration: InputDecoration(
             enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide.none,
-              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey.shade600),
+              borderRadius: BorderRadius.circular(16),
             ),
             focusedBorder: OutlineInputBorder(
               borderSide: BorderSide(color: Colors.grey.shade600),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
             ),
-            fillColor: Colors.grey.shade200,
+            fillColor: Colors.white,
             filled: true,
-            hintText: hintText,
-            hintStyle: TextStyle(
+            label: Text(hintText),
+            labelStyle: TextStyle(
               color: Colors.grey[500],
             ),
             suffixIcon: suffixIcon != null

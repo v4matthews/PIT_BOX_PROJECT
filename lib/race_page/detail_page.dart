@@ -22,7 +22,7 @@ class EventDetailPage extends StatelessWidget {
           style: TextStyle(
             color: Colors.white,
             fontSize: 18,
-            fontWeight: FontWeight.bold, // Set the title text color to white
+            fontWeight: FontWeight.bold,
           ),
         ),
         leading: IconButton(
@@ -43,7 +43,7 @@ class EventDetailPage extends StatelessWidget {
             Container(
               width: MediaQuery.of(context).size.width,
               child: AspectRatio(
-                aspectRatio: 1, // Rasio aspek 1:1
+                aspectRatio: 1,
                 child: event['gambar_event'] != null
                     ? Image.network(
                         event['gambar_event'],
@@ -67,8 +67,8 @@ class EventDetailPage extends StatelessWidget {
 
             // Nama Event
             Padding(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 18.0, vertical: 6.0), // Reduced vertical padding
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 18.0, vertical: 6.0),
               child: Text(
                 event['nama_event'] ?? 'Nama Race',
                 style: const TextStyle(
@@ -78,8 +78,8 @@ class EventDetailPage extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 18.0, vertical: 2.0), // Reduced vertical padding
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 18.0, vertical: 2.0),
               child: Text(
                 'Class: ${event['kategori_event'] ?? '-'}',
                 style: const TextStyle(
@@ -88,7 +88,7 @@ class EventDetailPage extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 10), // Reduced height of the SizedBox
+            const SizedBox(height: 10),
 
             // Detail event dengan shadow
             Container(
@@ -97,12 +97,12 @@ class EventDetailPage extends StatelessWidget {
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black26,
-                    blurRadius: 6.0, // Radius blur
-                    offset: const Offset(3, 3), // Posisi bayangan (x, y)
+                    blurRadius: 6.0,
+                    offset: const Offset(3, 3),
                   ),
                 ],
               ),
-              width: double.infinity, // Lebar penuh layar
+              width: double.infinity,
               child: Padding(
                 padding: const EdgeInsets.all(18.0),
                 child: Column(
@@ -161,12 +161,12 @@ class EventDetailPage extends StatelessWidget {
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black26,
-                    blurRadius: 6.0, // Radius blur
-                    offset: const Offset(3, 3), // Posisi bayangan (x, y)
+                    blurRadius: 6.0,
+                    offset: const Offset(3, 3),
                   ),
                 ],
               ),
-              width: double.infinity, // Lebar penuh layar
+              width: double.infinity,
               child: Padding(
                 padding: const EdgeInsets.all(18.0),
                 child: Column(
@@ -261,15 +261,22 @@ class EventDetailPage extends StatelessWidget {
     final redirectUrl = await ApiService.createTransaction(transactionData);
 
     if (redirectUrl != null) {
-      // Open the payment URL in a webview or browser
+      // Untuk platform mobile, gunakan WebView
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => WebViewPage(url: redirectUrl),
+          builder: (context) => MidtransWebView(
+            url: redirectUrl,
+          ),
         ),
-      );
+      ).then((result) {
+        if (result == 'success') {
+          print('Payment Success');
+        } else if (result == 'failure') {
+          print('Payment Failed');
+        }
+      });
     } else {
-      // Handle error
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to create transaction')),
       );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pit_box/components/asset_warna.dart';
 
 void showCustomDialog({
   required BuildContext context,
@@ -42,7 +43,8 @@ void showCustomDialog({
           Center(
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF4A59A9), // Warna latar tombol biru
+                backgroundColor:
+                    AppColors.accentColor, // Warna latar tombol biru
                 padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               ),
               onPressed: () {

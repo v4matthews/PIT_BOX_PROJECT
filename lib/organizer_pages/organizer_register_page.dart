@@ -1,7 +1,7 @@
 import 'package:art_sweetalert/art_sweetalert.dart';
 import 'package:flutter/material.dart';
 import 'package:pit_box/components/asset_alert.dart';
-import 'package:pit_box/components/asset_button_login.dart';
+import 'package:pit_box/components/asset_button.dart';
 import 'package:pit_box/components/asset_dropdown.dart';
 import 'package:pit_box/components/asset_textarea.dart';
 import 'package:pit_box/components/asset_textfield.dart';
@@ -176,7 +176,7 @@ class _RegisterPageState extends State<OrganizerRegisterPage> {
 
                 const SizedBox(height: 15),
                 // Dropdown for Kota
-                MyDropdown(
+                AssetDropdown(
                   hintText: "Pilih Kota",
                   selectedValue: selectedValue,
                   width: width,

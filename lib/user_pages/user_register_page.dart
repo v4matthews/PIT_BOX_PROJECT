@@ -1,13 +1,14 @@
 import 'package:art_sweetalert/art_sweetalert.dart';
 import 'package:flutter/material.dart';
 import 'package:pit_box/components/asset_alert.dart';
-import 'package:pit_box/components/asset_button_login.dart';
+import 'package:pit_box/components/asset_button.dart';
 import 'package:pit_box/components/asset_textfield.dart';
 import 'package:pit_box/components/asset_textfield_password.dart';
 import 'package:pit_box/components/asset_textfield_email.dart';
 import 'package:pit_box/components/asset_textfield_number.dart';
 import 'package:pit_box/components/asset_dropdown.dart';
 import 'package:pit_box/api_service.dart';
+import 'package:pit_box/components/asset_warna.dart';
 
 class RegisterPage extends StatefulWidget {
   RegisterPage({super.key});
@@ -141,7 +142,7 @@ class _RegisterPageState extends State<RegisterPage> {
     final width = screenWidth * (isSmallScreen ? 0.7 : 0.6);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.backgroundSecondary,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -205,7 +206,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 const SizedBox(height: 15),
 
                 // Dropdown for Kota
-                MyDropdown(
+                AssetDropdown(
                   hintText: "Pilih Kota",
                   selectedValue: selectedValue,
                   width: width,

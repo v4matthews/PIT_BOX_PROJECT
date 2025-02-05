@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:pit_box/organizer_pages/organizer_home.dart';
 import 'package:pit_box/race_page/detail_page.dart';
 import 'package:pit_box/session_service.dart';
+import 'package:pit_box/user_pages/user_dashboard.dart';
+import 'package:pit_box/user_pages/user_profile_page.dart';
 import 'package:pit_box/user_pages/user_register_page.dart';
 import 'package:pit_box/user_pages/user_login_page.dart';
 import 'package:pit_box/user_pages/user_forgot.dart';
@@ -13,6 +15,7 @@ import 'package:pit_box/organizer_pages/organizer_forgot.dart';
 import 'package:pit_box/organizer_pages/organizer_register_page.dart';
 import 'package:pit_box/organizer_pages/organizer_register_event.dart';
 import 'package:pit_box/organizer_pages/organizer_insert_race.dart';
+import 'package:pit_box/user_pages/user_ticket.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 import 'package:pit_box/race_page/test.dart';
@@ -22,6 +25,7 @@ void main() async {
   bool isLoggedIn = await SessionService.isLoggedIn();
 
   runApp(MyApp(
+    // initialRoute: isLoggedIn ? '/home' : '/login',
     initialRoute: isLoggedIn ? '/home' : '/login',
   ));
 }
@@ -50,13 +54,15 @@ class MyApp extends StatelessWidget {
       routes: {
         '/register': (context) => RegisterPage(),
         '/login': (context) => LoginPage(),
-        '/home': (context) => UserHome(),
+        '/home': (context) => UserDashboard(),
         '/forgotUser': (context) => UserForgetPassword(),
         '/loginOrganizer': (context) => OrganizerLoginPage(),
         '/forgotOrganizer': (context) => OrganizerForgotPassword(),
         '/registerOrganizer': (context) => OrganizerRegisterPage(),
         '/homeOrganizer': (context) => organizerHome(),
         '/insertRace': (context) => OrganizerRegisterEvent(),
+        '/profile': (context) => UserProfilePage(),
+        '/ticket': (context) => TicketListPage(),
       },
     );
   }
