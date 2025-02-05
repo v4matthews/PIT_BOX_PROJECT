@@ -1,0 +1,35 @@
+name: pit_box
+description: "A new Flutter project."
+publish_to: "none"
+version: 0.1.0
+
+environment:
+  sdk: ^3.5.3
+
+dependencies:
+  cupertino_icons: ^1.0.6
+  flutter:
+    sdk: flutter
+  flutter_svg: ^1.0.0
+  # mongo_dart: ^0.7.2
+  mongo_dart: ^0.7.3
+  http: ^0.13.6
+  art_sweetalert: ^0.0.5
+  intl: ^0.17.0
+  image_picker: ^0.8.6
+  responsive_framework: ^0.2.0
+  carousel_slider: ^5.0.0
+  shared_preferences: ^2.0.6
+  # midtrans_sdk: ^0.4.0
+  url_launcher: ^6.0.20
+  webview_flutter: ^4.4.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
