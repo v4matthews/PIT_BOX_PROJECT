@@ -1,30 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:pit_box/api_service.dart';
 import 'package:pit_box/components/asset_navbar.dart';
 import 'package:pit_box/components/asset_warna.dart';
+import 'package:pit_box/user_pages/user_ticket_detail_page.dart';
 
-class TicketListPage extends StatelessWidget {
-  final List<Ticket> tickets = [
-    Ticket(
-        'Nama Race', 'Senin, 12 Januari 2024', 'Magelang', 'Rp 75.000', true),
-    Ticket(
-        'Nama Race', 'Senin, 12 Januari 2024', 'Magelang', 'Rp 75.000', true),
-    Ticket(
-        'Nama Race', 'Senin, 12 Januari 2024', 'Magelang', 'Rp 75.000', false),
-    Ticket(
-        'Nama Race', 'Senin, 12 Januari 2024', 'Magelang', 'Rp 75.000', false),
-  ];
+class TicketListPage extends StatefulWidget {
+  @override
+  _TicketListPageState createState() => _TicketListPageState();
+}
 
-  void _onItemTapped(BuildContext context, int index) {
-    switch (index) {
-      case 0:
-        Navigator.pushReplacementNamed(context, '/tickets');
-        break;
-      case 1:
-        Navigator.pushReplacementNamed(context, '/home');
-        break;
-      case 2:
-        Navigator.pushReplacementNamed(context, '/profile');
-        break;
+class _TicketListPageState extends State<TicketListPage> {
+  List<Ticket> tickets = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchTickets();
+  }
+
+  Future<void> _fetchTickets() async {
+    try {
+      final List<dynamic> ticketData = await ApiService.getTickets();
+      setState(() {
+        tickets = ticketData.map((data) => Ticket.fromJson(data)).toList();
+      });
+    } catch (e) {
+      print('Failed to fetch tickets: $e');
     }
   }
 
@@ -34,7 +35,7 @@ class TicketListPage extends StatelessWidget {
       backgroundColor: AppColors.backgroundSecondary,
       appBar: AppBar(
         backgroundColor: AppColors.primaryColor,
-        title: Text(
+        title: const Text(
           'TICKET',
           style: TextStyle(
             color: Colors.white,
@@ -56,13 +57,44 @@ class TicketListPage extends StatelessWidget {
 }
 
 class Ticket {
-  final String name;
-  final String date;
-  final String location;
-  final String price;
+  final String id;
+  final String transactionId;
+  final String userId;
+  final String eventId;
+  final String eventName;
+  final String eventDate;
+  final String eventTime;
+  final String eventLocation;
+  final String eventPrice;
   final bool isActive;
 
-  Ticket(this.name, this.date, this.location, this.price, this.isActive);
+  Ticket({
+    required this.id,
+    required this.transactionId,
+    required this.userId,
+    required this.eventId,
+    required this.eventName,
+    required this.eventDate,
+    required this.eventTime,
+    required this.eventLocation,
+    required this.eventPrice,
+    required this.isActive,
+  });
+
+  factory Ticket.fromJson(Map<String, dynamic> json) {
+    return Ticket(
+      id: json['_id'] ?? 'N/A',
+      transactionId: json['id_transaksi'] ?? 'N/A',
+      userId: json['id_user'] ?? 'N/A',
+      eventId: json['id_event'] ?? 'N/A',
+      eventName: json['nama_event'] ?? 'N/A',
+      eventDate: json['tanggal_event'] ?? 'N/A',
+      eventTime: json['waktu_event'] ?? 'N/A',
+      eventLocation: json['lokasi_event'] ?? 'N/A',
+      eventPrice: json['htm_event']?.toString() ?? '-',
+      isActive: json['is_active'] ?? false,
+    );
+  }
 }
 
 class TicketCard extends StatelessWidget {
@@ -72,54 +104,48 @@ class TicketCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: Colors.white, // Tetap putih agar kontras dengan background
-      margin: const EdgeInsets.only(bottom: 16.0),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8.0),
-      ),
-      elevation: 4, // Menambahkan efek bayangan agar lebih terlihat
-      shadowColor: Colors.black26, // Warna bayangan yang lebih soft
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    ticket.name,
-                    style: const TextStyle(
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.bold,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => TicketDetailPage(ticket: ticket),
+          ),
+        );
+      },
+      child: Card(
+        color: Colors.white,
+        margin: const EdgeInsets.only(bottom: 16.0),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        elevation: 4,
+        shadowColor: Colors.black26,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      ticket.eventName,
+                      style: const TextStyle(
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8.0),
-                  Text(ticket.date),
-                  Text('Lokasi : ${ticket.location}'),
-                  Text('HTM : ${ticket.price}'),
-                ],
-              ),
-            ),
-            Container(
-              width: 90.0,
-              height: 40.0,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: ticket.isActive ? Color(0xFF4CAF50) : Colors.grey,
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-              child: Text(
-                ticket.isActive ? 'Active' : 'Non Active',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
+                    const SizedBox(height: 8.0),
+                    Text('Tanggal: ${ticket.eventDate}'),
+                    Text('Waktu: ${ticket.eventTime}'),
+                    Text('Lokasi: ${ticket.eventLocation}'),
+                    Text('HTM: ${ticket.eventPrice}'),
+                  ],
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pit_box/components/asset_warna.dart';
 import 'package:pit_box/user_pages/user_home_page.dart';
+import 'package:pit_box/user_pages/user_home_page_old.dart';
 import 'package:pit_box/user_pages/user_ticket.dart';
 import 'package:pit_box/user_pages/user_profile_page.dart';
 
@@ -14,7 +15,8 @@ class _UserHomeState extends State<UserDashboard> {
 
   final List<Widget> _pages = [
     TicketListPage(), // Halaman Ticket
-    UserHome(), // Konten halaman Home
+    // UserHome(), // Konten halaman Home
+    UserHomePage(),
     UserProfilePage(), // Halaman Profile
   ];
 

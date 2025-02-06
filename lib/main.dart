@@ -7,7 +7,7 @@ import 'package:pit_box/user_pages/user_profile_page.dart';
 import 'package:pit_box/user_pages/user_register_page.dart';
 import 'package:pit_box/user_pages/user_login_page.dart';
 import 'package:pit_box/user_pages/user_forgot.dart';
-import 'package:pit_box/user_pages/user_home_page.dart';
+import 'package:pit_box/user_pages/user_home_page_old.dart';
 
 // Organizer Pages
 import 'package:pit_box/organizer_pages/organizer_login_page.dart';

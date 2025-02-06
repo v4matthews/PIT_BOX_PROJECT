@@ -7,9 +7,9 @@ import 'package:uuid/uuid.dart';
 
 class ApiService {
   // URL Base untuk API server Anda
-  static const String _baseUrl =
-      'https://pit-box-project-backend-452431537344.us-central1.run.app';
-  // static const String _baseUrl = 'http://localhost:5000';
+  // static const String _baseUrl =
+  //     'https://pit-box-project-backend-452431537344.us-central1.run.app';
+  static const String _baseUrl = 'http://localhost:5000';
 
   // Endpoint API
   static const String _registerUserEndpoint = '/registerUser';
@@ -27,6 +27,7 @@ class ApiService {
   static const String _insertEventEndpoint = '/insertEvent';
   static const String _createTransactionEndpoint = '/create-transaction';
   static const String _verifyPasswordEndpoint = '/verifyPassword';
+  static const String _getTicketsEndpoint = '/getTickets';
 
   // Helper untuk membuat header
   static Map<String, String> _jsonHeaders() => {
@@ -476,6 +477,20 @@ class ApiService {
     } else {
       print('Failed to retrieve user data: ${response.body}');
       return {};
+    }
+  }
+
+  // ON DEV ============================
+  // Function to get tickets
+  static Future<List<dynamic>> getTickets() async {
+    final response = await _getRequest(_getTicketsEndpoint);
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      print('Tickets: $data'); // Debug print statement
+      return data is List ? data : [data];
+    } else {
+      throw Exception('Failed to load tickets: ${response.body}');
     }
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pit_box/components/asset_butto_squircle.dart';
 import 'package:pit_box/components/asset_button.dart';
+import 'package:pit_box/components/asset_warna.dart';
 import 'package:pit_box/components/component_textfield_kotak.dart';
 
 class UpdateProfilePage extends StatefulWidget {
@@ -37,13 +38,13 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
     final screenWidth = MediaQuery.of(context).size.width;
     final width = screenWidth * 0.8;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF4A59A9),
+        backgroundColor: AppColors.primaryColor,
         title: Text(
           'UPDATE ${widget.field}',
           style: TextStyle(
-            color: Colors.white,
+            color: AppColors.whiteColor,
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -85,10 +86,11 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                 width: width,
               ),
               SizedBox(height: 20),
-              PitBoxSquircleButton(
+              MyButton(
                 ontap: _updateValue,
                 label: "UPDATE",
                 width: width,
+                color: AppColors.accentColor,
               ),
             ],
           ),

@@ -3,6 +3,7 @@ import 'package:pit_box/api_service.dart';
 import 'package:intl/intl.dart';
 import 'package:pit_box/race_page/detail_page.dart';
 import 'package:pit_box/user_pages/user_home_page.dart';
+import 'package:pit_box/user_pages/user_home_page_old.dart';
 
 class AllCatagories extends StatefulWidget {
   final String? selectedClass;
@@ -10,10 +11,10 @@ class AllCatagories extends StatefulWidget {
   const AllCatagories({super.key, this.selectedClass});
 
   @override
-  State<AllCatagories> createState() => AllCatagoriesState();
+  State<AllCatagories> createState() => _AllCatagoriesState();
 }
 
-class AllCatagoriesState extends State<AllCatagories> {
+class _AllCatagoriesState extends State<AllCatagories> {
   int currentPage = 1;
   int totalPages = 1;
   final int itemsPerPage = 10;
@@ -54,6 +55,9 @@ class AllCatagoriesState extends State<AllCatagories> {
   @override
   void dispose() {
     _scrollController.dispose();
+    _searchController.dispose();
+    _dateController1.dispose();
+    _dateController2.dispose();
     super.dispose();
   }
 
@@ -149,7 +153,6 @@ class AllCatagoriesState extends State<AllCatagories> {
   Future<void> _showFilterModal(BuildContext context) async {
     final screenWidth = MediaQuery.of(context).size.width;
     final isSmallScreen = screenWidth < 600;
-    final isMediumScreen = screenWidth >= 600 && screenWidth < 1024;
 
     showModalBottomSheet(
       context: context,
@@ -195,12 +198,7 @@ class AllCatagoriesState extends State<AllCatagories> {
                   value: selectedClass,
                   onChanged: (value) {
                     setState(() {
-                      if (value == 'All Class') {
-                        selectedClass = null;
-                        filteredEvents = events;
-                      } else {
-                        selectedClass = value;
-                      }
+                      selectedClass = value == 'All Class' ? null : value;
                     });
                   },
                   items: [
@@ -229,12 +227,7 @@ class AllCatagoriesState extends State<AllCatagories> {
                   value: selectedLocation,
                   onChanged: (value) {
                     setState(() {
-                      if (value == 'Semua Lokasi') {
-                        selectedLocation = null;
-                        filteredEvents = events;
-                      } else {
-                        selectedLocation = value;
-                      }
+                      selectedLocation = value == 'Semua Lokasi' ? null : value;
                     });
                   },
                   items: regionList.map((String location) {
@@ -266,7 +259,7 @@ class AllCatagoriesState extends State<AllCatagories> {
                       setState(() {
                         selectedDate1 = pickedDate;
                         _dateController1.text =
-                            selectedDate1!.toLocal().toString().split(' ')[0];
+                            DateFormat('yyyy-MM-dd').format(pickedDate);
                       });
                     }
                   },
@@ -293,7 +286,7 @@ class AllCatagoriesState extends State<AllCatagories> {
                       setState(() {
                         selectedDate2 = pickedDate;
                         _dateController2.text =
-                            selectedDate2!.toLocal().toString().split(' ')[0];
+                            DateFormat('yyyy-MM-dd').format(pickedDate);
                       });
                     }
                   },
@@ -306,7 +299,7 @@ class AllCatagoriesState extends State<AllCatagories> {
                   },
                   style: ElevatedButton.styleFrom(
                     minimumSize: Size.fromHeight(isSmallScreen ? 45 : 50),
-                    backgroundColor: Color(0xFF4A59A9),
+                    backgroundColor: const Color(0xFF4A59A9),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
                     ),
@@ -353,8 +346,8 @@ class AllCatagoriesState extends State<AllCatagories> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-              builder: (context) =>
-                  UserHome()), // Replace with your target page
+            builder: (context) => UserHomePage(),
+          ),
         );
         return false;
       },
@@ -364,7 +357,7 @@ class AllCatagoriesState extends State<AllCatagories> {
           leading: IconButton(
             icon: const Icon(
               Icons.arrow_back,
-              color: Colors.white,  
+              color: Colors.white,
             ),
             onPressed: () {
               Navigator.pop(context);
@@ -415,7 +408,7 @@ class AllCatagoriesState extends State<AllCatagories> {
           backgroundColor: const Color(0xFF4A59A9),
         ),
         body: isLoading
-            ? Center(
+            ? const Center(
                 child: CircularProgressIndicator(),
               )
             : isError
@@ -454,7 +447,7 @@ class AllCatagoriesState extends State<AllCatagories> {
                               itemBuilder: (context, index) {
                                 if (index == filteredEvents.length &&
                                     isLoadingMore) {
-                                  return Center(
+                                  return const Center(
                                     child: CircularProgressIndicator(),
                                   );
                                 }

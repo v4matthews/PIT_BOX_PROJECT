@@ -1,37 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:pit_box/components/asset_icon_shortcut.dart';
-import 'package:pit_box/components/asset_navbar.dart';
 import 'package:pit_box/components/asset_warna.dart';
-import 'package:pit_box/session_service.dart'; // Import SessionService
 import 'package:pit_box/race_page/all_page.dart';
-import 'package:pit_box/user_pages/user_login_page.dart'; // Kategori Page
+import 'package:pit_box/session_service.dart';
 
-void main() {
-  runApp(UserHome());
-}
-
-class UserHome extends StatelessWidget {
+class UserHomePage extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: HomePage(),
-      routes: {
-        '/home': (context) => UserHome(),
-        '/login': (context) => LoginPage(),
-      },
-    );
-  }
+  _UserHomePageState createState() => _UserHomePageState();
 }
 
-class HomePage extends StatefulWidget {
-  @override
-  _HomePageState createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  String userName = 'Nama User';
-  String userLocation = 'Lokasi User';
+class _UserHomePageState extends State<UserHomePage> {
+  String userName = "User";
+  String userLocation = "User Location";
+  String userPoin = '0';
 
   @override
   void initState() {
@@ -40,17 +20,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _getUserInfo() async {
-    String name = await SessionService.getUsername() ?? 'Default Name';
-    final lokasi = await SessionService.getUserData();
+    final userData = await SessionService.getUserData();
     setState(() {
-      userName = name;
-      userLocation = lokasi['kota_user'] ?? '';
+      userName = userData['nama_user'] ?? 'User';
+      userLocation = userData['kota_user'] ?? 'User Location';
+      userPoin = userData['poin_user'] ?? '0';
     });
-  }
-
-  void _logout() async {
-    await SessionService.clearLoginSession(); // Clear the session
-    Navigator.pushReplacementNamed(context, '/login'); // Navigate to login page
   }
 
   @override
@@ -58,181 +33,277 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: AppColors.backgroundSecondary,
       body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(),
-            _buildCarousel(),
-            _buildContent(),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              // Container 1: Informasi Pengguna
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryColor,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Halo, $userName",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            Icons.notifications,
+                            color: Colors.white,
+                          ),
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text("Notifikasi ditekan!")),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                    Text(
+                      userLocation,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[300],
+                      ),
+                    ),
+                    SizedBox(height: 30),
+                    TextField(
+                      decoration: InputDecoration(
+                        hintText: "Search...",
+                        filled: true,
+                        fillColor: AppColors.whiteColor,
+                        prefixIcon:
+                            Icon(Icons.search, color: AppColors.primaryText),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                        hintStyle: TextStyle(color: AppColors.primaryText),
+                      ),
+                      style: TextStyle(color: AppColors.primaryText),
+                    ),
+                  ],
+                ),
+              ),
+
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+                child: Column(
+                  children: [
+                    // Bagian 1: Carousel
+                    SizedBox(
+                      height: 180,
+                      child: PageView.builder(
+                        itemCount: 3,
+                        itemBuilder: (context, index) {
+                          return Container(
+                            margin: EdgeInsets.symmetric(horizontal: 10),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(15),
+                              image: DecorationImage(
+                                image: AssetImage(
+                                    "assets/images/banner_imlek.jpg"),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    SizedBox(height: 30),
+
+                    // Bagian 2: ListView Horizontal
+                    SizedBox(
+                      height: 100,
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        children: [
+                          // Contoh card horizontal
+                          _buildHorizontalCard("Poin", userPoin, Colors.blue),
+                          _buildHorizontalCard("Tickets", "Go", Colors.orange),
+                          _buildHorizontalCard("Perlombaan", "5", Colors.green),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 20),
+
+                    Padding(
+                      padding:
+                          EdgeInsets.symmetric(vertical: 10.0, horizontal: 10),
+                      child: Row(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(right: 20.0),
+                            child: Text(
+                              "Category",
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black54,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Divider(
+                              color: Colors.black26,
+                              thickness: 1,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    SizedBox(height: 5),
+
+                    // Bagian 3: Grid View
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: 8,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        childAspectRatio: 3 / 1,
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 10,
+                      ),
+                      itemBuilder: (context, index) {
+                        return _buildGridItem(index);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHorizontalCard(String title, String value, Color color) {
     return Container(
-      height: 120,
-      color: AppColors.primaryColor,
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      width: 200,
+      margin: EdgeInsets.only(right: 10),
+      padding: EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: Colors.black12, width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black26.withOpacity(0.1),
+            blurRadius: 6,
+            offset: Offset(3, 3),
+          ),
+        ],
+      ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildUserInfo(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildUserInfo() {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isSmallScreen = screenWidth < 600;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Halo, $userName', //Nanti rubah jadi nama
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: isSmallScreen ? 20 : 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                userLocation, //Nanti rubah jadi lokasi
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: isSmallScreen ? 16 : 20,
-                ),
-              ),
-            ],
+          Text(
+            title,
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          IconButton(
-            icon: Icon(Icons.logout, color: Colors.white),
-            onPressed: _logout, // Call the logout function
+          SizedBox(height: 5),
+          Text(
+            value,
+            style: TextStyle(
+                fontSize: 22, fontWeight: FontWeight.bold, color: color),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildCarousel() {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isSmallScreen = screenWidth < 800;
-    final double screenHeight = MediaQuery.of(context).size.height;
-    final double carouselHeight = isSmallScreen
-        ? screenHeight * 0.2
-        : screenHeight * 0.3; // Adjusted height
-    return Container(
-      height: carouselHeight,
-      child: PageView(
-        children: [
-          Image.asset(
-            'assets/images/banner_imlek.jpg',
-            fit: BoxFit.cover,
-          ),
-          Image.asset(
-            'assets/images/banner.png',
-            fit: BoxFit.cover,
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Fungsi untuk membangun GridView
-  Widget _buildGrid(List items, int crossAxisCount) {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: items.length,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: crossAxisCount,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
-      ),
-      itemBuilder: (context, index) {
-        return GestureDetector(
-          onTap: () {
-            if (index < items.length) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AllCatagories(
-                    selectedClass: index == 0 ? null : items[index].label,
-                  ),
-                ),
-              );
-            }
-          },
-          child: items[index],
-        );
+  Widget _buildGridItem(int index) {
+    List<Map<String, dynamic>> items = [
+      {
+        "label": "All Class",
+        "key": "",
+        "icon": "../assets/images/icon/allclass.png"
       },
-    );
-  }
-
-  Widget _buildContent() {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isSmallScreen = screenWidth < 600;
-
-    final items = [
-      MyIconShortcut(initial: "H", label: "History"),
-      MyIconShortcut(initial: "STO", label: "STO"),
-      MyIconShortcut(initial: "DS", label: "Damper Style"),
-      MyIconShortcut(initial: "STB UP", label: "STB UP"),
+      {"label": "STB", "key": "STB", "icon": "../assets/images/icon/stb.png"},
+      {
+        "label": "STB UP",
+        "key": "STB UP",
+        "icon": "../assets/images/icon/stbup.png"
+      },
+      {"label": "STO", "key": "STO", "icon": "../assets/images/icon/sto.png"},
+      {
+        "label": "DAMPER TUNE",
+        "key": "Damper Style",
+        "icon": "../assets/images/icon/tune.png"
+      },
+      {
+        "label": "DAMPER DASH",
+        "key": "Damper Style",
+        "icon": "../assets/images/icon/dash.png"
+      },
+      {
+        "label": "SLOOP",
+        "key": "Sloop",
+        "icon": "../assets/images/icon/sloop.png"
+      },
+      {
+        "label": "NASCAR",
+        "key": "Nascar",
+        "icon": "../assets/images/icon/nascar.png"
+      },
     ];
 
-    final categoryItems = [
-      MyIconShortcut(initial: "All", label: "All Class"),
-      MyIconShortcut(initial: "STB", label: "STB"),
-      MyIconShortcut(initial: "STB UP", label: "STB UP"),
-      MyIconShortcut(initial: "STO", label: "STO"),
-      MyIconShortcut(initial: "SD", label: "Damper Style"),
-      MyIconShortcut(initial: "BMAX", label: "BMAX"),
-      MyIconShortcut(initial: "NS", label: "Nascar"),
-      MyIconShortcut(initial: "NS", label: "Sloop"),
-    ];
-
-    return Expanded(
-      child: ListView(
-        padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 16),
-        children: [
-          // Container untuk Card
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 30),
-            child: _buildGrid(items, 4),
-          ),
-
-          // Category Header
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-            child: Row(
-              children: [
-                const Text(
-                  'Category',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Container(height: 2, color: Colors.grey),
-                ),
-              ],
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AllCatagories(
+              selectedClass: items[index]['key'],
             ),
           ),
-
-          // GridView Category
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.only(top: 20),
-            child: _buildGrid(categoryItems, 4),
-          ),
-        ],
+        );
+      },
+      child: Container(
+        padding: EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(15),
+          border: Border.all(color: Colors.black12, width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black26.withOpacity(0.1),
+              blurRadius: 6,
+              offset: Offset(3, 3),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment:
+              MainAxisAlignment.start, // Menyusun secara horizontal
+          children: [
+            Image.asset(
+              items[index]['icon'],
+              width: 75, // Sesuaikan ukuran ikon
+              height: 75,
+              fit: BoxFit.contain,
+            ),
+            // Memberi jarak antara ikon dan teks
+            Text(
+              items[index]['label'],
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
       ),
     );
   }
