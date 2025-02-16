@@ -24,6 +24,7 @@ dependencies:
   url_launcher: ^6.0.20
   webview_flutter: ^4.4.0
   qr_flutter: ^4.0.0
+  shimmer: ^2.0.0
 
 dev_dependencies:
   flutter_test:
@@ -41,3 +42,10 @@ flutter:
     - assets/images/icon/dash.png
     - assets/images/icon/sloop.png
     - assets/images/icon/nascar.png
+
+  fonts:
+    - family: Montserrat
+      fonts:
+        - asset: assets/fonts/Montserrat-Regular.ttf
+        - asset: assets/fonts/Montserrat-Bold.ttf
+          weight: 700

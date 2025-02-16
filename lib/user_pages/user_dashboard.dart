@@ -4,6 +4,8 @@ import 'package:pit_box/user_pages/user_home_page.dart';
 import 'package:pit_box/user_pages/user_home_page_old.dart';
 import 'package:pit_box/user_pages/user_ticket.dart';
 import 'package:pit_box/user_pages/user_profile_page.dart';
+import 'package:pit_box/utils/date_picker.dart';
+import 'package:pit_box/utils/location_list.dart';
 
 class UserDashboard extends StatefulWidget {
   @override
@@ -15,8 +17,8 @@ class _UserHomeState extends State<UserDashboard> {
 
   final List<Widget> _pages = [
     TicketListPage(), // Halaman Ticket
-    // UserHome(), // Konten halaman Home
-    UserHomePage(),
+    UserHomePage(), // Konten halaman Home
+    // DatePickerPage(),
     UserProfilePage(), // Halaman Profile
   ];
 

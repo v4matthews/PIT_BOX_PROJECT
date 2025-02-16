@@ -1,5 +1,5 @@
-import 'package:art_sweetalert/art_sweetalert.dart';
 import 'package:flutter/material.dart';
+import 'package:art_sweetalert/art_sweetalert.dart';
 import 'package:pit_box/components/asset_alert.dart';
 import 'package:pit_box/components/asset_button.dart';
 import 'package:pit_box/components/asset_textfield.dart';
@@ -27,6 +27,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final confirmpasswordController = TextEditingController();
   String? selectedValue;
   List<String> regionList = [];
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -34,19 +35,34 @@ class _RegisterPageState extends State<RegisterPage> {
     fetchRegionData();
   }
 
-  // Sign In Method
-  void registerPage(BuildContext context) async {
+  Future<void> fetchRegionData() async {
     try {
-      // Validasi selectedValue sebelum digunakan
-      // Validasi input
+      final result = await ApiService.dataRegion();
+      setState(() {
+        regionList =
+            result.map<String>((region) => region['name'] as String).toList();
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal memuat data region: $e')),
+      );
+    }
+  }
+
+  Future<void> registerPage(BuildContext context) async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
       if (usernameController.text.isEmpty) {
         throw Exception('Username belum diisi');
       }
       if (namaUserController.text.isEmpty) {
         throw Exception('Nama belum diisi');
       }
-      if (emailController.text.isEmpty) {
-        throw Exception('Email belum diisi');
+      if (emailController.text.isEmpty || !emailController.text.contains('@')) {
+        throw Exception('Email tidak valid');
       }
       if (nomortlpnController.text.isEmpty) {
         throw Exception('Nomor telepon belum diisi');
@@ -54,12 +70,14 @@ class _RegisterPageState extends State<RegisterPage> {
       if (selectedValue == null || selectedValue!.isEmpty) {
         throw Exception('Kota belum dipilih');
       }
-      if (passwordController.text.isEmpty) {
-        throw Exception('Password belum diisi');
+      if (passwordController.text.isEmpty ||
+          passwordController.text.length < 6) {
+        throw Exception('Password minimal 6 karakter');
       }
-      if (confirmpasswordController.text.isEmpty) {
-        throw Exception('Konfirmasi password belum diisi');
+      if (passwordController.text != confirmpasswordController.text) {
+        throw Exception('Password dan konfirmasi password tidak sama');
       }
+
       final result = await ApiService.registerUser(
         username: usernameController.text,
         nama: namaUserController.text,
@@ -75,7 +93,8 @@ class _RegisterPageState extends State<RegisterPage> {
             context: context,
             isSuccess: true,
             title: 'Registrasi Berhasil',
-            message: Text('Akun berhasil dibuat, silahkan login'),
+            message: Text(
+                'Silahkan periksa email anda untuk melakukan proses vertifikasi.'),
             routeName: '/login');
       }
     } catch (e) {
@@ -83,8 +102,12 @@ class _RegisterPageState extends State<RegisterPage> {
           context: context,
           isSuccess: false,
           title: 'Registrasi Gagal',
-          message: Text(e.toString()),
+          message: Text(e.toString().replaceFirst('Exception: ', '')),
           routeName: '/login');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -93,12 +116,7 @@ class _RegisterPageState extends State<RegisterPage> {
       final result = await ApiService.cekUsername(
         username: usernameController.text,
       );
-
-      if (result == true) {
-        return true;
-      } else {
-        return false;
-      }
+      return result;
     } catch (e) {
       return false;
     }
@@ -109,36 +127,16 @@ class _RegisterPageState extends State<RegisterPage> {
       final result = await ApiService.getEmail(
         email: emailController.text,
       );
-
-      if (result == true) {
-        return true;
-      } else {
-        return false;
-      }
+      return result;
     } catch (e) {
       return false;
-    }
-  }
-
-  Future<void> fetchRegionData() async {
-    try {
-      final result = await ApiService.dataRegion();
-      setState(() {
-        regionList =
-            result.map<String>((region) => region['name'] as String).toList();
-      });
-    } catch (e) {
-      // Menampilkan pesan error jika gagal memuat data
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal memuat data region: $e')),
-      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final isSmallScreen = screenWidth < 600; // Responsivitas
+    final isSmallScreen = screenWidth < 600;
     final width = screenWidth * (isSmallScreen ? 0.7 : 0.6);
 
     return Scaffold(
@@ -151,8 +149,6 @@ class _RegisterPageState extends State<RegisterPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const SizedBox(height: 40),
-
-                // Welcome Text
                 Text(
                   'Register Page',
                   style: TextStyle(
@@ -162,50 +158,50 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   textAlign: TextAlign.center,
                 ),
+                const SizedBox(height: 15),
+
+                // Sub Title Text
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.1),
+                  child: Text(
+                    'Daftarkan diri Anda untuk bergabung dalam perlombaan tamiya di kota Anda',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.grey[700],
+                      fontSize: isSmallScreen ? 12 : 14,
+                    ),
+                  ),
+                ),
 
                 const SizedBox(height: 20),
-
-                // Username textfield
                 MyTextField(
                   controller: usernameController,
                   width: width,
                   hintText: 'Username',
                   obScureText: false,
                 ),
-
                 const SizedBox(height: 15),
-
-                // Username textfield
                 MyTextField(
                   controller: namaUserController,
                   width: width,
                   hintText: 'Nama',
                   obScureText: false,
                 ),
-
                 const SizedBox(height: 15),
-
-                // Email textfield
                 EmailTextField(
                   controller: emailController,
                   width: width,
                   hintText: 'Email',
                   obScureText: false,
                 ),
-
                 const SizedBox(height: 15),
-
-                // Nomor Telepon textfield
                 NumberTextField(
                   controller: nomortlpnController,
                   width: width,
                   hintText: 'Nomor Telepon',
                   obScureText: false,
                 ),
-
                 const SizedBox(height: 15),
-
-                // Dropdown for Kota
                 AssetDropdown(
                   hintText: "Pilih Kota",
                   selectedValue: selectedValue,
@@ -217,62 +213,51 @@ class _RegisterPageState extends State<RegisterPage> {
                   },
                   items: regionList,
                 ),
-
                 const SizedBox(height: 15),
-
-                // Password textfield
                 PasswordField(
                   controller: passwordController,
                   width: width,
                   hintText: 'Password',
+                  showValidation: true,
                 ),
-
                 const SizedBox(height: 15),
-
-                // Confirm Password textfield
                 PasswordField(
                   controller: confirmpasswordController,
                   width: width,
                   hintText: 'Konfirmasi Password',
                 ),
-
                 const SizedBox(height: 25),
+                isLoading
+                    ? CircularProgressIndicator()
+                    : MyButton(
+                        width: width,
+                        label: "REGISTER",
+                        ontap: () async {
+                          bool isEmailValid = await cekEmail(context);
+                          bool isUsernameValid = await cekUsername(context);
 
-                // Register Button
-                MyButton(
-                  width: width,
-                  label: "REGISTER",
-                  ontap: () async {
-                    // Panggil cekUsername terlebih dahulu
-
-                    bool isEmailValid = await cekEmail(context);
-                    bool isUsernameValid = await cekUsername(context);
-
-                    if (!isUsernameValid) {
-                      showCustomDialog(
-                        context: context,
-                        isSuccess: false,
-                        title: 'Registrasi Gagal',
-                        message: Text('Username sudah digunakan'),
-                        routeName: '/login',
-                      );
-                    } else if (!isEmailValid) {
-                      showCustomDialog(
-                        context: context,
-                        isSuccess: false,
-                        title: 'Registrasi Gagal',
-                        message: Text('Email sudah digunakan'),
-                        routeName: '/login',
-                      );
-                    } else {
-                      registerPage(context);
-                    }
-                  },
-                ),
-
-                const SizedBox(height: 20),
-
-                // Navigate to Login Page
+                          if (!isUsernameValid) {
+                            showCustomDialog(
+                              context: context,
+                              isSuccess: false,
+                              title: 'Registrasi Gagal',
+                              message: Text('Username sudah digunakan'),
+                              routeName: '/login',
+                            );
+                          } else if (!isEmailValid) {
+                            showCustomDialog(
+                              context: context,
+                              isSuccess: false,
+                              title: 'Registrasi Gagal',
+                              message: Text('Email sudah digunakan'),
+                              routeName: '/login',
+                            );
+                          } else {
+                            await registerPage(context);
+                          }
+                        },
+                      ),
+                const SizedBox(height: 30),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -295,7 +280,6 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 20),
               ],
             ),

@@ -16,7 +16,7 @@ class MyButtonRegister extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 30),
         decoration: BoxDecoration(
           color: Color(0xFFFFC700), //Nanti ganti ke kuning
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(8),
         ),
         child: const Center(
           child: Text(

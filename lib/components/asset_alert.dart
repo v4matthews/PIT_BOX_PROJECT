@@ -35,7 +35,7 @@ void showCustomDialog({
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 5), // Jarak antara judul dan konten
+            SizedBox(height: 10), // Jarak antara judul dan kontenz
             message, // Menampilkan pesan (sekarang bisa Widget)
           ],
         ),

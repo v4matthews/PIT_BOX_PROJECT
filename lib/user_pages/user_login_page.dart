@@ -46,7 +46,7 @@ class LoginPage extends StatelessWidget {
         context: context,
         isSuccess: false,
         title: 'Login Gagal',
-        message: Text(e.toString()),
+        message: Text(e.toString().replaceFirst('Exception: ', '')),
         routeName: '/home',
       );
     }
