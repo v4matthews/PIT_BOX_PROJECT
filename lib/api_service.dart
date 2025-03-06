@@ -7,13 +7,14 @@ import 'package:uuid/uuid.dart';
 
 class ApiService {
   // URL Base untuk API server Anda
-  // static const String _baseUrl =
-  //     'https://pit-box-project-backend-452431537344.us-central1.run.app';
-  static const String _baseUrl = 'http://localhost:5000';
+  static const String _baseUrl =
+      'https://pit-box-project-backend-452431537344.us-central1.run.app';
+  // static const String _baseUrl = 'http://localhost:8080';
 
   // Endpoint API
   static const String _registerUserEndpoint = '/registerUser';
   static const String _registerOrganizerEndpoint = '/registerOrganizer';
+  static const String _resendVerificationEndpoint = '/resend-verification';
   static const String _loginUserEndpoint = '/loginUser';
   static const String _loginOrganizerEndpoint = '/loginOrganizer';
   static const String _cekUserEndpoint = '/cekUser';
@@ -28,6 +29,7 @@ class ApiService {
   static const String _createTransactionEndpoint = '/create-transaction';
   static const String _verifyPasswordEndpoint = '/verifyPassword';
   static const String _getTicketsEndpoint = '/getTickets';
+  static const String _updatePasswordEndpoint = '/updatePassword';
 
   // Helper untuk membuat header
   static Map<String, String> _jsonHeaders() => {
@@ -98,7 +100,7 @@ class ApiService {
     if (response.statusCode == 201) {
       return true;
     } else {
-      throw Exception('Gagal melakukan registrasi: ${response.body}');
+      throw Exception('${json.decode(response.body)['message']}');
     }
   }
 
@@ -110,13 +112,7 @@ class ApiService {
     required String email,
     required String nomorTelepon,
     required String kota,
-    required String password,
-    required String confirmPassword,
   }) async {
-    if (password != confirmPassword) {
-      throw Exception('Password dan konfirmasi password tidak cocok');
-    }
-
     final response = await _putRequest(_updateUserEndpoint, {
       'id_user': idUser,
       'username': username,
@@ -124,13 +120,31 @@ class ApiService {
       'email_user': email,
       'tlpn_user': nomorTelepon,
       'kota_user': kota,
-      'password_user': password,
     });
 
     if (response.statusCode == 200) {
       return true;
     } else {
-      throw Exception('Gagal memperbarui data pengguna: ${response.body}');
+      throw Exception('${json.decode(response.body)['message']}');
+    }
+  }
+
+  // Fungsi Update Password
+  static Future<bool> updatePassword({
+    required String idUser,
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    final response = await _putRequest(_updatePasswordEndpoint, {
+      'id_user': idUser,
+      'current_password': currentPassword,
+      'new_password': newPassword,
+    });
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      throw Exception('${json.decode(response.body)['message']}');
     }
   }
 
@@ -184,6 +198,28 @@ class ApiService {
     }
   }
 
+  static Future<Map<String, dynamic>> resendVerificationEmail(
+      {required String username}) async {
+    try {
+      final response = await _postRequest(_resendVerificationEndpoint, {
+        "username": username,
+      });
+
+      print('Status Code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        // Jika berhasil, kembalikan data respons
+        return jsonDecode(response.body);
+      } else {
+        // Jika gagal, lempar exception dengan pesan error
+        throw Exception(jsonDecode(response.body)['message']);
+      }
+    } catch (e) {
+      throw Exception('Gagal mengirim ulang email verifikasi: $e');
+    }
+  }
+
   // Fungsi Login Organizer
   static Future<Map<String, dynamic>> loginOrganizer({
     required String email,
@@ -204,10 +240,14 @@ class ApiService {
   // Fungsi Forgot Password User
   static Future<Map<String, dynamic>> forgotUser({
     required String email,
+    required String nomorTelepon,
   }) async {
     final response = await _postRequest(_forgetUserEndpoint, {
       'email_user': email,
+      'tlpn_user': nomorTelepon,
     });
+
+    print('Response Body: ${response.body}');
 
     if (response.statusCode == 200) {
       return json.decode(response.body);
@@ -492,5 +532,12 @@ class ApiService {
     } else {
       throw Exception('Failed to load tickets: ${response.body}');
     }
+  }
+
+  static Future<String> uploadImage(String imagePath) async {
+    // Logika untuk mengunggah gambar ke server
+    // Misalnya, menggunakan HTTP multipart request
+    // ...
+    return 'https://example.com/profile_image.jpg'; // URL gambar yang diunggah
   }
 }

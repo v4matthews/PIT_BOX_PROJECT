@@ -11,7 +11,7 @@ class MyButton extends StatelessWidget {
     super.key,
     required this.ontap,
     required this.label,
-    this.color = AppColors.primaryColor, // Warna default
+    this.color = AppColors.secondaryColor, // Warna default
     this.width = 150.0, // Lebar default
   });
 
@@ -21,7 +21,8 @@ class MyButton extends StatelessWidget {
       onTap: ontap,
       child: Container(
         width: width, // Lebar tombol
-        height: 50, // Tinggi tombol tetap
+        height: 50,
+        // Tinggi tombol tetap
         margin:
             const EdgeInsets.symmetric(horizontal: 4), // Margin antar elemen
         decoration: BoxDecoration(

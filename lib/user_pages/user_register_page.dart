@@ -9,6 +9,7 @@ import 'package:pit_box/components/asset_textfield_number.dart';
 import 'package:pit_box/components/asset_dropdown.dart';
 import 'package:pit_box/api_service.dart';
 import 'package:pit_box/components/asset_warna.dart';
+import 'package:pit_box/components/assset_button_loading.dart';
 
 class RegisterPage extends StatefulWidget {
   RegisterPage({super.key});
@@ -137,154 +138,193 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isSmallScreen = screenWidth < 600;
-    final width = screenWidth * (isSmallScreen ? 0.7 : 0.6);
+    final width = screenWidth * 0.8;
 
     return Scaffold(
       backgroundColor: AppColors.backgroundSecondary,
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const SizedBox(height: 40),
-                Text(
-                  'Register Page',
-                  style: TextStyle(
-                    color: Colors.grey[700],
-                    fontSize: isSmallScreen ? 24 : 30,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
+      body: Stack(
+        children: [
+          // Layer 1: Background Biru
+          Container(
+            color: AppColors.primaryColor,
+          ),
+          // Layer 2: Layer dengan 60% dari ukuran layar, rounded 50px, dan berwarna putih
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              height: MediaQuery.of(context).size.height * 0.85,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(50),
+                  topRight: Radius.circular(50),
                 ),
-                const SizedBox(height: 15),
-
-                // Sub Title Text
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.1),
-                  child: Text(
-                    'Daftarkan diri Anda untuk bergabung dalam perlombaan tamiya di kota Anda',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.grey[700],
-                      fontSize: isSmallScreen ? 12 : 14,
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-                MyTextField(
-                  controller: usernameController,
-                  width: width,
-                  hintText: 'Username',
-                  obScureText: false,
-                ),
-                const SizedBox(height: 15),
-                MyTextField(
-                  controller: namaUserController,
-                  width: width,
-                  hintText: 'Nama',
-                  obScureText: false,
-                ),
-                const SizedBox(height: 15),
-                EmailTextField(
-                  controller: emailController,
-                  width: width,
-                  hintText: 'Email',
-                  obScureText: false,
-                ),
-                const SizedBox(height: 15),
-                NumberTextField(
-                  controller: nomortlpnController,
-                  width: width,
-                  hintText: 'Nomor Telepon',
-                  obScureText: false,
-                ),
-                const SizedBox(height: 15),
-                AssetDropdown(
-                  hintText: "Pilih Kota",
-                  selectedValue: selectedValue,
-                  width: width,
-                  onChanged: (newValue) {
-                    setState(() {
-                      selectedValue = newValue;
-                    });
-                  },
-                  items: regionList,
-                ),
-                const SizedBox(height: 15),
-                PasswordField(
-                  controller: passwordController,
-                  width: width,
-                  hintText: 'Password',
-                  showValidation: true,
-                ),
-                const SizedBox(height: 15),
-                PasswordField(
-                  controller: confirmpasswordController,
-                  width: width,
-                  hintText: 'Konfirmasi Password',
-                ),
-                const SizedBox(height: 25),
-                isLoading
-                    ? CircularProgressIndicator()
-                    : MyButton(
-                        width: width,
-                        label: "REGISTER",
-                        ontap: () async {
-                          bool isEmailValid = await cekEmail(context);
-                          bool isUsernameValid = await cekUsername(context);
-
-                          if (!isUsernameValid) {
-                            showCustomDialog(
-                              context: context,
-                              isSuccess: false,
-                              title: 'Registrasi Gagal',
-                              message: Text('Username sudah digunakan'),
-                              routeName: '/login',
-                            );
-                          } else if (!isEmailValid) {
-                            showCustomDialog(
-                              context: context,
-                              isSuccess: false,
-                              title: 'Registrasi Gagal',
-                              message: Text('Email sudah digunakan'),
-                              routeName: '/login',
-                            );
-                          } else {
-                            await registerPage(context);
-                          }
-                        },
-                      ),
-                const SizedBox(height: 30),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Sudah memiliki akun?',
-                      style: TextStyle(color: Colors.grey[700]),
-                    ),
-                    const SizedBox(width: 4),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pushNamed(context, '/login');
-                      },
-                      child: Text(
-                        'Sign In',
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 40),
+                      Text(
+                        'Register Page',
                         style: TextStyle(
-                          color: Colors.blue,
+                          color: AppColors.primaryText,
+                          fontSize: isSmallScreen ? 35 : 35,
                           fontWeight: FontWeight.bold,
                         ),
+                        textAlign: TextAlign.center,
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 15),
+
+                      // Sub Title Text
+                      Padding(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: screenWidth * 0.1),
+                        child: Text(
+                          'Daftarkan diri Anda untuk bergabung dalam perlombaan tamiya di kota Anda',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: AppColors.primaryText,
+                            fontSize: isSmallScreen ? 16 : 22,
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 30),
+
+                      MyTextField(
+                        controller: usernameController,
+                        width: width,
+                        hintText: 'Username',
+                        obScureText: false,
+                      ),
+                      const SizedBox(height: 15),
+                      MyTextField(
+                        controller: namaUserController,
+                        width: width,
+                        hintText: 'Nama',
+                        obScureText: false,
+                      ),
+                      const SizedBox(height: 15),
+                      EmailTextField(
+                        controller: emailController,
+                        width: width,
+                        hintText: 'Email',
+                        obScureText: false,
+                      ),
+                      const SizedBox(height: 15),
+                      NumberTextField(
+                        controller: nomortlpnController,
+                        width: width,
+                        hintText: 'Nomor Telepon',
+                        obScureText: false,
+                      ),
+                      const SizedBox(height: 15),
+                      AssetDropdown(
+                        hintText: "Pilih Kota",
+                        selectedValue: selectedValue,
+                        width: width,
+                        onChanged: (newValue) {
+                          setState(() {
+                            selectedValue = newValue;
+                          });
+                        },
+                        items: regionList,
+                      ),
+                      const SizedBox(height: 15),
+                      PasswordField(
+                        controller: passwordController,
+                        width: width,
+                        hintText: 'Password',
+                        showValidation: true,
+                      ),
+                      const SizedBox(height: 15),
+                      PasswordField(
+                        controller: confirmpasswordController,
+                        width: width,
+                        hintText: 'Konfirmasi Password',
+                      ),
+                      const SizedBox(height: 40),
+                      isLoading
+                          ? CircularProgressIndicator()
+                          : MyLoadingButton(
+                              label: "REGISTER",
+                              width: width,
+                              onTap: () async {
+                                setState(() {
+                                  isLoading = true;
+                                });
+
+                                bool isEmailValid = await cekEmail(context);
+                                bool isUsernameValid =
+                                    await cekUsername(context);
+
+                                if (!isUsernameValid) {
+                                  showCustomDialog(
+                                    context: context,
+                                    isSuccess: false,
+                                    title: 'Registrasi Gagal',
+                                    message: Text('Username sudah digunakan'),
+                                    routeName: '/login',
+                                  );
+                                } else if (!isEmailValid) {
+                                  showCustomDialog(
+                                    context: context,
+                                    isSuccess: false,
+                                    title: 'Registrasi Gagal',
+                                    message: Text('Email sudah digunakan'),
+                                    routeName: '/login',
+                                  );
+                                } else {
+                                  await registerPage(context);
+                                }
+
+                                setState(() {
+                                  isLoading = false;
+                                });
+                              },
+                            ),
+                      const SizedBox(height: 30),
+                      GestureDetector(
+                        onTap: () {
+                          // Navigate to the '/login' page when the row is tapped
+                          Navigator.pushNamed(context, '/login');
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Sudah memiliki akun? ',
+                              style: TextStyle(
+                                color: Colors.grey[700],
+                                fontSize: isSmallScreen ? 16 : 22,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Sign In',
+                              style: TextStyle(
+                                color: Colors.blue,
+                                fontWeight: FontWeight.w400,
+                                fontSize: isSmallScreen ? 16 : 22,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 20),
-              ],
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

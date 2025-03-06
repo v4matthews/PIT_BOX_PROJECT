@@ -25,6 +25,7 @@ dependencies:
   webview_flutter: ^4.4.0
   qr_flutter: ^4.0.0
   shimmer: ^2.0.0
+  # flutter_svg: ^2.0.0+1
 
 dev_dependencies:
   flutter_test:
@@ -34,14 +35,16 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/images/
-    - assets/images/icon/stb.png
-    - assets/images/icon/stbup.png
-    - assets/images/icon/sto.png
-    - assets/images/icon/tune.png
-    - assets/images/icon/dash.png
-    - assets/images/icon/sloop.png
-    - assets/images/icon/nascar.png
+    - assets/images/icon/
+    # - assets/images/icon/stb.png
+    # - assets/images/icon/stbup.png
+    # - assets/images/icon/sto.png
+    # - assets/images/icon/tune.png
+    # - assets/images/icon/dash.png
+    # - assets/images/icon/sloop.png
+    # - assets/images/icon/nascar.png
+
+    # - assets/images/icon/sto.svg
 
   fonts:
     - family: Montserrat

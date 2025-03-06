@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pit_box/api_service.dart';
+import 'package:pit_box/components/asset_warna.dart';
 
 class LocationListPage extends StatefulWidget {
   @override
@@ -51,24 +52,38 @@ class _LocationListPageState extends State<LocationListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Pilih Lokasi")),
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: Row(
+          children: [
+            IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 10),
+                child: TextField(
+                  controller: searchController,
+                  decoration: InputDecoration(
+                    hintText: 'Cari Lokasi',
+                    prefixIcon: Icon(Icons.search),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
       body: isLoading
           ? Center(child: CircularProgressIndicator())
           : Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: TextField(
-                    controller: searchController,
-                    decoration: InputDecoration(
-                      labelText: 'Cari Lokasi',
-                      prefixIcon: Icon(Icons.search),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                    ),
-                  ),
-                ),
                 Expanded(
                   child: ListView.builder(
                     itemCount: filteredList.length,

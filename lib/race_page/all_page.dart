@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:pit_box/api_service.dart';
 import 'package:intl/intl.dart';
+import 'package:pit_box/components/asset_warna.dart';
 import 'package:pit_box/race_page/detail_page.dart';
 import 'package:pit_box/user_pages/user_home_page.dart';
-import 'package:pit_box/user_pages/user_home_page_old.dart';
+// import 'package:pit_box/user_pages/user_home_page_old.dart';
+import 'package:pit_box/components/asset_list_view.dart'; // Import the EventListView
 
 class AllCatagories extends StatefulWidget {
   final String? selectedClass;
+  final String? searchQuery;
 
-  const AllCatagories({super.key, this.selectedClass});
+  const AllCatagories({super.key, this.selectedClass, this.searchQuery});
 
   @override
   State<AllCatagories> createState() => _AllCatagoriesState();
@@ -30,6 +33,7 @@ class _AllCatagoriesState extends State<AllCatagories> {
   List<String> regionList = [];
 
   String? selectedClass;
+
   DateTime? selectedDate1;
   DateTime? selectedDate2;
   String? selectedLocation;
@@ -43,6 +47,11 @@ class _AllCatagoriesState extends State<AllCatagories> {
     _scrollController.addListener(_onScroll);
     fetchEvents();
     fetchRegionData();
+
+    if (widget.searchQuery != null) {
+      _searchController.text = widget.searchQuery!;
+      filterEventsBySearch(widget.searchQuery!);
+    }
   }
 
   void _onScroll() {
@@ -50,6 +59,18 @@ class _AllCatagoriesState extends State<AllCatagories> {
         _scrollController.position.maxScrollExtent) {
       loadMoreEvents();
     }
+  }
+
+  void filterEventsBySearch(String query) {
+    setState(() {
+      filteredEvents = events.where((event) {
+        final namaEvent = event['nama_event'].toLowerCase();
+        final kotaEvent = event['kota_event'].toLowerCase();
+        final lowerQuery = query.toLowerCase();
+
+        return namaEvent.contains(lowerQuery) || kotaEvent.contains(lowerQuery);
+      }).toList();
+    });
   }
 
   @override
@@ -150,177 +171,6 @@ class _AllCatagoriesState extends State<AllCatagories> {
     }
   }
 
-  Future<void> _showFilterModal(BuildContext context) async {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isSmallScreen = screenWidth < 600;
-
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(20),
-          topRight: Radius.circular(20),
-        ),
-      ),
-      builder: (context) {
-        return Padding(
-          padding: EdgeInsets.all(isSmallScreen ? 12.0 : 16.0),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "FILTER",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: isSmallScreen ? 16 : 18,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.close),
-                    ),
-                  ],
-                ),
-                const Divider(),
-                const SizedBox(height: 10),
-                DropdownButtonFormField<String>(
-                  decoration: InputDecoration(
-                    labelText: "Class",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                  ),
-                  value: selectedClass,
-                  onChanged: (value) {
-                    setState(() {
-                      selectedClass = value == 'All Class' ? null : value;
-                    });
-                  },
-                  items: [
-                    'All Class',
-                    'STO',
-                    'Damper Style',
-                    'STB',
-                    'STB UP',
-                    'Sloop',
-                    'Nascar',
-                  ].map((String className) {
-                    return DropdownMenuItem<String>(
-                      value: className,
-                      child: Text(className),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 10),
-                DropdownButtonFormField<String>(
-                  decoration: InputDecoration(
-                    labelText: "Lokasi",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                  ),
-                  value: selectedLocation,
-                  onChanged: (value) {
-                    setState(() {
-                      selectedLocation = value == 'Semua Lokasi' ? null : value;
-                    });
-                  },
-                  items: regionList.map((String location) {
-                    return DropdownMenuItem<String>(
-                      value: location,
-                      child: Text(location),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  decoration: InputDecoration(
-                    labelText: "Tanggal 1",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    suffixIcon: Icon(Icons.calendar_today),
-                  ),
-                  readOnly: true,
-                  controller: _dateController1,
-                  onTap: () async {
-                    final pickedDate = await showDatePicker(
-                      context: context,
-                      initialDate: selectedDate1 ?? DateTime.now(),
-                      firstDate: DateTime(2000),
-                      lastDate: DateTime(2101),
-                    );
-                    if (pickedDate != null) {
-                      setState(() {
-                        selectedDate1 = pickedDate;
-                        _dateController1.text =
-                            DateFormat('yyyy-MM-dd').format(pickedDate);
-                      });
-                    }
-                  },
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  decoration: InputDecoration(
-                    labelText: "Tanggal 2",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    suffixIcon: Icon(Icons.calendar_today),
-                  ),
-                  readOnly: true,
-                  controller: _dateController2,
-                  onTap: () async {
-                    final pickedDate = await showDatePicker(
-                      context: context,
-                      initialDate: selectedDate2 ?? DateTime.now(),
-                      firstDate: DateTime(2000),
-                      lastDate: DateTime(2101),
-                    );
-                    if (pickedDate != null) {
-                      setState(() {
-                        selectedDate2 = pickedDate;
-                        _dateController2.text =
-                            DateFormat('yyyy-MM-dd').format(pickedDate);
-                      });
-                    }
-                  },
-                ),
-                const SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: () {
-                    filterEvents();
-                    Navigator.pop(context);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size.fromHeight(isSmallScreen ? 45 : 50),
-                    backgroundColor: const Color(0xFF4A59A9),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                  ),
-                  child: Text(
-                    "Filter Data",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: isSmallScreen ? 14 : 16,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   Future<void> fetchRegionData() async {
     try {
       final result = await ApiService.dataRegion();
@@ -396,16 +246,9 @@ class _AllCatagoriesState extends State<AllCatagories> {
                   },
                 ),
               ),
-              IconButton(
-                icon: const Icon(
-                  Icons.filter_list_alt,
-                  color: Colors.white,
-                ),
-                onPressed: () => _showFilterModal(context),
-              ),
             ],
           ),
-          backgroundColor: const Color(0xFF4A59A9),
+          backgroundColor: AppColors.primaryColor,
         ),
         body: isLoading
             ? const Center(
@@ -425,177 +268,12 @@ class _AllCatagoriesState extends State<AllCatagories> {
                           style: TextStyle(fontSize: 16, color: Colors.grey),
                         ),
                       )
-                    : Column(
-                        children: [
-                          Expanded(
-                            child: GridView.builder(
-                              controller: _scrollController,
-                              padding: const EdgeInsets.all(16),
-                              itemCount: filteredEvents.length +
-                                  (isLoadingMore ? 1 : 0),
-                              gridDelegate:
-                                  SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: isSmallScreen
-                                    ? 2
-                                    : isMediumScreen
-                                        ? 3
-                                        : 4,
-                                crossAxisSpacing: 12,
-                                mainAxisSpacing: 12,
-                                childAspectRatio: 0.65,
-                              ),
-                              itemBuilder: (context, index) {
-                                if (index == filteredEvents.length &&
-                                    isLoadingMore) {
-                                  return const Center(
-                                    child: CircularProgressIndicator(),
-                                  );
-                                }
-
-                                final event = filteredEvents[index];
-                                final String? imageUrl = event['gambar_event'];
-
-                                return InkWell(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            EventDetailPage(event: event),
-                                      ),
-                                    );
-                                  },
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(12),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.grey.withOpacity(0.3),
-                                          spreadRadius: 2,
-                                          blurRadius: 5,
-                                          offset: const Offset(0, 3),
-                                        ),
-                                      ],
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        AspectRatio(
-                                          aspectRatio: 1.1,
-                                          child: ClipRRect(
-                                            borderRadius:
-                                                const BorderRadius.only(
-                                              topLeft: Radius.circular(12),
-                                              topRight: Radius.circular(12),
-                                            ),
-                                            child: imageUrl != null &&
-                                                    imageUrl.isNotEmpty
-                                                ? Image.network(
-                                                    imageUrl,
-                                                    width: double.infinity,
-                                                    fit: BoxFit.cover,
-                                                    loadingBuilder: (context,
-                                                        child,
-                                                        loadingProgress) {
-                                                      if (loadingProgress ==
-                                                          null) {
-                                                        return child;
-                                                      } else {
-                                                        return Center(
-                                                          child:
-                                                              CircularProgressIndicator(
-                                                            value: loadingProgress
-                                                                        .expectedTotalBytes !=
-                                                                    null
-                                                                ? loadingProgress
-                                                                        .cumulativeBytesLoaded /
-                                                                    (loadingProgress
-                                                                            .expectedTotalBytes ??
-                                                                        1)
-                                                                : null,
-                                                          ),
-                                                        );
-                                                      }
-                                                    },
-                                                  )
-                                                : Container(
-                                                    color: Colors.grey[300],
-                                                    child: Center(
-                                                      child: Text(
-                                                        'Foto Tidak Tersedia',
-                                                        style: TextStyle(
-                                                          fontSize:
-                                                              isSmallScreen
-                                                                  ? 14
-                                                                  : 18,
-                                                          color: Colors.grey,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(12.0),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                event['nama_event'],
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize:
-                                                      isSmallScreen ? 14 : 18,
-                                                ),
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                              const SizedBox(height: 5),
-                                              Text(
-                                                event['kota_event'],
-                                                style: TextStyle(
-                                                  fontSize:
-                                                      isSmallScreen ? 12 : 16,
-                                                ),
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                              const SizedBox(height: 5),
-                                              Text(
-                                                'HTM: Rp ${event['htm_event']}',
-                                                style: TextStyle(
-                                                  fontSize:
-                                                      isSmallScreen ? 12 : 16,
-                                                  color: Colors.grey[700],
-                                                ),
-                                              ),
-                                              const SizedBox(height: 5),
-                                              Text(
-                                                (event['tanggal_event'] !=
-                                                            null &&
-                                                        event['waktu_event'] !=
-                                                            null)
-                                                    ? '${DateFormat('dd-MMM-yyyy').format(DateTime.parse(event['tanggal_event']))} ${event['waktu_event']}'
-                                                    : '-',
-                                                style: TextStyle(
-                                                  fontSize:
-                                                      isSmallScreen ? 12 : 16,
-                                                  color: Colors.grey[700],
-                                                ),
-                                              ),
-                                              const SizedBox(height: 5),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ],
+                    : EventListView(
+                        events: filteredEvents,
+                        isLoadingMore: isLoadingMore,
+                        scrollController: _scrollController,
+                        isSmallScreen: isSmallScreen,
+                        isMediumScreen: isMediumScreen,
                       ),
       ),
     );

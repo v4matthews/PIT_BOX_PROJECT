@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:pit_box/organizer_pages/organizer_home.dart';
 import 'package:pit_box/race_page/detail_page.dart';
 import 'package:pit_box/session_service.dart';
+import 'package:pit_box/user_pages/user_class_info.dart';
 import 'package:pit_box/user_pages/user_dashboard.dart';
 import 'package:pit_box/user_pages/user_profile_page.dart';
 import 'package:pit_box/user_pages/user_register_page.dart';
 import 'package:pit_box/user_pages/user_login_page.dart';
 import 'package:pit_box/user_pages/user_forgot.dart';
-import 'package:pit_box/user_pages/user_home_page_old.dart';
+import 'package:pit_box/user_pages/user_update_profile.dart';
+// import 'package:pit_box/user_pages/user_home_page_old.dart';
 
 // Organizer Pages
 import 'package:pit_box/organizer_pages/organizer_login_page.dart';
@@ -63,6 +65,8 @@ class MyApp extends StatelessWidget {
         '/insertRace': (context) => OrganizerRegisterEvent(),
         '/profile': (context) => UserProfilePage(),
         '/ticket': (context) => TicketListPage(),
+        '/classInfo': (context) => ClassInformationPage(),
+        '/updateProfile': (context) => UserUpdateProfile(),
       },
     );
   }

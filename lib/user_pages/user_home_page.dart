@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pit_box/api_service.dart';
+import 'package:pit_box/components/asset_loading.dart';
 import 'package:pit_box/components/asset_warna.dart';
 import 'package:pit_box/race_page/all_page.dart';
 import 'package:pit_box/session_service.dart';
+import 'package:pit_box/utils/location_list.dart';
+import 'package:pit_box/components/asset_list_view.dart';
 
 class UserHomePage extends StatefulWidget {
   @override
@@ -13,11 +18,13 @@ class _UserHomePageState extends State<UserHomePage> {
   String userLocation = "User Location";
   String userPoin = '0';
   bool isLoading = true;
+  List raceEvents = [];
 
   @override
   void initState() {
     super.initState();
     _getUserInfo();
+    _getRaceEvents();
   }
 
   void _getUserInfo() async {
@@ -30,16 +37,35 @@ class _UserHomePageState extends State<UserHomePage> {
     });
   }
 
+  void _getRaceEvents() async {
+    try {
+      final response = await ApiService.getFilteredEvents();
+      setState(() {
+        raceEvents = response['events'];
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal memuat data perlombaan: $e')),
+      );
+    }
+  }
+
+  void _updateLocation(String newLocation) {
+    setState(() {
+      userLocation = newLocation;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundSecondary,
       body: SafeArea(
         child: isLoading
-            ? Center(
-                child:
-                    CircularProgressIndicator(), // Tampilkan loading indicator
-              )
+            ? LoadingWidget(text: "Memuat data...")
+            // ? Center(
+            //     child: CircularProgressIndicator(),
+            //   )
             : SingleChildScrollView(
                 child: Column(
                   children: [
@@ -62,13 +88,13 @@ class _UserHomePageState extends State<UserHomePage> {
                                   fontFamily: 'Montserrat',
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.white,
+                                  color: AppColors.whiteText,
                                 ),
                               ),
                               IconButton(
                                 icon: Icon(
                                   Icons.notifications,
-                                  color: Colors.white,
+                                  color: AppColors.whiteText,
                                 ),
                                 onPressed: () {
                                   ScaffoldMessenger.of(context).showSnackBar(
@@ -79,154 +105,154 @@ class _UserHomePageState extends State<UserHomePage> {
                               ),
                             ],
                           ),
-                          Text(
-                            userLocation,
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.grey[300],
+                          GestureDetector(
+                            onTap: () async {
+                              final selectedLocation = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => LocationListPage(),
+                                ),
+                              );
+                              if (selectedLocation != null) {
+                                _updateLocation(selectedLocation);
+                              }
+                            },
+                            child: Text(
+                              userLocation,
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: AppColors.whiteText,
+                              ),
                             ),
                           ),
                           SizedBox(height: 30),
                           TextField(
                             decoration: InputDecoration(
-                              hintText: "Search...",
+                              hintText: "Cari class lomba / kategori",
                               filled: true,
-                              fillColor: AppColors.whiteColor,
-                              prefixIcon: Icon(Icons.search,
-                                  color: AppColors.primaryText),
+                              fillColor: Colors.grey[200],
+                              prefixIcon:
+                                  Icon(Icons.search, color: Colors.black),
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
+                                borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide.none,
                               ),
                               hintStyle:
                                   TextStyle(color: AppColors.primaryText),
                             ),
                             style: TextStyle(color: AppColors.primaryText),
+                            onSubmitted: (query) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AllCatagories(
+                                    searchQuery: query,
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                         ],
                       ),
                     ),
 
+                    // Carousel Gambar
                     Padding(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 20),
+                          horizontal: 10, vertical: 15),
+                      child: Container(
+                        height: 200,
+                        child: PageView.builder(
+                          itemCount: 3,
+                          itemBuilder: (context, index) {
+                            return Container(
+                              margin: EdgeInsets.symmetric(horizontal: 10),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                image: DecorationImage(
+                                  image: AssetImage(
+                                      '../assets/images/carousel_$index.png'),
+                                  fit: BoxFit.fill,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 20),
                       child: Column(
                         children: [
-                          // Bagian 1: Carousel
-                          SizedBox(
-                            height: 180,
-                            child: PageView.builder(
-                              itemCount: 3,
-                              itemBuilder: (context, index) {
-                                return Container(
-                                  margin: EdgeInsets.symmetric(horizontal: 10),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(16),
-                                    image: DecorationImage(
-                                      image: AssetImage(
-                                          "assets/images/banner_imlek.jpg"),
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-
-                          SizedBox(height: 20),
-
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                                vertical: 10.0, horizontal: 10),
-                            child: Row(
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.only(right: 20.0),
-                                  child: Text(
-                                    "Your Journey",
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black54,
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Divider(
-                                    color: Colors.black26,
-                                    thickness: 1,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          SizedBox(height: 5),
-
                           // Bagian 2: ListView Horizontal
                           SizedBox(
-                            height: 100,
+                            height: 75,
                             child: ListView(
                               scrollDirection: Axis.horizontal,
                               children: [
-                                // Contoh card horizontal
-                                _buildHorizontalCard("Poin", userPoin),
+                                _buildHorizontalCard(150, "Race Point",
+                                    userPoin, "../assets/images/icon/poin.svg"),
                                 _buildHorizontalCard(
-                                  "Jadwal Race",
-                                  "Amda belum memiliki jadwal",
-                                ),
-                                _buildHorizontalCard("Perlombaan", "5"),
+                                    225,
+                                    "Jadwal Race",
+                                    "Belum ada jadwal",
+                                    "../assets/images/icon/jadwal.svg"),
+                                _buildHorizontalCard(160, "Perlombaan", "5",
+                                    "../assets/images/icon/checklist.svg"),
                               ],
                             ),
-                          ),
-
-                          SizedBox(height: 20),
-
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                                vertical: 10.0, horizontal: 10),
-                            child: Row(
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.only(right: 20.0),
-                                  child: Text(
-                                    "Category",
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black54,
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Divider(
-                                    color: Colors.black26,
-                                    thickness: 1,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          SizedBox(height: 5),
-
-                          // Bagian 3: Grid View
-                          GridView.builder(
-                            shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemCount: 8,
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              childAspectRatio: 3 / 1,
-                              crossAxisSpacing: 10,
-                              mainAxisSpacing: 10,
-                            ),
-                            itemBuilder: (context, index) {
-                              return _buildGridItem(index);
-                            },
                           ),
                         ],
+                      ),
+                    ),
+
+                    SizedBox(height: 10),
+
+                    Padding(
+                      padding:
+                          EdgeInsets.symmetric(vertical: 10.0, horizontal: 30),
+                      child: Row(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(right: 20.0),
+                            child: Text(
+                              "Find Your Class",
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black54,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Divider(
+                              color: Colors.black26,
+                              thickness: 1,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Grid View Kategori
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 20),
+                      child: GridView.builder(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount: 8,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 4,
+                          childAspectRatio: 1 / 1,
+                          crossAxisSpacing: 10,
+                          mainAxisSpacing: 10,
+                        ),
+                        itemBuilder: (context, index) {
+                          return _buildGridItem(index);
+                        },
                       ),
                     ),
                   ],
@@ -236,12 +262,12 @@ class _UserHomePageState extends State<UserHomePage> {
     );
   }
 
-  Widget _buildHorizontalCard(String title, String value,
-      {bool isLongText = false}) {
+  Widget _buildHorizontalCard(
+      double width, String title, String value, String icon) {
     return Container(
-      width: 200,
+      width: width,
       margin: EdgeInsets.only(right: 10),
-      padding: EdgeInsets.all(12),
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -254,25 +280,37 @@ class _UserHomePageState extends State<UserHomePage> {
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start, // Text rata kiri
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            title,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            textAlign: TextAlign.left,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                title,
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w300),
+                textAlign: TextAlign.left,
+              ),
+              SizedBox(height: 5),
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primaryText,
+                ),
+                textAlign: TextAlign.left,
+                softWrap: true,
+              ),
+            ],
           ),
-          SizedBox(height: 5),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 16, // Lebih kecil agar muat dalam card
-              fontWeight: FontWeight.bold,
-              color: AppColors.primaryText,
-            ),
-            textAlign: TextAlign.left,
-            softWrap: true, // Teks otomatis turun jika panjang
+          SizedBox(width: 10),
+          SvgPicture.asset(
+            icon,
+            width: 35,
+            height: 35,
+            fit: BoxFit.contain,
           ),
         ],
       ),
@@ -284,34 +322,34 @@ class _UserHomePageState extends State<UserHomePage> {
       {
         "label": "All Class",
         "key": "",
-        "icon": "../assets/images/icon/allclass.png"
+        "icon": "../assets/images/icon/all.svg"
       },
-      {"label": "STB", "key": "STB", "icon": "../assets/images/icon/stb.png"},
+      {"label": "STB", "key": "STB", "icon": "../assets/images/icon/stb.svg"},
       {
         "label": "STB UP",
         "key": "STB UP",
-        "icon": "../assets/images/icon/stbup.png"
+        "icon": "../assets/images/icon/stbup.svg"
       },
-      {"label": "STO", "key": "STO", "icon": "../assets/images/icon/sto.png"},
+      {"label": "STO", "key": "STO", "icon": "../assets/images/icon/sto.svg"},
       {
-        "label": "DAMPER TUNE",
-        "key": "Damper Style",
-        "icon": "../assets/images/icon/tune.png"
-      },
-      {
-        "label": "DAMPER DASH",
-        "key": "Damper Style",
-        "icon": "../assets/images/icon/dash.png"
+        "label": "Damper Tune",
+        "key": "damperstyletune",
+        "icon": "../assets/images/icon/tune.svg"
       },
       {
-        "label": "SLOOP",
+        "label": "Damper Dash",
+        "key": "damperstyledash",
+        "icon": "../assets/images/icon/dash.svg"
+      },
+      {
+        "label": "Sloop",
         "key": "Sloop",
-        "icon": "../assets/images/icon/sloop.png"
+        "icon": "../assets/images/icon/sloop.svg"
       },
       {
-        "label": "NASCAR",
+        "label": "Nascar",
         "key": "Nascar",
-        "icon": "../assets/images/icon/nascar.png"
+        "icon": "../assets/images/icon/nascar.svg"
       },
     ];
 
@@ -340,20 +378,19 @@ class _UserHomePageState extends State<UserHomePage> {
             ),
           ],
         ),
-        child: Row(
-          mainAxisAlignment:
-              MainAxisAlignment.start, // Menyusun secara horizontal
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(
+            SvgPicture.asset(
               items[index]['icon'],
-              width: 75, // Sesuaikan ukuran ikon
-              height: 75,
+              width: 40,
+              height: 40,
               fit: BoxFit.contain,
             ),
-            // Memberi jarak antara ikon dan teks
+            SizedBox(height: 5),
             Text(
               items[index]['label'],
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
             ),
           ],
         ),
