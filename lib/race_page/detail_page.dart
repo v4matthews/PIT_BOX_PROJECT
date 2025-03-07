@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pit_box/api_service.dart';
 import 'package:pit_box/webview_page.dart';
+import 'package:pit_box/user_pages/user_reservation.dart'; // Import halaman ReservationPage
 
 class EventDetailPage extends StatelessWidget {
   final Map<String, dynamic> event;
@@ -231,7 +232,7 @@ class EventDetailPage extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
           child: ElevatedButton(
-            onPressed: () => _getTicket(context),
+            onPressed: () => _navigateToReservation(context),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF4A59A9),
               padding: const EdgeInsets.symmetric(vertical: 5),
@@ -249,37 +250,12 @@ class EventDetailPage extends StatelessWidget {
     );
   }
 
-  Future<void> _getTicket(BuildContext context) async {
-    final transactionData = {
-      "id_event": event['id_event'],
-      "nama_event": event['nama_event'],
-      "htm_event": event['htm_event'],
-      "nama_user": "Nama User", // Replace with actual user name
-      "email_user": "user@example.com", // Replace with actual user email
-    };
-
-    final redirectUrl = await ApiService.createTransaction(transactionData);
-
-    if (redirectUrl != null) {
-      // Untuk platform mobile, gunakan WebView
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => MidtransWebView(
-            url: redirectUrl,
-          ),
-        ),
-      ).then((result) {
-        if (result == 'success') {
-          print('Payment Success');
-        } else if (result == 'failure') {
-          print('Payment Failed');
-        }
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to create transaction')),
-      );
-    }
+  void _navigateToReservation(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ReservationPage(event: event),
+      ),
+    );
   }
 }

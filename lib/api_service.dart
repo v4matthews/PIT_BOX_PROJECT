@@ -7,9 +7,9 @@ import 'package:uuid/uuid.dart';
 
 class ApiService {
   // URL Base untuk API server Anda
-  static const String _baseUrl =
-      'https://pit-box-project-backend-452431537344.us-central1.run.app';
-  // static const String _baseUrl = 'http://localhost:8080';
+  // static const String _baseUrl =
+  //     'https://pit-box-project-backend-452431537344.us-central1.run.app';
+  static const String _baseUrl = 'http://localhost:8080';
 
   // Endpoint API
   static const String _registerUserEndpoint = '/registerUser';
@@ -30,6 +30,9 @@ class ApiService {
   static const String _verifyPasswordEndpoint = '/verifyPassword';
   static const String _getTicketsEndpoint = '/getTickets';
   static const String _updatePasswordEndpoint = '/updatePassword';
+  static const String _createReservation = '/createReservation';
+  static const String _getReservationsEndpoint = '/getReservations';
+  // static const String _getUserData = '/getUserData';
 
   // Helper untuk membuat header
   static Map<String, String> _jsonHeaders() => {
@@ -540,4 +543,59 @@ class ApiService {
     // ...
     return 'https://example.com/profile_image.jpg'; // URL gambar yang diunggah
   }
+
+  static Future<bool> createReservation({
+    required String idUser,
+    required String idEvent,
+    required String namaTim,
+  }) async {
+    final response = await _postRequest(_createReservation, {
+      'id_user': idUser,
+      'id_event': idEvent,
+      'nama_tim': namaTim,
+    });
+
+    if (response.statusCode == 201) {
+      return true;
+    } else {
+      throw Exception('Gagal membuat reservasi: ${response.body}');
+    }
+  }
+
+  // Fungsi untuk mendapatkan data reservasi
+  static Future<List<Map<String, dynamic>>> getReservations(
+      String idUser) async {
+    final response = await http.get(
+      Uri.parse('$_baseUrl$_getReservationsEndpoint/$idUser'),
+      headers: _jsonHeaders(),
+    );
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = jsonDecode(response.body);
+      return data.map((item) => item as Map<String, dynamic>).toList();
+    } else {
+      throw Exception('Gagal memuat data reservasi: ${response.body}');
+    }
+  }
+
+  // // Fungsi untuk mendapatkan data pengguna
+  // static Future<Map<String, dynamic>> getUserData() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final username = prefs.getString('username');
+  //   if (username == null) {
+  //     throw Exception('User data not found');
+  //   }
+
+  //   final response = await _getRequest('/getUser/$username');
+  //   if (response.statusCode == 200) {
+  //     final userData = json.decode(response.body);
+  //     return userData;
+  //   } else {
+  //     throw Exception('Failed to retrieve user data: ${response.body}');
+  //   }
+  // }
 }
+
+
+// Fungsi Create Reservation
+

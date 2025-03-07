@@ -51,7 +51,7 @@ class _UpdatePasswordPageState extends State<UpdatePasswordPage> {
             isSuccess: true,
             title: 'Update Password Berhasil',
             message: Text('Password Anda berhasil diperbarui.'),
-            routeName: '/profile');
+            routeName: '/home');
       }
     } catch (e) {
       showCustomDialog(
@@ -59,7 +59,7 @@ class _UpdatePasswordPageState extends State<UpdatePasswordPage> {
           isSuccess: false,
           title: 'Gagal memperbarui password',
           message: Text(e.toString().replaceFirst('Exception: ', '')),
-          routeName: '/profile');
+          routeName: '/home');
     } finally {
       setState(() {
         isLoading = false;
@@ -160,13 +160,13 @@ class _UpdatePasswordPageState extends State<UpdatePasswordPage> {
                       GestureDetector(
                         onTap: () {
                           // Navigate to the '/profile' page when the row is tapped
-                          Navigator.pushNamed(context, '/profile');
+                          Navigator.pushNamed(context, '/home');
                         },
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              'Kembali ke profil? ',
+                              'Kembali ke home? ',
                               style: TextStyle(
                                 color: Colors.grey[700],
                                 fontSize: isSmallScreen ? 16 : 22,
@@ -174,7 +174,7 @@ class _UpdatePasswordPageState extends State<UpdatePasswordPage> {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              'Profil',
+                              'Kembali',
                               style: TextStyle(
                                 color: Colors.blue,
                                 fontWeight: FontWeight.w400,

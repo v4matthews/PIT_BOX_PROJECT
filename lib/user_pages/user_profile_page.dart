@@ -7,6 +7,7 @@ import 'package:pit_box/components/asset_navbar.dart';
 import 'package:pit_box/components/asset_textfield.dart';
 import 'package:pit_box/components/asset_warna.dart';
 import 'package:pit_box/session_service.dart';
+import 'package:pit_box/user_pages/user_reservation_list.dart';
 import 'package:pit_box/user_pages/user_update_password.dart';
 import 'package:pit_box/user_pages/user_update_profile.dart';
 import 'package:pit_box/user_pages/user_update_profile_page.dart'; // Import halaman UserUpdateProfile
@@ -60,6 +61,13 @@ class _UserProfilePageState extends State<UserProfilePage> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => UserUpdateProfile()),
+    );
+  }
+
+  void _resevationList() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ReservationListPage()),
     );
   }
 
@@ -203,6 +211,9 @@ class _UserProfilePageState extends State<UserProfilePage> {
           _buildProfileRow('Ubah Password',
               "Sesuaikan dan atur ulang kata sandi Anda", '/change_password',
               onTap: _navigateToUpdatePassword),
+          _buildProfileRow(
+              'List Reservasi', "Cek status Reservasi Anda", '/reservationList',
+              onTap: _resevationList),
           _buildProfileLogout(),
         ],
       ),

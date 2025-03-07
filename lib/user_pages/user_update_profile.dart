@@ -108,7 +108,7 @@ class _UserUpdateProfileState extends State<UserUpdateProfile> {
             isSuccess: true,
             title: 'Update Berhasil',
             message: Text('Profil Anda berhasil diperbarui.'),
-            routeName: '/profile');
+            routeName: '/home');
       }
     } catch (e) {
       showCustomDialog(
@@ -116,7 +116,7 @@ class _UserUpdateProfileState extends State<UserUpdateProfile> {
           isSuccess: false,
           title: 'Update Gagal',
           message: Text(e.toString().replaceFirst('Exception: ', '')),
-          routeName: '/profile');
+          routeName: '/home');
     } finally {
       setState(() {
         isLoading = false;
@@ -233,13 +233,13 @@ class _UserUpdateProfileState extends State<UserUpdateProfile> {
                       GestureDetector(
                         onTap: () {
                           // Navigate to the '/profile' page when the row is tapped
-                          Navigator.pushNamed(context, '/profile');
+                          Navigator.pushNamed(context, '/home');
                         },
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              'Kembali ke profil? ',
+                              'Kembali ke home? ',
                               style: TextStyle(
                                 color: Colors.grey[700],
                                 fontSize: isSmallScreen ? 16 : 22,
@@ -247,7 +247,7 @@ class _UserUpdateProfileState extends State<UserUpdateProfile> {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              'Profil',
+                              'Kembali',
                               style: TextStyle(
                                 color: Colors.blue,
                                 fontWeight: FontWeight.w400,
