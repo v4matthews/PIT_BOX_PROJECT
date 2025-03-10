@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:pit_box/components/asset_warna.dart';
 import 'package:pit_box/race_page/detail_page.dart';
 import 'package:pit_box/user_pages/user_home_page.dart';
-// import 'package:pit_box/user_pages/user_home_page_old.dart';
 import 'package:pit_box/components/asset_list_view.dart'; // Import the EventListView
 
 class AllCatagories extends StatefulWidget {
@@ -193,12 +192,7 @@ class _AllCatagoriesState extends State<AllCatagories> {
 
     return WillPopScope(
       onWillPop: () async {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => UserHomePage(),
-          ),
-        );
+        Navigator.pop(context, true); // Mengirimkan nilai true saat kembali
         return false;
       },
       child: Scaffold(
@@ -210,7 +204,8 @@ class _AllCatagoriesState extends State<AllCatagories> {
               color: Colors.white,
             ),
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.pop(
+                  context, true); // Mengirimkan nilai true saat kembali
             },
           ),
           title: Row(

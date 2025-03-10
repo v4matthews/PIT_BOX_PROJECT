@@ -7,9 +7,9 @@ import 'package:uuid/uuid.dart';
 
 class ApiService {
   // URL Base untuk API server Anda
-  // static const String _baseUrl =
-  //     'https://pit-box-project-backend-452431537344.us-central1.run.app';
-  static const String _baseUrl = 'http://localhost:8080';
+  static const String _baseUrl =
+      'https://pit-box-project-backend-452431537344.us-central1.run.app';
+  // static const String _baseUrl = 'http://localhost:8080';
 
   // Endpoint API
   static const String _registerUserEndpoint = '/registerUser';
@@ -508,9 +508,10 @@ class ApiService {
     final response = await http.get(Uri.parse('$_baseUrl/getUser/$username'));
     if (response.statusCode == 200) {
       final userData = json.decode(response.body);
-      print('Data User: $userData'); // Debug print statement
+      print('Data User: ${userData["_id"]}'); // Debug print statement
       return {
-        'id_user': userData['id_user'] ?? '',
+        // 'id_user': userData[index]["_id"] ?? '',]
+        'id_user': userData["_id"] ?? '',
         'username': userData['username'] ?? '',
         'nama_user': userData['nama_user'] ?? '',
         'email_user': userData['email_user'] ?? '',

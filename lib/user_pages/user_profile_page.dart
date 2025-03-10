@@ -111,7 +111,6 @@ class _UserProfilePageState extends State<UserProfilePage> {
           : SingleChildScrollView(
               child: Column(
                 children: [
-                  // Bagian Foto Profil dengan Latar Biru
                   Container(
                     color: AppColors.whiteColor,
                     width: double.infinity,
@@ -121,47 +120,6 @@ class _UserProfilePageState extends State<UserProfilePage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _buildProfileHeader('/edit_profile'),
-                        SizedBox(height: 10),
-                        Card(
-                          color: Colors.white,
-                          margin: const EdgeInsets.symmetric(vertical: 20),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            side: BorderSide(color: Colors.grey, width: 1),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Selamat!',
-                                  style: TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.primaryText,
-                                  ),
-                                ),
-                                SizedBox(height: 8),
-                                Text(
-                                  'Anda telah memenangkan [jumlah] perlombaan.',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    color: AppColors.primaryText,
-                                  ),
-                                ),
-                                SizedBox(height: 8),
-                                Text(
-                                  'Ayo terus pertahankan kemampuan dan tingkatkan prestasi dengan mengikuti perlombaan yang akan datang!',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: AppColors.primaryText,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        )
                       ],
                     ),
                   ),
@@ -222,7 +180,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
   Widget _buildProfileHeader(String routeName) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 20.0),
+      padding: const EdgeInsets.only(top: 50, bottom: 20),
       child: GestureDetector(
         onTap: () => _navigateToPage(routeName),
         child: Column(
@@ -246,11 +204,6 @@ class _UserProfilePageState extends State<UserProfilePage> {
                       color: Colors.grey[600],
                     ),
                   ),
-                ),
-                Icon(
-                  Icons.chevron_right, // Ikon >
-                  color: Colors.grey[600],
-                  size: 30, // Perbesar ukuran ikon
                 ),
               ],
             ),

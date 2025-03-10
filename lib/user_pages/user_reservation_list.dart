@@ -39,8 +39,21 @@ class _ReservationListPageState extends State<ReservationListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('Daftar Reservasi'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+        title: Text(
+          'Daftar Reservasi',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         backgroundColor: AppColors.primaryColor,
       ),
       body: _isLoading
@@ -51,10 +64,45 @@ class _ReservationListPageState extends State<ReservationListPage> {
                   itemCount: _reservations.length,
                   itemBuilder: (context, index) {
                     final reservation = _reservations[index];
-                    return ListTile(
-                      title: Text(reservation['nama_event']),
-                      subtitle: Text('Nama Tim: ${reservation['nama_tim']}'),
-                      trailing: Text('Status: ${reservation['status']}'),
+                    final event = reservation['id_event'];
+                    return Card(
+                      color: Colors.white, // Mengubah warna card menjadi putih
+                      margin:
+                          EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                      elevation: 5,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(15.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              event['nama_event'],
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            Text('Nama Tim: ${reservation['nama_tim']}'),
+                            Text('Kategori: ${event['kategori_event']}'),
+                            Text('Tanggal: ${event['tanggal_event']}'),
+                            Text('Lokasi: ${event['kota_event']}'),
+                            SizedBox(height: 10),
+                            Text(
+                              'Status: ${reservation['status']}',
+                              style: TextStyle(
+                                color: reservation['status'] == 'Pending'
+                                    ? Colors.orange
+                                    : Colors.green,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     );
                   },
                 ),

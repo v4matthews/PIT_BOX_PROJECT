@@ -20,6 +20,7 @@ class _ReservationPageState extends State<ReservationPage> {
   bool _isLoading = false;
   bool _useUsernameAsTeamName = false;
   String _username = '';
+  String _userId = '';
 
   @override
   void initState() {
@@ -31,6 +32,9 @@ class _ReservationPageState extends State<ReservationPage> {
     final userData = await ApiService.getUserData();
     setState(() {
       _username = userData['nama_user'] ?? '';
+      _userId = userData['id_user'] ?? '';
+      print('Data User: $_username');
+      print('Data User: $_userId');
     });
   }
 
@@ -51,10 +55,9 @@ class _ReservationPageState extends State<ReservationPage> {
     });
 
     try {
-      final userData = await ApiService.getUserData();
       final response = await ApiService.createReservation(
-        idUser: userData['_id']!,
-        idEvent: widget.event['id_event'],
+        idUser: _userId,
+        idEvent: widget.event['_id'],
         namaTim: _teamNameController.text,
       );
 
@@ -237,17 +240,6 @@ class _ReservationPageState extends State<ReservationPage> {
                           ],
                         ),
                       ),
-
-                      // // Pesan
-                      // Text(
-                      //   _message,
-                      //   style: TextStyle(
-                      //     color: _message.contains('berhasil')
-                      //         ? Colors.green
-                      //         : Colors.red,
-                      //     fontSize: 16,
-                      //   ),
-                      // ),
                     ],
                   ),
                 ),

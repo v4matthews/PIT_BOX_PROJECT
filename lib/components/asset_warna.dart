@@ -13,7 +13,7 @@ class AppColors {
   static const Color blackColor = Color(0xFF000000);
   static const Color accentColor = Color(0xFFFFB22C);
 
-  static const Color background = Color(0xFFF7F7F7); // Putih
+  static const Color background = Color(0xFFFFFFFF); // Putih
   static const Color backgroundSecondary = Color(0xFFFFFFFF);
 
   static const Color primaryText = Color(0xFF45474B);

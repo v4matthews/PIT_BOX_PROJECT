@@ -59,6 +59,11 @@ class _UserHomePageState extends State<UserHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: AppColors.primaryColor,
+        elevation: 0,
+        toolbarHeight: 0, // This makes the AppBar height 0
+      ),
       backgroundColor: AppColors.backgroundSecondary,
       body: SafeArea(
         child: isLoading
@@ -171,7 +176,7 @@ class _UserHomePageState extends State<UserHomePage> {
                                 borderRadius: BorderRadius.circular(16),
                                 image: DecorationImage(
                                   image: AssetImage(
-                                      '../assets/images/carousel_$index.png'),
+                                      'assets/images/carousel/carousel_$index.png'),
                                   fit: BoxFit.fill,
                                 ),
                               ),
@@ -193,14 +198,14 @@ class _UserHomePageState extends State<UserHomePage> {
                               scrollDirection: Axis.horizontal,
                               children: [
                                 _buildHorizontalCard(150, "Race Point",
-                                    userPoin, "../assets/images/icon/poin.svg"),
+                                    userPoin, "assets/images/icon/poin.svg"),
                                 _buildHorizontalCard(
                                     225,
                                     "Jadwal Race",
                                     "Belum ada jadwal",
-                                    "../assets/images/icon/jadwal.svg"),
+                                    "assets/images/icon/jadwal.svg"),
                                 _buildHorizontalCard(160, "Perlombaan", "5",
-                                    "../assets/images/icon/checklist.svg"),
+                                    "assets/images/icon/checklist.svg"),
                               ],
                             ),
                           ),
@@ -319,37 +324,33 @@ class _UserHomePageState extends State<UserHomePage> {
 
   Widget _buildGridItem(int index) {
     List<Map<String, dynamic>> items = [
-      {
-        "label": "All Class",
-        "key": "",
-        "icon": "../assets/images/icon/all.svg"
-      },
-      {"label": "STB", "key": "STB", "icon": "../assets/images/icon/stb.svg"},
+      {"label": "All Class", "key": "", "icon": "assets/images/icon/all.svg"},
+      {"label": "STB", "key": "STB", "icon": "assets/images/icon/stb.svg"},
       {
         "label": "STB UP",
         "key": "STB UP",
-        "icon": "../assets/images/icon/stbup.svg"
+        "icon": "assets/images/icon/stbup.svg"
       },
-      {"label": "STO", "key": "STO", "icon": "../assets/images/icon/sto.svg"},
+      {"label": "STO", "key": "STO", "icon": "assets/images/icon/sto.svg"},
       {
         "label": "Damper Tune",
         "key": "damperstyletune",
-        "icon": "../assets/images/icon/tune.svg"
+        "icon": "assets/images/icon/tune.svg"
       },
       {
         "label": "Damper Dash",
         "key": "damperstyledash",
-        "icon": "../assets/images/icon/dash.svg"
+        "icon": "assets/images/icon/dash.svg"
       },
       {
         "label": "Sloop",
         "key": "Sloop",
-        "icon": "../assets/images/icon/sloop.svg"
+        "icon": "assets/images/icon/sloop.svg"
       },
       {
         "label": "Nascar",
         "key": "Nascar",
-        "icon": "../assets/images/icon/nascar.svg"
+        "icon": "assets/images/icon/nascar.svg"
       },
     ];
 
