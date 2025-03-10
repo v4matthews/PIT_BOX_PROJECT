@@ -4,6 +4,7 @@ import 'package:pit_box/components/asset_alert.dart';
 import 'package:pit_box/components/asset_textfield.dart';
 import 'package:pit_box/components/asset_warna.dart';
 import 'package:pit_box/components/assset_button_loading.dart';
+import 'package:pit_box/user_pages/user_payment.dart';
 
 class ReservationPage extends StatefulWidget {
   final Map<String, dynamic> event;
@@ -61,13 +62,18 @@ class _ReservationPageState extends State<ReservationPage> {
         namaTim: _teamNameController.text,
       );
 
-      if (response) {
-        showCustomDialog(
-          context: context,
-          isSuccess: true,
-          title: 'Berhasil',
-          message: Text('Reservasi berhasil dibuat!'),
-          routeName: '/home',
+      print("Response: $response");
+      print("Response id: ${response['reservation']['_id']}");
+
+      if (response['status'] == 'success') {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => UserPaymentPage(
+              reservationId: response['reservation']['_id'],
+              amount: widget.event['htm_event'],
+            ),
+          ),
         );
       } else {
         showCustomDialog(

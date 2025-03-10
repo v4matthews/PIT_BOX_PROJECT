@@ -32,6 +32,7 @@ class ApiService {
   static const String _updatePasswordEndpoint = '/updatePassword';
   static const String _createReservation = '/createReservation';
   static const String _getReservationsEndpoint = '/getReservations';
+  static const String _createPaymentEndpoint = '/createPayment';
   // static const String _getUserData = '/getUserData';
 
   // Helper untuk membuat header
@@ -545,7 +546,7 @@ class ApiService {
     return 'https://example.com/profile_image.jpg'; // URL gambar yang diunggah
   }
 
-  static Future<bool> createReservation({
+  static Future<Map<String, dynamic>> createReservation({
     required String idUser,
     required String idEvent,
     required String namaTim,
@@ -557,7 +558,7 @@ class ApiService {
     });
 
     if (response.statusCode == 201) {
-      return true;
+      return json.decode(response.body);
     } else {
       throw Exception('Gagal membuat reservasi: ${response.body}');
     }
@@ -579,6 +580,24 @@ class ApiService {
     }
   }
 
+  static Future<Map<String, dynamic>> createPayment({
+    required String idReservasi,
+    required int totalHarga,
+    required String metodePembayaran,
+  }) async {
+    final response = await _postRequest(_createPaymentEndpoint, {
+      'id_reservasi': idReservasi,
+      'total_harga': totalHarga,
+      'metode_pembayaran': metodePembayaran,
+    });
+
+    if (response.statusCode == 201) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Gagal membuat pembayaran: ${response.body}');
+    }
+  }
+
   // // Fungsi untuk mendapatkan data pengguna
   // static Future<Map<String, dynamic>> getUserData() async {
   //   final prefs = await SharedPreferences.getInstance();
@@ -595,6 +614,23 @@ class ApiService {
   //     throw Exception('Failed to retrieve user data: ${response.body}');
   //   }
   // }
+
+  static Future<Map<String, dynamic>> processPayment({
+    required String reservationId,
+    required int amount,
+  }) async {
+    print('Reservation ID: $reservationId, Amount: $amount');
+    final response = await _postRequest('/createPayment', {
+      'reservation_id': reservationId,
+      'amount': amount,
+    });
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to process payment: ${response.body}');
+    }
+  }
 }
 
 

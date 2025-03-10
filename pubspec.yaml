@@ -24,7 +24,7 @@ dependencies:
   url_launcher: ^6.0.20
   qr_flutter: ^4.0.0
   shimmer: ^2.0.0
-  # webview_flutter: ^2.0.10
+  webview_flutter: ^4.4.0
   # flutter_svg: ^2.0.0+1
 
 dev_dependencies:
