@@ -33,6 +33,9 @@ class ApiService {
   static const String _createReservation = '/createReservation';
   static const String _getReservationsEndpoint = '/getReservations';
   static const String _createPaymentEndpoint = '/createPayment';
+  static const String _updateReservationStatus = '/updateReservationStatus';
+  static const String _getEnabledPaymentMethodsUrl = '/getPaymentMethods';
+
   // static const String _getUserData = '/getUserData';
 
   // Helper untuk membuat header
@@ -625,10 +628,41 @@ class ApiService {
       'amount': amount,
     });
 
+    print('Payment Response: ${response.body}');
+    if (response.statusCode == 201) {
+      print('Payment berhasil kembali');
+      return jsonDecode(response.body);
+    } else {
+      print('Payment gagal kembali');
+      throw Exception('Failed to process payment: ${response.body}');
+    }
+  }
+
+  // Fungsi untuk memperbarui status reservasi
+  static Future<Map<String, dynamic>> updateReservationStatus({
+    required String reservationId,
+    required String status,
+  }) async {
+    final response = await _putRequest(_updateReservationStatus, {
+      'reservation_id': reservationId,
+      'status': status,
+    });
+
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
-      throw Exception('Failed to process payment: ${response.body}');
+      throw Exception('Failed to update reservation status: ${response.body}');
+    }
+  }
+
+  static Future<List<String>> getEnabledPaymentMethods() async {
+    final response = await http.get(Uri.parse(_getEnabledPaymentMethodsUrl));
+
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      return List<String>.from(responseData['data']);
+    } else {
+      throw Exception('Gagal mengambil metode pembayaran: ${response.body}');
     }
   }
 }

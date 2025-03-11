@@ -5,6 +5,7 @@ import 'package:pit_box/components/asset_textfield.dart';
 import 'package:pit_box/components/asset_warna.dart';
 import 'package:pit_box/components/assset_button_loading.dart';
 import 'package:pit_box/user_pages/user_payment.dart';
+import 'package:pit_box/user_pages/web_view.dart';
 
 class ReservationPage extends StatefulWidget {
   final Map<String, dynamic> event;
@@ -62,8 +63,8 @@ class _ReservationPageState extends State<ReservationPage> {
         namaTim: _teamNameController.text,
       );
 
-      print("Response: $response");
-      print("Response id: ${response['reservation']['_id']}");
+      // print("Response: $response");
+      // print("Response id: ${response['reservation']['_id']}");
 
       if (response['status'] == 'success') {
         Navigator.push(

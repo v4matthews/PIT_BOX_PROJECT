@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pit_box/api_service.dart';
 import 'package:pit_box/components/asset_warna.dart';
+import 'package:pit_box/user_pages/user_payment.dart'; // Import halaman pembayaran
 
 class ReservationListPage extends StatefulWidget {
   @override
@@ -34,6 +35,18 @@ class _ReservationListPageState extends State<ReservationListPage> {
         SnackBar(content: Text('Gagal memuat data reservasi: $e')),
       );
     }
+  }
+
+  void _continuePayment(String reservationId, int amount) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => UserPaymentPage(
+          reservationId: reservationId,
+          amount: amount,
+        ),
+      ),
+    );
   }
 
   @override
@@ -73,34 +86,42 @@ class _ReservationListPageState extends State<ReservationListPage> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15),
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(15.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              event['nama_event'],
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                      child: InkWell(
+                        onTap: () {
+                          if (reservation['status'] == 'Pending') {
+                            _continuePayment(reservation['id_reservasi'],
+                                reservation['amount']);
+                          }
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                event['nama_event'],
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
-                            SizedBox(height: 10),
-                            Text('Nama Tim: ${reservation['nama_tim']}'),
-                            Text('Kategori: ${event['kategori_event']}'),
-                            Text('Tanggal: ${event['tanggal_event']}'),
-                            Text('Lokasi: ${event['kota_event']}'),
-                            SizedBox(height: 10),
-                            Text(
-                              'Status: ${reservation['status']}',
-                              style: TextStyle(
-                                color: reservation['status'] == 'Pending'
-                                    ? Colors.orange
-                                    : Colors.green,
-                                fontWeight: FontWeight.bold,
+                              SizedBox(height: 10),
+                              Text('Nama Tim: ${reservation['nama_tim']}'),
+                              Text('Kategori: ${event['kategori_event']}'),
+                              Text('Tanggal: ${event['tanggal_event']}'),
+                              Text('Lokasi: ${event['kota_event']}'),
+                              SizedBox(height: 10),
+                              Text(
+                                'Status: ${reservation['status']}',
+                                style: TextStyle(
+                                  color: reservation['status'] == 'Pending'
+                                      ? Colors.orange
+                                      : Colors.green,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     );

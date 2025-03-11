@@ -1,23 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:pit_box/api_service.dart';
-import 'package:pit_box/components/asset_warna.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-class UserPaymentPage extends StatefulWidget {
+class WebViewPage extends StatefulWidget {
   final String reservationId;
   final int amount;
 
-  const UserPaymentPage({
+  const WebViewPage({
     Key? key,
     required this.reservationId,
     required this.amount,
   }) : super(key: key);
 
   @override
-  _UserPaymentPageState createState() => _UserPaymentPageState();
+  _WebViewPageState createState() => _WebViewPageState();
 }
 
-class _UserPaymentPageState extends State<UserPaymentPage> {
+class _WebViewPageState extends State<WebViewPage> {
   bool _isLoading = false;
   String? _paymentUrl;
   late WebViewController _controller;
@@ -27,32 +26,18 @@ class _UserPaymentPageState extends State<UserPaymentPage> {
     super.initState();
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setBackgroundColor(const Color(0x00000000))
+      ..setBackgroundColor(Colors.white)
       ..setNavigationDelegate(
         NavigationDelegate(
           onProgress: (int progress) {
             // Update loading bar.
-            print('WebView is loading (progress : $progress%)');
           },
-          onPageStarted: (String url) {
-            print('Page started loading: $url');
-          },
-          onPageFinished: (String url) {
-            print('Page finished loading: $url');
-          },
-          onWebResourceError: (WebResourceError error) {
-            print('''
-              Page resource error:
-              code: ${error.errorCode}
-              description: ${error.description}
-              errorType: ${error.errorType}
-            ''');
-          },
+          onPageStarted: (String url) {},
+          onPageFinished: (String url) {},
+          onWebResourceError: (WebResourceError error) {},
           onNavigationRequest: (NavigationRequest request) {
-            print('allowing navigation to $request');
             if (request.url.contains('payment_success')) {
-              // Pastikan bahwa pembayaran berhasil sebelum navigasi
-              Navigator.of(context).pushReplacementNamed('/home');
+              Navigator.pop(context, 'success');
               return NavigationDecision.prevent;
             } else if (request.url.contains('payment_failed')) {
               Navigator.pop(context, 'failed');
@@ -76,16 +61,16 @@ class _UserPaymentPageState extends State<UserPaymentPage> {
         amount: widget.amount,
       );
 
-      print('Response Woeee: $response');
-
+      print('Response Web: $response');
+      setState(() {
+        _paymentUrl = response['redirect_url'];
+        print('Payment URL: $_paymentUrl');
+        if (_paymentUrl != null) {
+          _controller.loadRequest(Uri.parse(_paymentUrl!));
+        }
+      });
       if (response['status'] == 'success') {
-        setState(() {
-          _paymentUrl = response['redirect_url'];
-          print('Payment URL: $_paymentUrl');
-          if (_paymentUrl != null) {
-            _controller.loadRequest(Uri.parse(_paymentUrl!));
-          }
-        });
+        // Handle success case if needed
       } else {
         print('Payment failed: ${response['message']}');
       }
@@ -102,7 +87,6 @@ class _UserPaymentPageState extends State<UserPaymentPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: AppColors.primaryColor,
         title: Text('Pembayaran'),
       ),
       body: _isLoading
