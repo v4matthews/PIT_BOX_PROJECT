@@ -23,6 +23,7 @@ class _ReservationPageState extends State<ReservationPage> {
   bool _useUsernameAsTeamName = false;
   String _username = '';
   String _userId = '';
+  String _paymentMethod = '';
 
   @override
   void initState() {
@@ -52,6 +53,17 @@ class _ReservationPageState extends State<ReservationPage> {
       return;
     }
 
+    if (_paymentMethod.isEmpty) {
+      showCustomDialog(
+        context: context,
+        isSuccess: false,
+        title: 'Gagal',
+        message: Text('Metode pembayaran belum dipilih.'),
+        routeName: '',
+      );
+      return;
+    }
+
     setState(() {
       _isLoading = true;
     });
@@ -63,9 +75,6 @@ class _ReservationPageState extends State<ReservationPage> {
         namaTim: _teamNameController.text,
       );
 
-      // print("Response: $response");
-      // print("Response id: ${response['reservation']['_id']}");
-
       if (response['status'] == 'success') {
         Navigator.push(
           context,
@@ -73,6 +82,7 @@ class _ReservationPageState extends State<ReservationPage> {
             builder: (context) => UserPaymentPage(
               reservationId: response['reservation']['_id'],
               amount: widget.event['htm_event'],
+              paymentMethod: _paymentMethod,
             ),
           ),
         );
@@ -153,17 +163,51 @@ class _ReservationPageState extends State<ReservationPage> {
 
                       const SizedBox(height: 20),
 
-                      // Sub Title Text
+                      // Event Details
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: screenWidth * 0.1, vertical: 10),
-                        child: Text(
-                          'Pastikan data yang Anda masukkan benar untuk mempermudah proses reservasi.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: AppColors.primaryText,
-                            fontSize: isSmallScreen ? 16 : 22,
-                          ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Detail Perlombaan:',
+                              style: TextStyle(
+                                color: AppColors.primaryText,
+                                fontSize: isSmallScreen ? 16 : 22,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              'Nama Event: ${widget.event['nama_event']}',
+                              style: TextStyle(
+                                color: AppColors.primaryText,
+                                fontSize: isSmallScreen ? 14 : 18,
+                              ),
+                            ),
+                            Text(
+                              'Tanggal: ${widget.event['tanggal_event']}',
+                              style: TextStyle(
+                                color: AppColors.primaryText,
+                                fontSize: isSmallScreen ? 14 : 18,
+                              ),
+                            ),
+                            Text(
+                              'Lokasi: ${widget.event['lokasi_event']}',
+                              style: TextStyle(
+                                color: AppColors.primaryText,
+                                fontSize: isSmallScreen ? 14 : 18,
+                              ),
+                            ),
+                            Text(
+                              'HTM: ${widget.event['htm_event']}',
+                              style: TextStyle(
+                                color: AppColors.primaryText,
+                                fontSize: isSmallScreen ? 14 : 18,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
 
@@ -204,6 +248,60 @@ class _ReservationPageState extends State<ReservationPage> {
                             ),
                           ),
                         ],
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Metode Pembayaran
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: screenWidth * 0.1, vertical: 10),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Pilih Metode Pembayaran:',
+                              style: TextStyle(
+                                color: AppColors.primaryText,
+                                fontSize: isSmallScreen ? 16 : 22,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      _paymentMethod = 'other_qris';
+                                    });
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    primary: _paymentMethod == 'other_qris'
+                                        ? Colors.blue
+                                        : Colors.grey,
+                                  ),
+                                  child: Text('Other QRIS'),
+                                ),
+                                const SizedBox(width: 10),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      _paymentMethod = 'bank_transfer';
+                                    });
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    primary: _paymentMethod == 'bank_transfer'
+                                        ? Colors.blue
+                                        : Colors.grey,
+                                  ),
+                                  child: Text('Bank Transfer'),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
 
                       const SizedBox(height: 20),
