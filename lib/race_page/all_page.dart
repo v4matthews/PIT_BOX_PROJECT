@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pit_box/api_service.dart';
 import 'package:intl/intl.dart';
+import 'package:pit_box/components/asset_datepicker.dart';
+import 'package:pit_box/components/asset_dropdown.dart';
 import 'package:pit_box/components/asset_warna.dart';
 import 'package:pit_box/race_page/detail_page.dart';
 import 'package:pit_box/user_pages/user_home_page.dart';
@@ -16,7 +18,8 @@ class AllCatagories extends StatefulWidget {
   State<AllCatagories> createState() => _AllCatagoriesState();
 }
 
-class _AllCatagoriesState extends State<AllCatagories> {
+class _AllCatagoriesState extends State<AllCatagories>
+    with SingleTickerProviderStateMixin {
   int currentPage = 1;
   int totalPages = 1;
   final int itemsPerPage = 10;
@@ -30,6 +33,16 @@ class _AllCatagoriesState extends State<AllCatagories> {
   List events = [];
   List filteredEvents = [];
   List<String> regionList = [];
+  List<String> categories = [
+    'ALL',
+    'STB',
+    'STB UP',
+    'STO',
+    'DAMPER TUNE',
+    'DAMPER DASH',
+    'NASCAR',
+    'SLOOP',
+  ]; // Add your categories here
 
   String? selectedClass;
 
@@ -40,9 +53,13 @@ class _AllCatagoriesState extends State<AllCatagories> {
   bool isLoading = true;
   bool isError = false;
 
+  late TabController _tabController;
+
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: categories.length, vsync: this);
+    _tabController.addListener(_onTabChanged);
     _scrollController.addListener(_onScroll);
     fetchEvents();
     fetchRegionData();
@@ -50,6 +67,15 @@ class _AllCatagoriesState extends State<AllCatagories> {
     if (widget.searchQuery != null) {
       _searchController.text = widget.searchQuery!;
       filterEventsBySearch(widget.searchQuery!);
+    }
+  }
+
+  void _onTabChanged() {
+    if (_tabController.indexIsChanging) {
+      setState(() {
+        selectedClass = categories[_tabController.index];
+      });
+      filterEvents();
     }
   }
 
@@ -74,6 +100,7 @@ class _AllCatagoriesState extends State<AllCatagories> {
 
   @override
   void dispose() {
+    _tabController.dispose();
     _scrollController.dispose();
     _searchController.dispose();
     _dateController1.dispose();
@@ -196,18 +223,10 @@ class _AllCatagoriesState extends State<AllCatagories> {
         return false;
       },
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.whiteColor,
         appBar: AppBar(
-          leading: IconButton(
-            icon: const Icon(
-              Icons.arrow_back,
-              color: Colors.white,
-            ),
-            onPressed: () {
-              Navigator.pop(
-                  context, true); // Mengirimkan nilai true saat kembali
-            },
-          ),
+          scrolledUnderElevation: 0.0,
+          backgroundColor: AppColors.whiteColor,
           title: Row(
             children: [
               Expanded(
@@ -219,8 +238,8 @@ class _AllCatagoriesState extends State<AllCatagories> {
                     filled: true,
                     fillColor: Colors.white,
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20.0),
-                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Colors.black),
                     ),
                     contentPadding: EdgeInsets.symmetric(
                       vertical: 5.0,
@@ -228,22 +247,108 @@ class _AllCatagoriesState extends State<AllCatagories> {
                     ),
                   ),
                   onSubmitted: (query) {
-                    setState(() {
-                      filteredEvents = events.where((event) {
-                        final namaEvent = event['nama_event'].toLowerCase();
-                        final kotaEvent = event['kota_event'].toLowerCase();
-                        final lowerQuery = query.toLowerCase();
-
-                        return namaEvent.contains(lowerQuery) ||
-                            kotaEvent.contains(lowerQuery);
-                      }).toList();
-                    });
+                    filterEventsBySearch(query);
                   },
                 ),
               ),
+              IconButton(
+                icon: Icon(Icons.filter_list, color: Colors.black),
+                onPressed: () {
+                  showModalBottomSheet(
+                    backgroundColor: AppColors.whiteColor,
+                    context: context,
+                    builder: (BuildContext context) {
+                      final screenWidth = MediaQuery.of(context).size.width;
+                      final fieldWidth = screenWidth * 0.9;
+                      return Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(height: 16),
+                            Center(
+                              child: Text(
+                                'Filter Event',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 20),
+                            Center(
+                              child: AssetDropdown(
+                                hintText: "Pilih Kota",
+                                selectedValue: selectedLocation,
+                                width: fieldWidth,
+                                onChanged: (newValue) {
+                                  setState(() {
+                                    selectedLocation = newValue;
+                                  });
+                                  Navigator.pop(context);
+                                  filterEvents();
+                                },
+                                items: regionList,
+                              ),
+                            ),
+                            SizedBox(height: 16),
+                            Center(
+                              child: MyDateField(
+                                controller: _dateController1,
+                                hintText: 'Pilih Tanggal 1',
+                                width: fieldWidth,
+                                onDateSelected: (pickedDate) {
+                                  setState(() {
+                                    selectedDate1 = pickedDate;
+                                    _dateController1.text =
+                                        DateFormat('yyyy-MM-dd')
+                                            .format(pickedDate);
+                                  });
+                                  Navigator.pop(context);
+                                  filterEvents();
+                                },
+                              ),
+                            ),
+                            SizedBox(height: 16),
+                            Center(
+                              child: MyDateField(
+                                controller: _dateController2,
+                                hintText: 'Pilih Tanggal 2',
+                                width: fieldWidth,
+                                onDateSelected: (pickedDate) {
+                                  setState(() {
+                                    selectedDate2 = pickedDate;
+                                    _dateController2.text =
+                                        DateFormat('yyyy-MM-dd')
+                                            .format(pickedDate);
+                                  });
+                                  Navigator.pop(context);
+                                  filterEvents();
+                                },
+                              ),
+                            ),
+                            SizedBox(height: 30),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
             ],
           ),
-          backgroundColor: AppColors.primaryColor,
+          bottom: TabBar(
+            controller: _tabController,
+            isScrollable: true, // Tambahkan ini agar tab dapat di-scroll
+            labelColor: AppColors.primaryText,
+            unselectedLabelColor: AppColors.secondaryText,
+            indicatorColor: AppColors.primaryText,
+            indicatorWeight: 4.0,
+            indicatorSize: TabBarIndicatorSize.tab,
+            labelStyle: TextStyle(fontWeight: FontWeight.bold),
+            unselectedLabelStyle: TextStyle(fontWeight: FontWeight.normal),
+            tabs: categories.map((category) => Tab(text: category)).toList(),
+          ),
         ),
         body: isLoading
             ? const Center(

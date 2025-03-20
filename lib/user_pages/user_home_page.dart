@@ -60,7 +60,7 @@ class _UserHomePageState extends State<UserHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: AppColors.primaryColor,
+        backgroundColor: AppColors.whiteColor,
         elevation: 0,
         toolbarHeight: 0, // This makes the AppBar height 0
       ),
@@ -79,8 +79,8 @@ class _UserHomePageState extends State<UserHomePage> {
                       padding:
                           EdgeInsets.symmetric(horizontal: 20, vertical: 30),
                       decoration: BoxDecoration(
-                        color: AppColors.primaryColor,
-                      ),
+                          // color: AppColors.whi,
+                          ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -93,13 +93,13 @@ class _UserHomePageState extends State<UserHomePage> {
                                   fontFamily: 'Montserrat',
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,
-                                  color: AppColors.whiteText,
+                                  color: AppColors.primaryText,
                                 ),
                               ),
                               IconButton(
                                 icon: Icon(
                                   Icons.notifications,
-                                  color: AppColors.whiteText,
+                                  color: AppColors.primaryText,
                                 ),
                                 onPressed: () {
                                   ScaffoldMessenger.of(context).showSnackBar(
@@ -126,7 +126,7 @@ class _UserHomePageState extends State<UserHomePage> {
                               userLocation,
                               style: TextStyle(
                                 fontSize: 18,
-                                color: AppColors.whiteText,
+                                color: AppColors.primaryText,
                               ),
                             ),
                           ),
@@ -135,12 +135,12 @@ class _UserHomePageState extends State<UserHomePage> {
                             decoration: InputDecoration(
                               hintText: "Cari class lomba / kategori",
                               filled: true,
-                              fillColor: Colors.grey[200],
+                              fillColor: AppColors.whiteColor,
                               prefixIcon:
                                   Icon(Icons.search, color: Colors.black),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
+                                borderSide: BorderSide(color: Colors.black),
                               ),
                               hintStyle:
                                   TextStyle(color: AppColors.primaryText),
@@ -163,8 +163,7 @@ class _UserHomePageState extends State<UserHomePage> {
 
                     // Carousel Gambar
                     Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 15),
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: Container(
                         height: 200,
                         child: PageView.builder(

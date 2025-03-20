@@ -76,16 +76,16 @@ class _ReservationPageState extends State<ReservationPage> {
       );
 
       if (response['status'] == 'success') {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => UserPaymentPage(
-              reservationId: response['reservation']['_id'],
-              amount: widget.event['htm_event'],
-              paymentMethod: _paymentMethod,
-            ),
-          ),
-        );
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //     // builder: (context) => UserPaymentPage(
+        //     //   reservationId: response['reservation']['_id'],
+        //     //   amount: widget.event['htm_event'],
+        //     //   paymentMethod: _paymentMethod,
+        //     // ),
+        //   ),
+        // );
       } else {
         showCustomDialog(
           context: context,
@@ -268,38 +268,38 @@ class _ReservationPageState extends State<ReservationPage> {
                               ),
                             ),
                             const SizedBox(height: 10),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                ElevatedButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      _paymentMethod = 'other_qris';
-                                    });
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    primary: _paymentMethod == 'other_qris'
-                                        ? Colors.blue
-                                        : Colors.grey,
-                                  ),
-                                  child: Text('Other QRIS'),
-                                ),
-                                const SizedBox(width: 10),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      _paymentMethod = 'bank_transfer';
-                                    });
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    primary: _paymentMethod == 'bank_transfer'
-                                        ? Colors.blue
-                                        : Colors.grey,
-                                  ),
-                                  child: Text('Bank Transfer'),
-                                ),
-                              ],
-                            ),
+                            // Row(
+                            //   mainAxisAlignment: MainAxisAlignment.center,
+                            //   children: [
+                            //     ElevatedButton(
+                            //       onPressed: () {
+                            //         setState(() {
+                            //           _paymentMethod = 'other_qris';
+                            //         });
+                            //       },
+                            //       // style: ElevatedButton.styleFrom(
+                            //       //   primary: _paymentMethod == 'other_qris'
+                            //       //       ? Colors.blue
+                            //       //       : Colors.grey,
+                            //       // ),
+                            //       child: Text('Other QRIS'),
+                            //     ),
+                            //     const SizedBox(width: 10),
+                            //     ElevatedButton(
+                            //       onPressed: () {
+                            //         setState(() {
+                            //           _paymentMethod = 'bank_transfer';
+                            //         });
+                            //       },
+                            //       style: ElevatedButton.styleFrom(
+                            //       //   primary: _paymentMethod == 'bank_transfer'
+                            //       //       ? Colors.blue
+                            //       //       : Colors.grey,
+                            //       // ),
+                            //       child: Text('Bank Transfer'),
+                            //     ),
+                            //   ],
+                            // ),
                           ],
                         ),
                       ),

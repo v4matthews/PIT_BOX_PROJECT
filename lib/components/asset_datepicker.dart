@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class MyDateField extends StatelessWidget {
-  final TextEditingController controller; // Tipe spesifik
+  final TextEditingController controller;
   final String hintText;
   final DateTime? selectedDate;
   final double width;
@@ -13,42 +13,40 @@ class MyDateField extends StatelessWidget {
     required this.hintText,
     required this.onDateSelected,
     this.selectedDate,
-    this.width = 500, // Default width
+    this.width = 500,
   });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(
-          horizontal: 16.0), // Konsisten dengan UI modern
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: ConstrainedBox(
         constraints: BoxConstraints(
-          maxWidth: width, // Lebar maksimum berdasarkan parameter width
-          maxHeight: 50, // Tinggi maksimum
+          maxWidth: width,
+          maxHeight: 50,
         ),
         child: TextFormField(
           controller: controller,
-          readOnly: true, // Hanya bisa diubah lewat dialog
+          readOnly: true,
           decoration: InputDecoration(
             enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide.none, // Hilangkan garis saat tidak fokus
-              borderRadius: BorderRadius.circular(12), // Sudut melengkung
+              borderSide: BorderSide(color: Colors.grey.shade600),
+              borderRadius: BorderRadius.circular(8),
             ),
             focusedBorder: OutlineInputBorder(
-              borderSide:
-                  BorderSide(color: Colors.grey.shade600), // Garis saat fokus
-              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey.shade600),
+              borderRadius: BorderRadius.circular(8),
             ),
-            fillColor: Colors.grey.shade200, // Warna latar belakang
+            fillColor: Colors.white,
             filled: true,
-            hintText: hintText,
-            hintStyle: TextStyle(
-              color: Colors.grey[500], // Warna hint teks
+            label: Text(hintText),
+            labelStyle: TextStyle(
+              color: Colors.grey[500],
             ),
             suffixIcon: Icon(
               Icons.calendar_today,
               color: Colors.grey[600],
-            ), // Ikon kalender
+            ),
           ),
           onTap: () async {
             final pickedDate = await showDatePicker(
@@ -58,8 +56,7 @@ class MyDateField extends StatelessWidget {
               lastDate: DateTime(2101),
             );
             if (pickedDate != null) {
-              onDateSelected(
-                  pickedDate); // Memanggil fungsi untuk memperbarui selectedDate
+              onDateSelected(pickedDate);
               controller.text = pickedDate.toLocal().toString().split(' ')[0];
             }
           },
