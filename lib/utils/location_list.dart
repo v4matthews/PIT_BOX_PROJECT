@@ -54,25 +54,31 @@ class _LocationListPageState extends State<LocationListPage> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        scrolledUnderElevation: 0.0,
+        backgroundColor: AppColors.whiteColor,
         title: Row(
           children: [
-            IconButton(
-              icon: Icon(Icons.arrow_back),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-            ),
             Expanded(
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 10),
-                child: TextField(
-                  controller: searchController,
-                  decoration: InputDecoration(
-                    hintText: 'Cari Lokasi',
-                    prefixIcon: Icon(Icons.search),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
+              child: TextField(
+                controller: searchController,
+                decoration: InputDecoration(
+                  hintText: 'Cari Kota',
+                  hintStyle:
+                      TextStyle(color: Colors.black, fontFamily: 'OpenSans'),
+                  prefixIcon: Icon(Icons.search, color: Colors.black),
+                  filled: true,
+                  fillColor: Colors.white,
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(width: 1),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(width: 1),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  contentPadding: EdgeInsets.symmetric(
+                    vertical: 5.0,
+                    horizontal: 10.0,
                   ),
                 ),
               ),

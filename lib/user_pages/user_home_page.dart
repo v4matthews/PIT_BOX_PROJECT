@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pit_box/api_service.dart';
+import 'package:pit_box/components/asset_datepicker.dart';
+import 'package:pit_box/components/asset_datepicker_appbar.dart';
 import 'package:pit_box/components/asset_loading.dart';
 import 'package:pit_box/components/asset_warna.dart';
 import 'package:pit_box/race_page/all_page.dart';
@@ -19,6 +21,10 @@ class _UserHomePageState extends State<UserHomePage> {
   String userPoin = '0';
   bool isLoading = true;
   List raceEvents = [];
+  TextEditingController controller = TextEditingController();
+  void onDateSelected(DateTime date) {
+    // Handle date selection
+  }
 
   @override
   void initState() {
@@ -31,7 +37,13 @@ class _UserHomePageState extends State<UserHomePage> {
     final userData = await SessionService.getUserData();
     setState(() {
       userName = userData['nama_user'] ?? 'User';
-      userLocation = userData['kota_user'] ?? 'User Location';
+      userLocation = userData['kota_user'] != null
+          ? userData['kota_user']!
+              .split(' ')
+              .map((word) =>
+                  word[0].toUpperCase() + word.substring(1).toLowerCase())
+              .join(' ')
+          : 'User Location';
       userPoin = userData['poin_user'] ?? '0';
       isLoading = false;
     });
@@ -52,216 +64,317 @@ class _UserHomePageState extends State<UserHomePage> {
 
   void _updateLocation(String newLocation) {
     setState(() {
-      userLocation = newLocation;
+      userLocation = newLocation
+          .split(' ')
+          .map(
+              (word) => word[0].toUpperCase() + word.substring(1).toLowerCase())
+          .join(' ');
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: AppColors.whiteColor,
-        elevation: 0,
-        toolbarHeight: 0, // This makes the AppBar height 0
-      ),
-      backgroundColor: AppColors.backgroundSecondary,
+      appBar: _buildAppBar(),
+      backgroundColor: AppColors.primaryColor,
       body: SafeArea(
-        child: isLoading
-            ? LoadingWidget(text: "Memuat data...")
-            // ? Center(
-            //     child: CircularProgressIndicator(),
-            //   )
-            : SingleChildScrollView(
-                child: Column(
-                  children: [
-                    // Container 1: Informasi Pengguna
-                    Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 20, vertical: 30),
-                      decoration: BoxDecoration(
-                          // color: AppColors.whi,
-                          ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "Halo, $userName",
-                                style: TextStyle(
-                                  fontFamily: 'Montserrat',
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.primaryText,
-                                ),
-                              ),
-                              IconButton(
-                                icon: Icon(
-                                  Icons.notifications,
-                                  color: AppColors.primaryText,
-                                ),
-                                onPressed: () {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content: Text("Notifikasi ditekan!")),
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                          GestureDetector(
-                            onTap: () async {
-                              final selectedLocation = await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => LocationListPage(),
-                                ),
-                              );
-                              if (selectedLocation != null) {
-                                _updateLocation(selectedLocation);
-                              }
-                            },
-                            child: Text(
-                              userLocation,
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: AppColors.primaryText,
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 30),
-                          TextField(
-                            decoration: InputDecoration(
-                              hintText: "Cari class lomba / kategori",
-                              filled: true,
-                              fillColor: AppColors.whiteColor,
-                              prefixIcon:
-                                  Icon(Icons.search, color: Colors.black),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Colors.black),
-                              ),
-                              hintStyle:
-                                  TextStyle(color: AppColors.primaryText),
-                            ),
-                            style: TextStyle(color: AppColors.primaryText),
-                            onSubmitted: (query) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => AllCatagories(
-                                    searchQuery: query,
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Carousel Gambar
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: Container(
-                        height: 200,
-                        child: PageView.builder(
-                          itemCount: 3,
-                          itemBuilder: (context, index) {
-                            return Container(
-                              margin: EdgeInsets.symmetric(horizontal: 10),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(16),
-                                image: DecorationImage(
-                                  image: AssetImage(
-                                      'assets/images/carousel/carousel_$index.png'),
-                                  fit: BoxFit.fill,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 20),
-                      child: Column(
-                        children: [
-                          // Bagian 2: ListView Horizontal
-                          SizedBox(
-                            height: 75,
-                            child: ListView(
-                              scrollDirection: Axis.horizontal,
-                              children: [
-                                _buildHorizontalCard(150, "Race Point",
-                                    userPoin, "assets/images/icon/poin.svg"),
-                                _buildHorizontalCard(
-                                    225,
-                                    "Jadwal Race",
-                                    "Belum ada jadwal",
-                                    "assets/images/icon/jadwal.svg"),
-                                _buildHorizontalCard(160, "Perlombaan", "5",
-                                    "assets/images/icon/checklist.svg"),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    SizedBox(height: 10),
-
-                    Padding(
-                      padding:
-                          EdgeInsets.symmetric(vertical: 10.0, horizontal: 30),
-                      child: Row(
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.only(right: 20.0),
-                            child: Text(
-                              "Find Your Class",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black54,
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Divider(
-                              color: Colors.black26,
-                              thickness: 1,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Grid View Kategori
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 20),
-                      child: GridView.builder(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: 8,
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 4,
-                          childAspectRatio: 1 / 1,
-                          crossAxisSpacing: 10,
-                          mainAxisSpacing: 10,
-                        ),
-                        itemBuilder: (context, index) {
-                          return _buildGridItem(index);
-                        },
-                      ),
-                    ),
-                  ],
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.backgroundSecondary,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
+                  ),
                 ),
               ),
+            ),
+            Positioned.fill(
+              child: isLoading
+                  ? LoadingWidget(text: "Memuat data...")
+                  : SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          _buildGridViewSection(),
+                          _buildHorizontalListSection(),
+                          _buildCarouselSection(),
+                          // _buildFindYourClassSection(),
+                        ],
+                      ),
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  AppBar _buildAppBar() {
+    return AppBar(
+      backgroundColor: AppColors.primaryColor,
+      toolbarHeight: 175,
+      title: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Lokasi Anda",
+            style: TextStyle(
+              fontFamily: 'Montserrat',
+              fontWeight: FontWeight.w100,
+              fontSize: 16,
+              color: AppColors.lightGreyText,
+            ),
+          ),
+          SizedBox(height: 5),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Icons.location_on,
+                    color: AppColors.orangeColor,
+                    size: 20,
+                  ),
+                  SizedBox(width: 5),
+                  GestureDetector(
+                    onTap: () async {
+                      final selectedLocation = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => LocationListPage(),
+                        ),
+                      );
+                      if (selectedLocation != null) {
+                        _updateLocation(selectedLocation);
+                      }
+                    },
+                    child: Row(
+                      children: [
+                        Text(
+                          userLocation,
+                          style: TextStyle(
+                            fontSize: 18,
+                            letterSpacing: 1,
+                            color: AppColors.whiteText,
+                            fontFamily: 'OpenSans',
+                          ),
+                        ),
+                        Icon(
+                          Icons.arrow_drop_down_rounded,
+                          color: AppColors.whiteText,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              // Container(
+              //   width: 40,
+              //   height: 40,
+              //   decoration: BoxDecoration(
+              //     shape: BoxShape.circle,
+              //     color: AppColors.whiteText.withOpacity(0.1),
+              //   ),
+              //   child: IconButton(
+              //     icon: Icon(Icons.notifications, color: AppColors.whiteText),
+              //     onPressed: () {
+              //       ScaffoldMessenger.of(context).showSnackBar(
+              //         SnackBar(content: Text("Notifikasi ditekan!")),
+              //       );
+              //     },
+              //   ),
+              // ),
+            ],
+          ),
+          SizedBox(height: 15),
+          MyAppbarDatePicker(
+            controller: controller,
+            onDateSelected: onDateSelected,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUserInfoSection() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+      decoration: BoxDecoration(
+          // color: AppColors.whi,
+          ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Halo, $userName",
+                style: TextStyle(
+                  fontFamily: 'Montserrat',
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primaryText,
+                ),
+              ),
+              IconButton(
+                icon: Icon(
+                  Icons.notifications,
+                  color: AppColors.primaryText,
+                ),
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Notifikasi ditekan!")),
+                  );
+                },
+              ),
+            ],
+          ),
+          GestureDetector(
+            onTap: () async {
+              final selectedLocation = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => LocationListPage(),
+                ),
+              );
+              if (selectedLocation != null) {
+                _updateLocation(selectedLocation);
+              }
+            },
+            child: Text(
+              userLocation,
+              style: TextStyle(
+                fontSize: 18,
+                color: AppColors.primaryText,
+              ),
+            ),
+          ),
+          SizedBox(height: 30),
+          TextField(
+            decoration: InputDecoration(
+              hintText: "Cari class lomba / kategori",
+              filled: true,
+              fillColor: AppColors.whiteColor,
+              prefixIcon: Icon(Icons.search, color: Colors.black),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.black),
+              ),
+              hintStyle: TextStyle(color: AppColors.primaryText),
+            ),
+            style: TextStyle(color: AppColors.primaryText),
+            onSubmitted: (query) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AllCatagories(
+                    searchQuery: query,
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCarouselSection() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+      child: Container(
+        height: 175,
+        child: PageView.builder(
+          itemCount: 3,
+          itemBuilder: (context, index) {
+            return Container(
+              margin: EdgeInsets.symmetric(horizontal: 10),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                image: DecorationImage(
+                  image:
+                      AssetImage('assets/images/carousel/carousel_$index.png'),
+                  fit: BoxFit.fill,
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHorizontalListSection() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      child: Column(
+        children: [
+          SizedBox(
+            height: 75,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: [
+                _buildHorizontalCard(
+                    150, "Race Point", userPoin, "assets/images/icon/poin.svg"),
+                _buildHorizontalCard(225, "Jadwal Race", "Belum ada jadwal",
+                    "assets/images/icon/jadwal.svg"),
+                _buildHorizontalCard(
+                    160, "Perlombaan", "5", "assets/images/icon/checklist.svg"),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFindYourClassSection() {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 30),
+      child: Row(
+        children: [
+          Padding(
+            padding: EdgeInsets.only(right: 20.0),
+            child: Text(
+              "Find Your Class",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black54,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Divider(
+              color: Colors.black26,
+              thickness: 1,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGridViewSection() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      child: GridView.builder(
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        itemCount: 8,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 4,
+          childAspectRatio: 1 / 1,
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
+        ),
+        itemBuilder: (context, index) {
+          return _buildGridItem(index);
+        },
       ),
     );
   }
