@@ -105,7 +105,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundSecondary,
+      backgroundColor: AppColors.backgroundGrey,
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -119,12 +119,15 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildProfileHeader('/edit_profile'),
+                        _buildProfileHeader(),
                       ],
                     ),
                   ),
                   // Bagian Info Profile
+                  SizedBox(height: 20),
                   _buildProfileInfoSection(),
+                  SizedBox(height: 20),
+                  _buildAccountSetting(),
                 ],
               ),
             ),
@@ -133,7 +136,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
   Widget _buildSectionHeader(String title) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 14),
       child: Row(
         children: [
           Text(
@@ -141,13 +144,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(width: 8),
-          Expanded(
-            child: Divider(
-              color: Colors.grey,
-              thickness: 2,
+              fontFamily: 'OpenSans',
             ),
           ),
         ],
@@ -156,93 +153,145 @@ class _UserProfilePageState extends State<UserProfilePage> {
   }
 
   Widget _buildProfileInfoSection() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.whiteColor,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
+      width: MediaQuery.of(context).size.width * 0.9,
       child: Column(
         children: [
+          _buildSectionHeader('Pitbox Section'),
           _buildProfileRow('Class Event',
-              "Mari mengenal Class perlombaan yang tersedia", '/classInfo',
               isEditable: false, onTap: _navigateToClassInfo),
-          _buildProfileRow('Edit Profile', "Ubah dan sesuaikan profile Anda",
-              '/edit_profile',
-              onTap: _navigateToUpdateProfile),
-          _buildProfileRow('Ubah Password',
-              "Sesuaikan dan atur ulang kata sandi Anda", '/change_password',
-              onTap: _navigateToUpdatePassword),
-          _buildProfileRow(
-              'List Reservasi', "Cek status Reservasi Anda", '/reservationList',
-              onTap: _resevationList),
+          _buildProfileRow('List Reservasi', onTap: _resevationList),
+          SizedBox(height: 30),
+          _buildSectionHeader('Account Setting'),
+          _buildProfileRow('Edit Profile', onTap: _navigateToUpdateProfile),
+          _buildProfileRow('Ubah Password', onTap: _navigateToUpdatePassword),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAccountSetting() {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.whiteColor,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
+      width: MediaQuery.of(context).size.width * 0.9,
+      child: Column(
+        children: [
           _buildProfileLogout(),
         ],
       ),
     );
   }
 
-  Widget _buildProfileHeader(String routeName) {
+  Widget _buildProfileHeader() {
     return Padding(
       padding: const EdgeInsets.only(top: 50, bottom: 20),
-      child: GestureDetector(
-        onTap: () => _navigateToPage(routeName),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              namaUserController.text,
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-              ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          CircleAvatar(
+            radius: 60,
+            backgroundImage: AssetImage(
+                'assets/images/icon/profile.png'), // Replace with your profile icon asset
+          ),
+          SizedBox(height: 10),
+          Text(
+            'Halo, ' + namaUserController.text,
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'OpenSans',
             ),
-            SizedBox(height: 4),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    '@' + usernameController.text,
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.grey[600],
-                    ),
-                  ),
+          ),
+          SizedBox(height: 4),
+          Text(
+            '@' + usernameController.text,
+            style: TextStyle(
+              fontSize: 18,
+              color: Colors.grey[600],
+              fontFamily: 'OpenSans',
+            ),
+          ),
+          SizedBox(height: 30),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildProfileStat('Poin', '1200'), // Replace with actual data
+              Container(
+                height: 30,
+                child: VerticalDivider(
+                  color: Colors.grey,
+                  thickness: 1,
                 ),
-              ],
-            ),
-          ],
-        ),
+              ),
+              _buildProfileStat('Race', '15'), // Replace with actual data
+              Container(
+                height: 30,
+                child: VerticalDivider(
+                  color: Colors.grey,
+                  thickness: 1,
+                ),
+              ),
+              _buildProfileStat('Win', '5'), // Replace with actual data
+            ],
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildProfileRow(String label, String value, String routeName,
+  Widget _buildProfileStat(String label, String value) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        SizedBox(height: 4),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.grey[600],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildProfileRow(String label,
       {bool isEditable = true, VoidCallback? onTap}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 20.0),
+      padding: const EdgeInsets.symmetric(vertical: 16),
       child: GestureDetector(
-        onTap: onTap ?? (isEditable ? () => _navigateToPage(routeName) : null),
+        onTap: onTap,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: 4),
             Row(
               children: [
                 Expanded(
                   child: Text(
-                    value,
+                    label,
                     style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[600],
+                      fontSize: 18,
+                      fontFamily: 'OpenSans',
                     ),
                   ),
                 ),
                 Icon(
-                  Icons.chevron_right, // Ikon >
+                  Icons.chevron_right,
                   color: Colors.grey[600],
                   size: 30,
                 ),
@@ -256,29 +305,24 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
   Widget _buildProfileLogout() {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 50.0),
+      padding: const EdgeInsets.symmetric(vertical: 10),
       child: GestureDetector(
         onTap: _confirmLogout,
         child: Row(
           children: [
             Icon(
               Icons.logout, // Ikon logout
-              color: AppColors.primaryText,
+              color: AppColors.redColor,
             ),
             SizedBox(width: 10),
             Text(
               "Logout",
               style: TextStyle(
-                color: AppColors.primaryText,
+                color: AppColors.redColor,
                 fontSize: 18,
-                fontWeight: FontWeight.bold,
+                fontFamily: 'OpenSans',
+                // fontWeight: FontWeight.bold,
               ),
-            ),
-            Spacer(),
-            Icon(
-              Icons.chevron_right, // Ikon >
-              color: Colors.grey[600],
-              size: 30,
             ),
           ],
         ),
