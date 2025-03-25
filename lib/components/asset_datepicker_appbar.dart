@@ -36,16 +36,16 @@ class MyAppbarDatePicker extends StatelessWidget {
               borderSide: BorderSide.none,
               borderRadius: BorderRadius.circular(16),
             ),
-            fillColor: AppColors.secondaryColor,
+            fillColor: AppColors.whiteColor,
             filled: true,
             hintText: 'Pilih tanggal perlombaan',
             hintStyle: TextStyle(
               fontFamily: 'Montserrat',
-              color: AppColors.secondaryLightColor,
+              color: AppColors.primaryText,
             ),
             suffixIcon: Icon(
               Icons.calendar_today_outlined,
-              color: AppColors.secondaryLightColor,
+              color: AppColors.primaryText,
             ),
           ),
           onTap: () async {

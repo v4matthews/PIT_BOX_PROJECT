@@ -20,7 +20,7 @@ class _ClassInformationPageState extends State<ClassInformationPage> {
           'Aturan: Gunakan semua komponen standar dari kit. Tidak boleh menambahkan part atau aksesoris di luar bawaan. Motor yang digunakan: Mabuchi FA-130 atau S.M.C Motor.',
       'descpGoal':
           'Tujuan: Memperkenalkan dasar-dasar Mini 4WD. Memberikan pengalaman bermain yang mudah dan menyenangkan.',
-      'image': '../assets/images/stb_info.jpg', // Path gambar untuk STB
+      'image': 'assets/images/stb_info.jpg', // Path gambar untuk STB
     },
     'STB UP': {
       'title': 'STB UP',
@@ -31,7 +31,7 @@ class _ClassInformationPageState extends State<ClassInformationPage> {
           'Aturan: Diperbolehkan modifikasi terbatas sesuai dengan regulasi yang disepakati. Tetap menggunakan motor standar namun boleh dilakukan Break In.',
       'descpGoal':
           'Tujuan: Memberikan peluang kepada racer untuk dapat memodifikasi kit dengan beberapa peraturan yang telah disepakati.',
-      'image': '../assets/images/stbup_info.jpg', // Path gambar untuk STB UP
+      'image': 'assets/images/stbup_info.jpg', // Path gambar untuk STB UP
     },
     'STO': {
       'title': 'STO',
@@ -41,7 +41,7 @@ class _ClassInformationPageState extends State<ClassInformationPage> {
       'descpRule':
           'Aturan: Diperbolehkan modifikasi pada sasis, roda, dan komponen lainnya. Penggunaan Motor dibebaskan kepada peserta.',
       'descpGoal': 'Tujuan: Meningkatkan keterampilan tune-up pemain.',
-      'image': '../assets/images/sto_info.jpg', // Path gambar untuk STO
+      'image': 'assets/images/sto_info.jpg', // Path gambar untuk STO
     },
     'SIDE DAMPER TUNE': {
       'title': 'SIDE DAMPER TUNE',
@@ -53,7 +53,7 @@ class _ClassInformationPageState extends State<ClassInformationPage> {
       'descpGoal':
           'Tujuan: Meningkatkan keterampilan dalam menganalisa teknikalitas track.',
       'image':
-          '../assets/images/tune_info.jpg', // Path gambar untuk SIDE DAMPER TUNE
+          'assets/images/tune_info.jpg', // Path gambar untuk SIDE DAMPER TUNE
     },
     'SIDE DAMPER DASH': {
       'title': 'SIDE DAMPER DASH',
@@ -65,7 +65,7 @@ class _ClassInformationPageState extends State<ClassInformationPage> {
       'descpGoal':
           'Tujuan: Meningkatkan keterampilan dalam balap cepat dan semi teknis.',
       'image':
-          '../assets/images/dash_info.jpg', // Path gambar untuk SIDE DAMPER DASH
+          'assets/images/dash_info.jpg', // Path gambar untuk SIDE DAMPER DASH
     },
     'NASCAR': {
       'title': 'NASCAR',
@@ -75,7 +75,7 @@ class _ClassInformationPageState extends State<ClassInformationPage> {
       'descpRule':
           'Aturan: Menggunakan setup khusus untuk lintasan oval. Diperbolehkan modifikasi untuk meningkatkan kecepatan dan stabilitas.',
       'descpGoal': 'Tujuan: Meningkatkan keterampilan dalam balap oval.',
-      'image': '../assets/images/nascar_info.jpg', // Path gambar untuk NASCAR
+      'image': 'assets/images/nascar_info.jpg', // Path gambar untuk NASCAR
     },
     'SLOOP': {
       'title': 'SLOOP',
@@ -85,137 +85,140 @@ class _ClassInformationPageState extends State<ClassInformationPage> {
       'descpRule':
           'Aturan: Menggunakan teknik sloop untuk melompati rintangan. Diperbolehkan modifikasi untuk meningkatkan presisi dan stabilitas.',
       'descpGoal': 'Tujuan: Meningkatkan keterampilan dalam teknik sloop.',
-      'image': '../assets/images/sloop_info.jpg', // Path gambar untuk SLOOP
+      'image': 'assets/images/sloop_info.jpg', // Path gambar untuk SLOOP
     }
   };
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
+    return DefaultTabController(
+      length: classData.keys.length,
+      child: Scaffold(
         backgroundColor: AppColors.background,
-        title: Text(
-          classData[selectedClass]!['title']!,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
+        appBar: AppBar(
+          backgroundColor: AppColors.whiteColor,
+          centerTitle: true,
+          title: const Text(
+            'Detail Event',
+            style: TextStyle(
+              color: AppColors.blackColor,
+              fontSize: 18,
+              // fontWeight: FontWeight.bold,
+              fontFamily: 'OpenSans',
+            ),
+          ),
+          bottom: TabBar(
+            isScrollable: true,
+            labelColor: AppColors
+                .primaryText, // Set the text color of the selected tab to primary text
+            labelStyle: TextStyle(
+                fontWeight: FontWeight.bold), // Make the selected tab text bold
+            unselectedLabelColor: AppColors
+                .primaryText, // Set the text color of the unselected tabs to primary text
+            indicatorColor: AppColors
+                .primaryText, // Set the color of the tab indicator to primary text
+            tabs: classData.keys.map((String key) {
+              return Tab(text: key);
+            }).toList(),
+            onTap: (index) {
+              setState(() {
+                selectedClass = classData.keys.elementAt(index);
+              });
+            },
           ),
         ),
+        body: TabBarView(
+          children: classData.keys.map((String key) {
+            return ClassInfoDisplay(classData: classData[key]!);
+          }).toList(),
+        ),
       ),
-      body: Column(
+    );
+  }
+}
+
+class ClassInfoDisplay extends StatelessWidget {
+  final Map<String, String> classData;
+
+  ClassInfoDisplay({required this.classData});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Informasi class yang dipilih
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Menampilkan gambar
-                  Container(
-                    height: 250,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: AssetImage(
-                          classData[selectedClass]!['image']!,
-                        ),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          classData[selectedClass]!['description']!,
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                        SizedBox(height: 20),
-                        Text(
-                          classData[selectedClass]!['descpHeader']!,
-                          style: TextStyle(
-                            fontSize: 16,
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        Text(
-                          classData[selectedClass]!['descpRule']!,
-                          style: TextStyle(
-                            fontSize: 16,
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        Text(
-                          classData[selectedClass]!['descpGoal']!,
-                          style: TextStyle(
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          // Navbar untuk memilih class
-          Container(
-            decoration: BoxDecoration(
-              color: AppColors.whiteColor,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.5),
-                  spreadRadius: 2,
-                  blurRadius: 5,
-                  offset: Offset(0, -3), // changes position of shadow
-                ),
-              ],
-            ),
-            padding: EdgeInsets.symmetric(vertical: 10),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: classData.keys.map((String key) {
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        selectedClass = key;
-                      });
-                    },
-                    child: Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: selectedClass == key
-                            ? AppColors
-                                .primaryColor // Warna primary untuk item yang dipilih
-                            : AppColors.whiteColor,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        key,
-                        style: TextStyle(
-                          color: selectedClass == key
-                              ? Colors
-                                  .white // Warna teks putih untuk item yang dipilih
-                              : AppColors.blackColor,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ),
+          ClassImage(imagePath: classData['image']!),
+          SizedBox(height: 20),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: ClassTextInfo(classData: classData),
           ),
         ],
       ),
+    );
+  }
+}
+
+class ClassImage extends StatelessWidget {
+  final String imagePath;
+
+  ClassImage({required this.imagePath});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 250,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage(imagePath),
+          fit: BoxFit.cover,
+        ),
+      ),
+    );
+  }
+}
+
+class ClassTextInfo extends StatelessWidget {
+  final Map<String, String> classData;
+
+  ClassTextInfo({required this.classData});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          classData['description']!,
+          style: TextStyle(
+            fontSize: 18,
+            color: Colors.grey[600],
+          ),
+        ),
+        SizedBox(height: 20),
+        Text(
+          classData['descpHeader']!,
+          style: TextStyle(
+            fontSize: 16,
+          ),
+        ),
+        SizedBox(height: 10),
+        Text(
+          classData['descpRule']!,
+          style: TextStyle(
+            fontSize: 16,
+          ),
+        ),
+        SizedBox(height: 10),
+        Text(
+          classData['descpGoal']!,
+          style: TextStyle(
+            fontSize: 16,
+          ),
+        ),
+      ],
     );
   }
 }

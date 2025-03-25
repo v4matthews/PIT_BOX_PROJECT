@@ -8,6 +8,10 @@ import 'package:pit_box/components/asset_textfield_password.dart';
 import 'package:pit_box/components/asset_warna.dart';
 import 'package:pit_box/components/assset_button_loading.dart';
 import 'package:pit_box/components/square_tile.dart';
+import 'package:pit_box/organizer_pages/organizer_forgot.dart';
+import 'package:pit_box/organizer_pages/organizer_home.dart';
+import 'package:pit_box/organizer_pages/organizer_login_page.dart';
+import 'package:pit_box/organizer_pages/organizer_register_page.dart';
 import 'package:pit_box/session_service.dart';
 import 'package:pit_box/user_pages/user_forgot.dart';
 import 'dart:convert';
@@ -23,12 +27,17 @@ class LoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
+        resizeToAvoidBottomInset: false, // Prevent screen from shifting up
         body: TwoLayerPage(),
       ),
       routes: {
         '/login': (context) => LoginPage(),
         '/register': (context) => RegisterPage(),
         '/forgotUser': (context) => UserForgetPassword(),
+        '/loginOrganizer': (context) => OrganizerLoginPage(),
+        '/forgotOrganizer': (context) => OrganizerForgotPassword(),
+        '/registerOrganizer': (context) => OrganizerRegisterPage(),
+        '/homeOrganizer': (context) => organizerHome(),
         // Tambahkan rute lain jika diperlukan
       },
     );
@@ -146,7 +155,12 @@ class TwoLayerPage extends StatelessWidget {
       children: [
         // Layer 1: Background Biru
         Container(
-          color: AppColors.primaryColor,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/bg.jpg'), // Path to your image
+              fit: BoxFit.cover,
+            ),
+          ),
         ),
         // Layer 2: Layer dengan 60% dari ukuran layar, rounded 50px, dan berwarna putih
         Positioned(
@@ -154,7 +168,7 @@ class TwoLayerPage extends StatelessWidget {
           left: 0,
           right: 0,
           child: Container(
-            height: MediaQuery.of(context).size.height * 0.7,
+            height: MediaQuery.of(context).size.height * 0.9,
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.only(
@@ -291,7 +305,44 @@ class TwoLayerPage extends StatelessWidget {
                         ],
                       ),
                     ),
-                    // Forget your password
+
+                    const SizedBox(height: 250),
+
+                    // Login as Organizer
+                    Container(
+                      width: width,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pushNamed(context, '/loginOrganizer');
+                            },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'Login sebagai ',
+                                  style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontSize: isSmallScreen ? 16 : 22,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'Organizer',
+                                  style: TextStyle(
+                                    color: Colors.blue,
+                                    fontWeight: FontWeight.w300,
+                                    fontSize: isSmallScreen ? 16 : 22,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),

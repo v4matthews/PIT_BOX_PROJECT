@@ -60,11 +60,17 @@ class UserForgetPassword extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.primaryColor,
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
           // Layer 1: Background Biru
           Container(
-            color: AppColors.primaryColor,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/bg.jpg'), // Path to your image
+                fit: BoxFit.cover,
+              ),
+            ),
           ),
           // Layer 2: Layer dengan 60% dari ukuran layar, rounded 50px, dan berwarna putih
           Positioned(
@@ -72,7 +78,7 @@ class UserForgetPassword extends StatelessWidget {
             left: 0,
             right: 0,
             child: Container(
-              height: MediaQuery.of(context).size.height * 0.7,
+              height: MediaQuery.of(context).size.height * 0.9,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.only(

@@ -170,13 +170,13 @@ class _RegisterPageState extends State<OrganizerRegisterEvent> {
                   hintText: "Kategori Event",
                   width: width,
                   items: [
-                    'All Class',
                     'STO',
-                    'Damper Style',
+                    'DAMPER DASH',
+                    'DAMPER TUNE',
                     'STB',
                     'STB UP',
-                    'Sloop',
-                    'Nascar',
+                    'SLOOP',
+                    'NASCAR',
                   ], // Item dropdown
                   selectedValue: kategoriController, // Nilai terpilih
                   onChanged: (value) {

@@ -553,11 +553,13 @@ class ApiService {
     required String idUser,
     required String idEvent,
     required String namaTim,
+    required String metode_pembayaran,
   }) async {
     final response = await _postRequest(_createReservation, {
       'id_user': idUser,
       'id_event': idEvent,
       'nama_tim': namaTim,
+      'metode_pembayaran': metode_pembayaran,
     });
 
     if (response.statusCode == 201) {

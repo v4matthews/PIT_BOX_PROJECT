@@ -71,6 +71,18 @@ class _UserHomePageState extends State<UserHomePage> {
     });
   }
 
+  // void onDateSelected(DateTime date) {
+  //   Navigator.push(
+  //     context,
+  //     MaterialPageRoute(
+  //       builder: (context) => AllCatagories(
+  //         userLocation: userLocation,
+  //         selectedDate: date,
+  //       ),
+  //     ),
+  //   );
+  // }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -268,7 +280,6 @@ class _UserHomePageState extends State<UserHomePage> {
                 MaterialPageRoute(
                   builder: (context) => AllCatagories(
                     searchQuery: query,
-                    userLocation: userLocation.toUpperCase(),
                   ),
                 ),
               );

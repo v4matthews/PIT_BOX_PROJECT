@@ -11,7 +11,7 @@ class MyLoadingButton extends StatefulWidget {
     super.key,
     required this.onTap,
     required this.label,
-    this.color = AppColors.secondaryColor, // Warna default
+    this.color = AppColors.accentColor, // Warna default
     this.width = 150.0, // Lebar default
   });
 

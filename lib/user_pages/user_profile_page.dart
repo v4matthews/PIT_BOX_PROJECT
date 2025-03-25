@@ -112,7 +112,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
               child: Column(
                 children: [
                   Container(
-                    color: AppColors.whiteColor,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage('assets/images/bg.jpg'),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(
                         horizontal: 20, vertical: 20),
@@ -198,7 +203,17 @@ class _UserProfilePageState extends State<UserProfilePage> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           CircleAvatar(
+            backgroundColor: AppColors.whiteColor,
             radius: 60,
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: AppColors.whiteColor, // Set the border color
+                  width: 3.0, // Set the border width
+                ),
+              ),
+            ),
             backgroundImage: AssetImage(
                 'assets/images/icon/profile.png'), // Replace with your profile icon asset
           ),
@@ -206,19 +221,18 @@ class _UserProfilePageState extends State<UserProfilePage> {
           Text(
             'Halo, ' + namaUserController.text,
             style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'OpenSans',
-            ),
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'OpenSans',
+                color: AppColors.whiteText),
           ),
           SizedBox(height: 4),
           Text(
             '@' + usernameController.text,
             style: TextStyle(
-              fontSize: 18,
-              color: Colors.grey[600],
-              fontFamily: 'OpenSans',
-            ),
+                fontSize: 18,
+                fontFamily: 'OpenSans',
+                color: AppColors.whiteText),
           ),
           SizedBox(height: 30),
           Row(
@@ -228,7 +242,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
               Container(
                 height: 30,
                 child: VerticalDivider(
-                  color: Colors.grey,
+                  color: AppColors.whiteText,
                   thickness: 1,
                 ),
               ),
@@ -236,7 +250,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
               Container(
                 height: 30,
                 child: VerticalDivider(
-                  color: Colors.grey,
+                  color: AppColors.whiteText,
                   thickness: 1,
                 ),
               ),
@@ -254,16 +268,16 @@ class _UserProfilePageState extends State<UserProfilePage> {
         Text(
           value,
           style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: AppColors.whiteText),
         ),
         SizedBox(height: 4),
         Text(
           label,
           style: TextStyle(
             fontSize: 16,
-            color: Colors.grey[600],
+            color: AppColors.whiteText,
           ),
         ),
       ],

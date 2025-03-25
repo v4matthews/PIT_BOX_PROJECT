@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pit_box/api_service.dart';
+import 'package:intl/intl.dart';
 import 'package:pit_box/components/asset_datepicker.dart';
 import 'package:pit_box/components/asset_dropdown.dart';
 import 'package:pit_box/components/asset_warna.dart';
@@ -23,7 +24,8 @@ class AllCatagories extends StatefulWidget {
   State<AllCatagories> createState() => _AllCatagoriesState();
 }
 
-class _AllCatagoriesState extends State<AllCatagories> {
+class _AllCatagoriesState extends State<AllCatagories>
+    with SingleTickerProviderStateMixin {
   int currentPage = 1;
   int totalPages = 1;
   final int itemsPerPage = 10;
@@ -52,9 +54,13 @@ class _AllCatagoriesState extends State<AllCatagories> {
   bool isLoading = true;
   bool isError = false;
 
+  late TabController _tabController;
+
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: categories.length, vsync: this);
+    _tabController.addListener(_onTabChanged);
     _scrollController.addListener(_onScroll);
 
     selectedLocation = widget.userLocation;
@@ -64,23 +70,24 @@ class _AllCatagoriesState extends State<AllCatagories> {
 
     if (widget.searchQuery != null) {
       _searchController.text = widget.searchQuery!;
-      print('User location:sss ${widget.userLocation}');
       filterEventsBySearch(widget.searchQuery!);
     }
 
-    if (widget.userLocation != null) {
-      selectedLocation = widget.userLocation;
-      print('User location:sss ${widget.userLocation}');
-      sortEventsByLocation(widget.userLocation!);
-    }
-
     if (widget.selectedClass != null) {
-      selectedClass = widget.selectedClass;
+      final index = categories.indexOf(widget.selectedClass!);
+      if (index != -1) {
+        _tabController.index = index;
+      }
     }
+  }
 
-    _searchController.addListener(() {
-      filterEventsBySearch(_searchController.text);
-    });
+  void _onTabChanged() {
+    if (_tabController.indexIsChanging) {
+      setState(() {
+        selectedClass = categories[_tabController.index];
+      });
+      filterEvents();
+    }
   }
 
   void _onScroll() {
@@ -115,46 +122,9 @@ class _AllCatagoriesState extends State<AllCatagories> {
     });
   }
 
-  void sortEventsByLocation(String location) {
-    setState(() {
-      filteredEvents.sort((a, b) {
-        final aMatch = a['kota_event'].toLowerCase() == location.toLowerCase();
-        final bMatch = b['kota_event'].toLowerCase() == location.toLowerCase();
-
-        if (widget.searchQuery != null) {
-          final aSearchMatch = a['nama_event']
-                  .toLowerCase()
-                  .contains(widget.searchQuery!.toLowerCase()) ||
-              a['kota_event']
-                  .toLowerCase()
-                  .contains(widget.searchQuery!.toLowerCase());
-          final bSearchMatch = b['nama_event']
-                  .toLowerCase()
-                  .contains(widget.searchQuery!.toLowerCase()) ||
-              b['kota_event']
-                  .toLowerCase()
-                  .contains(widget.searchQuery!.toLowerCase());
-
-          if (aSearchMatch && !bSearchMatch) {
-            return -1; // a lebih relevan, tampilkan di atas
-          } else if (!aSearchMatch && bSearchMatch) {
-            return 1; // b lebih relevan, tampilkan di atas
-          }
-        }
-
-        if (aMatch && !bMatch) {
-          return -1; // a lebih relevan, tampilkan di atas
-        } else if (!aMatch && bMatch) {
-          return 1; // b lebih relevan, tampilkan di atas
-        } else {
-          return 0; // keduanya sama relevannya
-        }
-      });
-    });
-  }
-
   @override
   void dispose() {
+    _tabController.dispose();
     _scrollController.dispose();
     _searchController.dispose();
     super.dispose();
@@ -168,9 +138,8 @@ class _AllCatagoriesState extends State<AllCatagories> {
     });
     try {
       final response = await ApiService.getFilteredEvents(
-        category: (widget.selectedClass == null || widget.selectedClass == '')
-            ? null
-            : widget.selectedClass,
+        category: widget.selectedClass,
+        location: selectedLocation,
         page: currentPage,
         limit: itemsPerPage,
       );
@@ -180,10 +149,6 @@ class _AllCatagoriesState extends State<AllCatagories> {
         filteredEvents = events;
         isLoading = false;
       });
-
-      if (widget.userLocation != null) {
-        sortEventsByLocation(widget.userLocation!);
-      }
     } catch (e) {
       setState(() {
         isError = true;
@@ -196,17 +161,21 @@ class _AllCatagoriesState extends State<AllCatagories> {
   }
 
   void filterEvents() async {
+    if (selectedLocation == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Pilih kota terlebih dahulu')),
+      );
+      return;
+    }
+
     setState(() {
       isLoading = true;
       currentPage = 1;
     });
     try {
       final response = await ApiService.getFilteredEvents(
-        category: (selectedClass == null ||
-                selectedClass == '' ||
-                selectedClass == 'ALL')
-            ? null
-            : selectedClass,
+        category: selectedClass,
+        location: selectedLocation,
         page: currentPage,
         limit: itemsPerPage,
       );
@@ -216,10 +185,6 @@ class _AllCatagoriesState extends State<AllCatagories> {
         totalPages = (response['total'] / itemsPerPage).ceil();
         isLoading = false;
       });
-
-      if (widget.userLocation != null) {
-        sortEventsByLocation(widget.userLocation!);
-      }
 
       // Jika ada searchQuery, urutkan data berdasarkan relevansi
       if (widget.searchQuery != null) {
@@ -244,6 +209,7 @@ class _AllCatagoriesState extends State<AllCatagories> {
       try {
         final response = await ApiService.getFilteredEvents(
           category: selectedClass,
+          location: selectedLocation,
           page: currentPage + 1,
           limit: itemsPerPage,
         );
@@ -252,10 +218,6 @@ class _AllCatagoriesState extends State<AllCatagories> {
           filteredEvents.addAll(response['events']);
           isLoadingMore = false;
         });
-
-        if (widget.userLocation != null) {
-          sortEventsByLocation(widget.userLocation!);
-        }
       } catch (e) {
         setState(() {
           isLoadingMore = false;
@@ -356,7 +318,7 @@ class _AllCatagoriesState extends State<AllCatagories> {
                                     selectedLocation = newValue;
                                   });
                                   Navigator.pop(context);
-                                  sortEventsByLocation(selectedLocation!);
+                                  filterEvents();
                                 },
                                 items: regionList,
                               ),
@@ -370,6 +332,18 @@ class _AllCatagoriesState extends State<AllCatagories> {
                 },
               ),
             ],
+          ),
+          bottom: TabBar(
+            controller: _tabController,
+            isScrollable: true, // Tambahkan ini agar tab dapat di-scroll
+            labelColor: AppColors.primaryText,
+            unselectedLabelColor: AppColors.secondaryText,
+            indicatorColor: AppColors.primaryText,
+            indicatorWeight: 4.0,
+            indicatorSize: TabBarIndicatorSize.tab,
+            labelStyle: TextStyle(fontWeight: FontWeight.bold),
+            unselectedLabelStyle: TextStyle(fontWeight: FontWeight.normal),
+            tabs: categories.map((category) => Tab(text: category)).toList(),
           ),
         ),
         body: isLoading

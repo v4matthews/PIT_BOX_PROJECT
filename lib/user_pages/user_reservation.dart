@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:pit_box/api_service.dart';
 import 'package:pit_box/components/asset_alert.dart';
 import 'package:pit_box/components/asset_textfield.dart';
@@ -17,10 +18,9 @@ class ReservationPage extends StatefulWidget {
 }
 
 class _ReservationPageState extends State<ReservationPage> {
-  final TextEditingController _teamNameController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
   String _message = '';
   bool _isLoading = false;
-  bool _useUsernameAsTeamName = false;
   String _username = '';
   String _userId = '';
   String _paymentMethod = '';
@@ -36,29 +36,18 @@ class _ReservationPageState extends State<ReservationPage> {
     setState(() {
       _username = userData['nama_user'] ?? '';
       _userId = userData['id_user'] ?? '';
-      print('Data User: $_username');
-      print('Data User: $_userId');
+      _nameController.text = _username;
+      // You might want to pre-fill email if available in user data
     });
   }
 
   Future<void> _createReservation() async {
-    if (_teamNameController.text.isEmpty) {
+    if (_nameController.text.isEmpty) {
       showCustomDialog(
         context: context,
         isSuccess: false,
         title: 'Gagal',
-        message: Text('Nama tim belum diisi.'),
-        routeName: '',
-      );
-      return;
-    }
-
-    if (_paymentMethod.isEmpty) {
-      showCustomDialog(
-        context: context,
-        isSuccess: false,
-        title: 'Gagal',
-        message: Text('Metode pembayaran belum dipilih.'),
+        message: Text('Harap isi semua informasi yang diperlukan.'),
         routeName: '',
       );
       return;
@@ -72,20 +61,19 @@ class _ReservationPageState extends State<ReservationPage> {
       final response = await ApiService.createReservation(
         idUser: _userId,
         idEvent: widget.event['_id'],
-        namaTim: _teamNameController.text,
+        namaTim: _nameController.text,
+        metode_pembayaran: _paymentMethod,
       );
 
       if (response['status'] == 'success') {
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(
-        //     // builder: (context) => UserPaymentPage(
-        //     //   reservationId: response['reservation']['_id'],
-        //     //   amount: widget.event['htm_event'],
-        //     //   paymentMethod: _paymentMethod,
-        //     // ),
-        //   ),
-        // );
+        showCustomDialog(
+          context: context,
+          isSuccess: true,
+          title: 'Sukses',
+          message: Text('Reservasi berhasil dibuat.'),
+          routeName: '/home',
+        );
+        // Proceed to payment or show success
       } else {
         showCustomDialog(
           context: context,
@@ -110,27 +98,57 @@ class _ReservationPageState extends State<ReservationPage> {
     }
   }
 
+  Widget _buildSummaryItem(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              color: Colors.grey[700],
+              fontSize: 16,
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isSmallScreen = screenWidth < 600;
-    final width = screenWidth * 0.8;
+    final width = screenWidth * 0.9; // Adjusted width to make container wider
 
     return Scaffold(
       backgroundColor: AppColors.backgroundSecondary,
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
-          // Layer 1: Background Biru
           Container(
-            color: AppColors.primaryColor,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/bg.jpg'),
+                fit: BoxFit.cover,
+              ),
+            ),
           ),
-          // Layer 2: Layer dengan 60% dari ukuran layar, rounded 50px, dan berwarna putih
           Positioned(
             bottom: 0,
             left: 0,
             right: 0,
             child: Container(
-              height: MediaQuery.of(context).size.height * 0.5,
+              height: MediaQuery.of(context).size.height * 0.95,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.only(
@@ -144,68 +162,179 @@ class _ReservationPageState extends State<ReservationPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Title Page
                       Padding(
                         padding: EdgeInsets.only(
-                            left: screenWidth * 0.1,
-                            right: screenWidth * 0.1,
+                            left: screenWidth * 0.05, // Adjusted padding
+                            right: screenWidth * 0.05, // Adjusted padding
                             top: 40),
                         child: Text(
-                          'Buat Reservasi',
+                          'Rincian Pemesanan',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: AppColors.primaryText,
-                            fontSize: isSmallScreen ? 35 : 30,
+                            fontSize: isSmallScreen ? 30 : 30,
                             fontWeight: FontWeight.bold,
+                            fontFamily: 'OpenSans',
                           ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 30),
+
+                      // Personal Information
+                      Container(
+                        width: width,
+                        padding: EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.2),
+                              spreadRadius: 2,
+                              blurRadius: 5,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Informasi Racer',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 15),
+                            MyTextField(
+                              controller: _nameController,
+                              width: width,
+                              hintText: 'Nama Tim',
+                              obScureText: false,
+                            ),
+                            // const SizedBox(height: 10),
+                            Padding(
+                              padding: const EdgeInsets.only(right: 20.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Checkbox(
+                                    value: _nameController.text == _username,
+                                    onChanged: (bool? value) {
+                                      setState(() {
+                                        if (value == true) {
+                                          _nameController.text = _username;
+                                        } else {
+                                          _nameController.clear();
+                                        }
+                                      });
+                                    },
+                                  ),
+                                  Text('Gunakan nama saya'),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ),
 
                       const SizedBox(height: 20),
 
-                      // Event Details
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: screenWidth * 0.1, vertical: 10),
+                      // Event Information
+                      Container(
+                        width: width,
+                        padding: EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.2),
+                              spreadRadius: 2,
+                              blurRadius: 5,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Detail Perlombaan:',
+                              'Informasi Event',
                               style: TextStyle(
-                                color: AppColors.primaryText,
-                                fontSize: isSmallScreen ? 16 : 22,
+                                fontSize: 18,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            const SizedBox(height: 10),
+                            const SizedBox(height: 15),
+                            _buildSummaryItem(
+                                'Nama Event', widget.event['nama_event']),
+                            _buildSummaryItem(
+                                'Class',
+                                widget.event['kategori_event'] ??
+                                    '20 July 2024'),
+
+                            _buildSummaryItem(
+                                'Tanggal',
+                                widget.event['tanggal_event'] != null
+                                    ? DateFormat('dd-MMM-yyyy').format(
+                                        DateTime.parse(
+                                            widget.event['tanggal_event']))
+                                    : '20 July 2024'),
+                            _buildSummaryItem(
+                                'Jam',
+                                widget.event[
+                                    'waktu_event']), // You might want to make this dynamic
+                            _buildSummaryItem(
+                                'Jumlah reservasi', '1'), // Adjust as needed
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Payment Summary
+                      Container(
+                        width: width,
+                        padding: EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.2),
+                              spreadRadius: 2,
+                              blurRadius: 5,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
                             Text(
-                              'Nama Event: ${widget.event['nama_event']}',
+                              'Detail Pembayaran',
                               style: TextStyle(
-                                color: AppColors.primaryText,
-                                fontSize: isSmallScreen ? 14 : 18,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Text(
-                              'Tanggal: ${widget.event['tanggal_event']}',
-                              style: TextStyle(
-                                color: AppColors.primaryText,
-                                fontSize: isSmallScreen ? 14 : 18,
-                              ),
-                            ),
-                            Text(
-                              'Lokasi: ${widget.event['lokasi_event']}',
-                              style: TextStyle(
-                                color: AppColors.primaryText,
-                                fontSize: isSmallScreen ? 14 : 18,
-                              ),
-                            ),
-                            Text(
-                              'HTM: ${widget.event['htm_event']}',
-                              style: TextStyle(
-                                color: AppColors.primaryText,
-                                fontSize: isSmallScreen ? 14 : 18,
-                              ),
+                            const SizedBox(height: 15),
+                            _buildSummaryItem('Subtotal',
+                                'Rp ${NumberFormat("#,##0", "id_ID").format(widget.event['htm_event'])}'), // Replace with actual data
+                            _buildSummaryItem(
+                                'Tax', 'Rp 2.000'), // Replace with actual data
+                            Divider(),
+                            _buildSummaryItem(
+                              'Grand Total',
+                              'Rp ${NumberFormat("#,##0", "id_ID").format(widget.event['htm_event'] + 2000)}', // Replace with actual data
+                              // style: TextStyle(
+                              //   fontSize: 18,
+                              //   color: Colors.blue,
+                              //   fontWeight: FontWeight.bold,
+                              // ),
                             ),
                           ],
                         ),
@@ -213,104 +342,127 @@ class _ReservationPageState extends State<ReservationPage> {
 
                       const SizedBox(height: 30),
 
-                      // Nama Tim textfield
-                      MyTextField(
-                        controller: _teamNameController,
+                      Container(
                         width: width,
-                        hintText: 'Nama Tim',
-                        obScureText: false,
-                      ),
-
-                      const SizedBox(height: 10),
-
-                      // Checkbox untuk menggunakan nama pengguna sebagai nama tim
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Checkbox(
-                            value: _useUsernameAsTeamName,
-                            onChanged: (bool? value) {
-                              setState(() {
-                                _useUsernameAsTeamName = value ?? false;
-                                if (_useUsernameAsTeamName) {
-                                  _teamNameController.text = _username;
-                                } else {
-                                  _teamNameController.clear();
-                                }
-                              });
-                            },
-                          ),
-                          Text(
-                            'Gunakan nama pengguna sebagai nama tim',
-                            style: TextStyle(
-                              color: AppColors.primaryText,
-                              fontSize: isSmallScreen ? 14 : 16,
+                        padding: EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.2),
+                              spreadRadius: 2,
+                              blurRadius: 5,
+                              offset: Offset(0, 3),
                             ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      // Metode Pembayaran
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: screenWidth * 0.1, vertical: 10),
+                          ],
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Pilih Metode Pembayaran:',
+                              'Metode Pembayaran',
                               style: TextStyle(
-                                color: AppColors.primaryText,
-                                fontSize: isSmallScreen ? 16 : 22,
+                                fontSize: 18,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            const SizedBox(height: 10),
-                            // Row(
-                            //   mainAxisAlignment: MainAxisAlignment.center,
-                            //   children: [
-                            //     ElevatedButton(
-                            //       onPressed: () {
-                            //         setState(() {
-                            //           _paymentMethod = 'other_qris';
-                            //         });
-                            //       },
-                            //       // style: ElevatedButton.styleFrom(
-                            //       //   primary: _paymentMethod == 'other_qris'
-                            //       //       ? Colors.blue
-                            //       //       : Colors.grey,
-                            //       // ),
-                            //       child: Text('Other QRIS'),
-                            //     ),
-                            //     const SizedBox(width: 10),
-                            //     ElevatedButton(
-                            //       onPressed: () {
-                            //         setState(() {
-                            //           _paymentMethod = 'bank_transfer';
-                            //         });
-                            //       },
-                            //       style: ElevatedButton.styleFrom(
-                            //       //   primary: _paymentMethod == 'bank_transfer'
-                            //       //       ? Colors.blue
-                            //       //       : Colors.grey,
-                            //       // ),
-                            //       child: Text('Bank Transfer'),
-                            //     ),
-                            //   ],
-                            // ),
+                            const SizedBox(height: 15),
+                            Column(
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      _paymentMethod = 'other_qris';
+                                    });
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.all(15),
+                                    decoration: BoxDecoration(
+                                      color: _paymentMethod == 'other_qris'
+                                          ? Colors.blue
+                                          : Colors.white,
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.qr_code,
+                                          color: _paymentMethod == 'other_qris'
+                                              ? Colors.white
+                                              : Colors.black,
+                                        ),
+                                        SizedBox(width: 10),
+                                        Text(
+                                          'Other QRIS',
+                                          style: TextStyle(
+                                            color:
+                                                _paymentMethod == 'other_qris'
+                                                    ? Colors.white
+                                                    : Colors.black,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 10),
+                                GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      _paymentMethod = 'bank_transfer';
+                                    });
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.all(15),
+                                    decoration: BoxDecoration(
+                                      color: _paymentMethod == 'bank_transfer'
+                                          ? Colors.blue
+                                          : Colors.white,
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.account_balance,
+                                          color:
+                                              _paymentMethod == 'bank_transfer'
+                                                  ? Colors.white
+                                                  : Colors.black,
+                                        ),
+                                        SizedBox(width: 10),
+                                        Text(
+                                          'Bank Transfer',
+                                          style: TextStyle(
+                                            color: _paymentMethod ==
+                                                    'bank_transfer'
+                                                ? Colors.white
+                                                : Colors.black,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )
                           ],
                         ),
                       ),
 
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 30),
 
-                      // Buat Reservasi Button
+                      // Pay and Reserve Button
                       _isLoading
                           ? CircularProgressIndicator()
                           : MyLoadingButton(
-                              label: "BUAT RESERVASI",
+                              label: "PAY AND RESERVE",
                               width: width,
                               onTap: () async {
                                 await _createReservation();
@@ -320,29 +472,15 @@ class _ReservationPageState extends State<ReservationPage> {
                       const SizedBox(height: 20),
                       GestureDetector(
                         onTap: () {
-                          // Navigate to the previous page when the row is tapped
                           Navigator.pop(context);
                         },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Kembali ke list event? ',
-                              style: TextStyle(
-                                color: Colors.grey[700],
-                                fontSize: isSmallScreen ? 16 : 22,
-                              ),
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              'Kembali',
-                              style: TextStyle(
-                                color: Colors.blue,
-                                fontWeight: FontWeight.w400,
-                                fontSize: isSmallScreen ? 16 : 22,
-                              ),
-                            ),
-                          ],
+                        child: Text(
+                          'Back to event',
+                          style: TextStyle(
+                            color: Colors.blue,
+                            fontWeight: FontWeight.w400,
+                            fontSize: isSmallScreen ? 16 : 18,
+                          ),
                         ),
                       ),
                     ],

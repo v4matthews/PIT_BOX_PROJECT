@@ -1,10 +1,15 @@
-import 'package:art_sweetalert/art_sweetalert.dart';
 import 'package:flutter/material.dart';
 import 'package:pit_box/api_service.dart';
 import 'package:pit_box/components/asset_alert.dart';
 import 'package:pit_box/components/asset_button.dart';
 import 'package:pit_box/components/asset_textfield.dart';
 import 'package:pit_box/components/asset_textfield_password.dart';
+import 'package:pit_box/components/asset_warna.dart';
+import 'package:pit_box/components/assset_button_loading.dart';
+import 'package:pit_box/components/square_tile.dart';
+import 'package:pit_box/session_service.dart';
+import 'package:pit_box/user_pages/user_forgot.dart';
+import 'package:pit_box/user_pages/user_register_page.dart';
 
 class OrganizerLoginPage extends StatelessWidget {
   OrganizerLoginPage({super.key});
@@ -50,151 +55,177 @@ class OrganizerLoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isSmallScreen = screenWidth < 600; // Menyesuaikan untuk layar kecil
-    final width = screenWidth * (isSmallScreen ? 0.7 : 0.6);
-    final width2 = (screenWidth * (isSmallScreen ? 0.7 : 0.6) - 6) / 2;
+    final width = screenWidth * 0.8;
+
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const SizedBox(height: 50),
-
-                // Title Page
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                  child: Row(
+      resizeToAvoidBottomInset: false,
+      body: Stack(
+        children: [
+          // Layer 1: Background Biru
+          Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/bg.jpg'), // Path to your image
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          // Layer 2: Layer dengan 60% dari ukuran layar, rounded 50px, dan berwarna putih
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              height: MediaQuery.of(context).size.height * 0.9,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(50),
+                  topRight: Radius.circular(50),
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: SingleChildScrollView(
+                  child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
-                        'Organizer Login Page',
-                        style: TextStyle(
-                          color: Colors.grey[700],
-                          fontSize: isSmallScreen ? 24 : 30,
-                          fontWeight: FontWeight.bold,
+                      // Title Page
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: screenWidth * 0.1,
+                            right: screenWidth * 0.1,
+                            top: 120),
+                        child: Text(
+                          'Organizer Login Page',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: AppColors.primaryText,
+                            fontSize: isSmallScreen ? 35 : 30,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Sub Title Text
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: screenWidth * 0.1, vertical: 10),
+                        child: Text(
+                          'Jadilah bagian dari penyelenggara pertandingan Mini 4WD di kota Anda!',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: AppColors.primaryText,
+                            fontSize: isSmallScreen ? 16 : 22,
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 30),
+
+                      // Username (Email) textfield
+                      MyTextField(
+                        controller: emailController,
+                        width: width,
+                        hintText: 'Email Organizer',
+                        obScureText: false,
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Password textfield
+                      PasswordField(
+                        controller: passwordController,
+                        width: width,
+                        hintText: 'Password',
+                      ),
+
+                      const SizedBox(height: 15),
+
+                      // Forgot your password
+                      Container(
+                        width: width,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.pushNamed(
+                                    context, '/forgotOrganizer');
+                              },
+                              child: Text(
+                                'Forgot your password?',
+                                style: TextStyle(
+                                  color: Colors.grey[700],
+                                  fontSize: isSmallScreen ? 14 : 20,
+                                  fontFamily: 'OpenSans',
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 30),
+
+                      // Sign in Button
+                      MyLoadingButton(
+                        label: "LOGIN",
+                        width: width,
+                        onTap: () async {
+                          loginOrganizer(context);
+                        },
+                      ),
+
+                      const SizedBox(height: 25),
+
+                      Container(
+                        width: width,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.pushNamed(
+                                    context, '/registerOrganizer');
+                              },
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Login sebagai user? ',
+                                    style: TextStyle(
+                                      color: Colors.grey[700],
+                                      fontSize: isSmallScreen ? 16 : 22,
+                                      fontFamily: 'OpenSans',
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'Sign Up',
+                                    style: TextStyle(
+                                      color: Colors.blue,
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: isSmallScreen ? 16 : 22,
+                                      fontFamily: 'OpenSans',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
                 ),
-
-                const SizedBox(height: 15),
-
-                // Sub Title Text
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                  child: Text(
-                    'Jadilah bagian dari penyelenggara pertandingan Mini 4WD di kota Anda!',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.grey[700],
-                      fontSize: isSmallScreen ? 12 : 14,
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 40),
-
-                // Username (Email) textfield
-                MyTextField(
-                  controller: emailController,
-                  width: width,
-                  hintText: 'Email Organizer',
-                  obScureText: false,
-                ),
-
-                const SizedBox(height: 20),
-
-                // Password textfield
-                PasswordField(
-                  controller: passwordController,
-                  width: width,
-                  hintText: 'Password',
-                ),
-
-                const SizedBox(height: 15),
-
-                // Forgot your password
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pushNamed(context, '/forgotOrganizer');
-                      },
-                      child: Padding(
-                        padding: EdgeInsets.only(
-                          right:
-                              (MediaQuery.of(context).size.width - width) / 2,
-                        ),
-                        child: Text(
-                          'Forgot your password?',
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontWeight: FontWeight.w500,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 30),
-
-                Row(
-                  mainAxisAlignment:
-                      MainAxisAlignment.center, // Posisi tombol di tengah
-                  children: [
-                    MyButton(
-                      label: 'LOGIN AS USER',
-                      width: width2,
-                      ontap: () {
-                        // Aksi untuk tombol Sign In
-                        Navigator.pushNamed(context, '/login');
-                      },
-                    ),
-                    MyButton(
-                      label: 'LOGIN',
-                      color: Color(0xFFFFC700),
-                      width: width2,
-                      // Warna biru untuk tombol Register
-                      ontap: () => loginOrganizer(
-                          context), // Fungsi login dipanggil saat tombol ditekan
-                    )
-                  ],
-                ),
-
-                const SizedBox(height: 50),
-
-                // Register Button
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Ingin mendaftar sebagai Organizer?',
-                      style: TextStyle(color: Colors.grey[700]),
-                    ),
-                    const SizedBox(width: 4),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pushNamed(context,
-                            '/registerOrganizer'); // Arahkan ke halaman Register
-                      },
-                      child: Text(
-                        'Sign Up',
-                        style: TextStyle(
-                            color: Colors.blue, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
