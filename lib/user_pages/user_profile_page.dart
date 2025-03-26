@@ -7,6 +7,7 @@ import 'package:pit_box/components/asset_navbar.dart';
 import 'package:pit_box/components/asset_textfield.dart';
 import 'package:pit_box/components/asset_warna.dart';
 import 'package:pit_box/session_service.dart';
+import 'package:pit_box/user_pages/user_dashboard.dart';
 import 'package:pit_box/user_pages/user_reservation_list.dart';
 import 'package:pit_box/user_pages/user_update_password.dart';
 import 'package:pit_box/user_pages/user_update_profile.dart';
@@ -94,48 +95,59 @@ class _UserProfilePageState extends State<UserProfilePage> {
   }
 
   Future<void> _logout() async {
-    await SessionService.clearLoginSession(); // Hapus session
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      '/login',
-      (Route<dynamic> route) => false,
-    ); // Arahkan ke halaman login dan hapus semua rute sebelumnya
+    await SessionService.clearLoginSession(context); // Hapus session
+    // Navigator.pushNamedAndRemoveUntil(
+    //   context,
+    //   '/login',
+    //   (Route<dynamic> route) => false,
+    // ); // Arahkan ke halaman login dan hapus semua rute sebelumnya
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.backgroundGrey,
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              child: Column(
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: AssetImage('assets/images/bg.jpg'),
-                        fit: BoxFit.cover,
+    return WillPopScope(
+      onWillPop: () async {
+        // Navigasi ke halaman utama saat tombol back ditekan
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => UserDashboard()),
+          (route) => false, // Menghapus semua halaman sebelumnya
+        );
+        return false; // Mencegah aksi back default
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.backgroundGrey,
+        body: _isLoading
+            ? Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: AssetImage('assets/images/bg.jpg'),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildProfileHeader(),
+                        ],
                       ),
                     ),
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildProfileHeader(),
-                      ],
-                    ),
-                  ),
-                  // Bagian Info Profile
-                  SizedBox(height: 20),
-                  _buildProfileInfoSection(),
-                  SizedBox(height: 20),
-                  _buildAccountSetting(),
-                ],
+                    // Bagian Info Profile
+                    SizedBox(height: 20),
+                    _buildProfileInfoSection(),
+                    SizedBox(height: 20),
+                    _buildAccountSetting(),
+                  ],
+                ),
               ),
-            ),
+      ),
     );
   }
 

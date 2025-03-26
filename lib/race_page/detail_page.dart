@@ -102,12 +102,12 @@ class EventDetailPage extends StatelessWidget {
                     ],
                   ),
                   SizedBox(
-                    height: 200, // Adjust height as needed
+                    height: 500, // Adjust height as needed
                     child: TabBarView(
                       children: [
                         // Description Tab
-                        Padding(
-                          padding: EdgeInsets.all(16),
+                        SingleChildScrollView(
+                          padding: EdgeInsets.all(20),
                           child: Text(
                             event['deskripsi_event'] ??
                                 'No description available',
@@ -115,12 +115,13 @@ class EventDetailPage extends StatelessWidget {
                               fontSize: 16,
                               height: 1.5,
                             ),
+                            textAlign: TextAlign.justify,
                           ),
                         ),
 
                         // Details Tab
                         Padding(
-                          padding: EdgeInsets.all(16),
+                          padding: EdgeInsets.all(20),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -159,7 +160,7 @@ class EventDetailPage extends StatelessWidget {
                               ),
                               SizedBox(height: 16),
                               Container(
-                                height: 50,
+                                height: 300,
                                 decoration: BoxDecoration(
                                   color: Colors.grey[200],
                                   borderRadius: BorderRadius.circular(8),
@@ -219,7 +220,7 @@ class EventDetailPage extends StatelessWidget {
 
   Widget _buildDetailRow(String label, String value) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 8, horizontal: 30),
+      padding: EdgeInsets.symmetric(vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

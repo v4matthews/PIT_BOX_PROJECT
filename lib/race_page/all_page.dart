@@ -295,8 +295,14 @@ class _AllCatagoriesState extends State<AllCatagories> {
       child: Scaffold(
         backgroundColor: AppColors.whiteColor,
         appBar: AppBar(
-          scrolledUnderElevation: 0.0,
-          backgroundColor: AppColors.whiteColor,
+          flexibleSpace: Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/bg.jpg'),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
           title: Row(
             children: [
               Expanded(
@@ -309,7 +315,7 @@ class _AllCatagoriesState extends State<AllCatagories> {
                     fillColor: Colors.white,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.black),
+                      borderSide: BorderSide.none,
                     ),
                     contentPadding: EdgeInsets.symmetric(
                       vertical: 5.0,
@@ -322,7 +328,7 @@ class _AllCatagoriesState extends State<AllCatagories> {
                 ),
               ),
               IconButton(
-                icon: Icon(Icons.filter_list, color: Colors.black),
+                icon: Icon(Icons.filter_list, color: AppColors.whiteText),
                 onPressed: () {
                   showModalBottomSheet(
                     backgroundColor: AppColors.whiteColor,
@@ -370,6 +376,10 @@ class _AllCatagoriesState extends State<AllCatagories> {
                 },
               ),
             ],
+          ),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: AppColors.whiteText),
+            onPressed: () => Navigator.pop(context),
           ),
         ),
         body: isLoading

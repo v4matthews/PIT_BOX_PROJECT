@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+import 'package:pit_box/user_pages/user_login_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pit_box/api_service.dart';
 
@@ -13,15 +15,16 @@ class SessionService {
   }
 
   // Clear login session (logout)
-  static Future<void> clearLoginSession() async {
+  static Future<void> clearLoginSession(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_keyUsername);
-    await prefs.remove(_keyIsLoggedIn);
-    await prefs.remove('id_user');
-    await prefs.remove('nama_user');
-    await prefs.remove('email_user');
-    await prefs.remove('tlpn_user');
-    await prefs.remove('kota_user');
+    await prefs.clear(); // Menghapus semua data sesi
+
+    // Navigasi ke halaman login dengan menghapus semua halaman sebelumnya
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => LoginPage()),
+      (route) => false, // Menghapus semua halaman sebelumnya
+    );
   }
 
   // Check if user is logged in

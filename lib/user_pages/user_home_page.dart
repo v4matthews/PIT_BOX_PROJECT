@@ -442,12 +442,12 @@ class _UserHomePageState extends State<UserHomePage> {
       {"label": "STO", "key": "STO", "icon": "assets/images/icon/sto.svg"},
       {
         "label": "Damper Tune",
-        "key": "damperstyletune",
+        "key": "DAMPER TUNE",
         "icon": "assets/images/icon/tune.svg"
       },
       {
         "label": "Damper Dash",
-        "key": "damperstyledash",
+        "key": "DAMPER DASH",
         "icon": "assets/images/icon/dash.svg"
       },
       {

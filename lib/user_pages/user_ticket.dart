@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pit_box/api_service.dart';
 import 'package:pit_box/components/asset_navbar.dart';
 import 'package:pit_box/components/asset_warna.dart';
+import 'package:pit_box/user_pages/user_dashboard.dart';
 import 'package:pit_box/user_pages/user_ticket_detail_page.dart';
 
 class TicketListPage extends StatefulWidget {
@@ -31,26 +32,37 @@ class _TicketListPageState extends State<TicketListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.backgroundSecondary,
-      appBar: AppBar(
-        backgroundColor: AppColors.primaryColor,
-        title: const Text(
-          'TICKET',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
+    return WillPopScope(
+      onWillPop: () async {
+        // Navigasi ke halaman utama saat tombol back ditekan
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => UserDashboard()),
+          (route) => false, // Menghapus semua halaman sebelumnya
+        );
+        return false; // Mencegah aksi back default
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.backgroundSecondary,
+        appBar: AppBar(
+          backgroundColor: AppColors.primaryColor,
+          title: const Text(
+            'TICKET',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
-      ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16.0),
-        itemCount: tickets.length,
-        itemBuilder: (context, index) {
-          final ticket = tickets[index];
-          return TicketCard(ticket: ticket);
-        },
+        body: ListView.builder(
+          padding: const EdgeInsets.all(16.0),
+          itemCount: tickets.length,
+          itemBuilder: (context, index) {
+            final ticket = tickets[index];
+            return TicketCard(ticket: ticket);
+          },
+        ),
       ),
     );
   }

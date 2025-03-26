@@ -132,11 +132,17 @@ class _UserUpdateProfileState extends State<UserUpdateProfile> {
 
     return Scaffold(
       backgroundColor: AppColors.backgroundSecondary,
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
           // Layer 1: Background Biru
           Container(
-            color: AppColors.primaryColor,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/bg.jpg'), // Path to your image
+                fit: BoxFit.cover,
+              ),
+            ),
           ),
           // Layer 2: Layer dengan 60% dari ukuran layar, rounded 50px, dan berwarna putih
           Positioned(
@@ -144,7 +150,7 @@ class _UserUpdateProfileState extends State<UserUpdateProfile> {
             left: 0,
             right: 0,
             child: Container(
-              height: MediaQuery.of(context).size.height * 0.65,
+              height: MediaQuery.of(context).size.height * 0.85,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.only(
@@ -218,7 +224,7 @@ class _UserUpdateProfileState extends State<UserUpdateProfile> {
                         },
                         items: regionList,
                       ),
-                      const SizedBox(height: 15),
+                      const SizedBox(height: 30),
 
                       isLoading
                           ? CircularProgressIndicator()
