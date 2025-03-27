@@ -34,8 +34,26 @@ class _UserUpdateProfileState extends State<UserUpdateProfile> {
   @override
   void initState() {
     super.initState();
-    fetchRegionData();
-    _loadUserData();
+    _loadInitialData();
+  }
+
+  Future<void> _loadInitialData() async {
+    setState(() {
+      isLoading = true; // Tampilkan loading
+    });
+
+    try {
+      await fetchRegionData();
+      await _loadUserData();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal memuat data: $e')),
+      );
+    } finally {
+      setState(() {
+        isLoading = false; // Sembunyikan loading
+      });
+    }
   }
 
   Future<void> fetchRegionData() async {
@@ -46,21 +64,23 @@ class _UserUpdateProfileState extends State<UserUpdateProfile> {
             result.map<String>((region) => region['name'] as String).toList();
       });
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal memuat data region: $e')),
-      );
+      throw Exception('Gagal memuat data region: $e');
     }
   }
 
   Future<void> _loadUserData() async {
-    final userData = await SessionService.getUserData();
-    setState(() {
-      usernameController.text = userData['username'] ?? '';
-      namaUserController.text = userData['nama_user'] ?? '';
-      emailController.text = userData['email_user'] ?? '';
-      nomortlpnController.text = userData['tlpn_user'] ?? '';
-      selectedValue = userData['kota_user'] ?? '';
-    });
+    try {
+      final userData = await SessionService.getUserData();
+      setState(() {
+        usernameController.text = userData['username'] ?? '';
+        namaUserController.text = userData['nama_user'] ?? '';
+        emailController.text = userData['email_user'] ?? '';
+        nomortlpnController.text = userData['tlpn_user'] ?? '';
+        selectedValue = userData['kota_user'] ?? '';
+      });
+    } catch (e) {
+      throw Exception('Gagal memuat data pengguna: $e');
+    }
   }
 
   Future<void> updateProfile(BuildContext context) async {
@@ -160,114 +180,118 @@ class _UserUpdateProfileState extends State<UserUpdateProfile> {
               ),
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const SizedBox(height: 40),
-                      Text(
-                        'Update Profile',
-                        style: TextStyle(
-                          color: AppColors.primaryText,
-                          fontSize: isSmallScreen ? 35 : 35,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 15),
-
-                      // Sub Title Text
-                      Padding(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: screenWidth * 0.1),
-                        child: Text(
-                          'Pastikan data yang Anda masukkan benar untuk mempermudah proses pendataan perlombaan.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: AppColors.primaryText,
-                            fontSize: isSmallScreen ? 16 : 22,
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(height: 30),
-
-                      MyTextField(
-                        controller: namaUserController,
-                        width: width,
-                        hintText: 'Nama',
-                        obScureText: false,
-                      ),
-                      const SizedBox(height: 15),
-                      EmailTextField(
-                        controller: emailController,
-                        width: width,
-                        hintText: 'Email',
-                        obScureText: false,
-                      ),
-                      const SizedBox(height: 15),
-                      NumberTextField(
-                        controller: nomortlpnController,
-                        width: width,
-                        hintText: 'Nomor Telepon',
-                        obScureText: false,
-                      ),
-                      const SizedBox(height: 15),
-                      AssetDropdown(
-                        hintText: "Pilih Kota",
-                        selectedValue: selectedValue,
-                        width: width,
-                        onChanged: (newValue) {
-                          setState(() {
-                            selectedValue = newValue;
-                          });
-                        },
-                        items: regionList,
-                      ),
-                      const SizedBox(height: 30),
-
-                      isLoading
-                          ? CircularProgressIndicator()
-                          : MyLoadingButton(
-                              label: "UPDATE",
-                              width: width,
-                              onTap: () async {
-                                await updateProfile(context);
-                              },
-                            ),
-                      const SizedBox(height: 30),
-                      GestureDetector(
-                        onTap: () {
-                          // Navigate to the '/profile' page when the row is tapped
-                          Navigator.pushNamed(context, '/home');
-                        },
-                        child: Row(
+                child: isLoading
+                    ? Center(
+                        child: CircularProgressIndicator(), // Tampilkan loading
+                      )
+                    : SingleChildScrollView(
+                        child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
+                            const SizedBox(height: 40),
                             Text(
-                              'Kembali ke home? ',
+                              'Update Profile',
                               style: TextStyle(
-                                color: Colors.grey[700],
-                                fontSize: isSmallScreen ? 16 : 22,
+                                color: AppColors.primaryText,
+                                fontSize: isSmallScreen ? 35 : 35,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 15),
+
+                            // Sub Title Text
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: screenWidth * 0.1),
+                              child: Text(
+                                'Pastikan data yang Anda masukkan benar untuk mempermudah proses pendataan perlombaan.',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: AppColors.primaryText,
+                                  fontSize: isSmallScreen ? 16 : 22,
+                                ),
                               ),
                             ),
-                            const SizedBox(width: 4),
-                            Text(
-                              'Kembali',
-                              style: TextStyle(
-                                color: Colors.blue,
-                                fontWeight: FontWeight.w400,
-                                fontSize: isSmallScreen ? 16 : 22,
+
+                            const SizedBox(height: 30),
+
+                            MyTextField(
+                              controller: namaUserController,
+                              width: width,
+                              hintText: 'Nama',
+                              obScureText: false,
+                            ),
+                            const SizedBox(height: 15),
+                            EmailTextField(
+                              controller: emailController,
+                              width: width,
+                              hintText: 'Email',
+                              obScureText: false,
+                            ),
+                            const SizedBox(height: 15),
+                            NumberTextField(
+                              controller: nomortlpnController,
+                              width: width,
+                              hintText: 'Nomor Telepon',
+                              obScureText: false,
+                            ),
+                            const SizedBox(height: 15),
+                            AssetDropdown(
+                              hintText: "Pilih Kota",
+                              selectedValue: selectedValue,
+                              width: width,
+                              onChanged: (newValue) {
+                                setState(() {
+                                  selectedValue = newValue;
+                                });
+                              },
+                              items: regionList,
+                            ),
+                            const SizedBox(height: 30),
+
+                            isLoading
+                                ? CircularProgressIndicator()
+                                : MyLoadingButton(
+                                    label: "UPDATE",
+                                    width: width,
+                                    onTap: () async {
+                                      await updateProfile(context);
+                                    },
+                                  ),
+                            const SizedBox(height: 30),
+                            GestureDetector(
+                              onTap: () {
+                                // Navigate to the '/profile' page when the row is tapped
+                                Navigator.pushNamed(context, '/home');
+                              },
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Kembali ke home? ',
+                                    style: TextStyle(
+                                      color: Colors.grey[700],
+                                      fontSize: isSmallScreen ? 16 : 22,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'Kembali',
+                                    style: TextStyle(
+                                      color: Colors.blue,
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: isSmallScreen ? 16 : 22,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
+
+                            const SizedBox(height: 20),
                           ],
                         ),
                       ),
-
-                      const SizedBox(height: 20),
-                    ],
-                  ),
-                ),
               ),
             ),
           ),

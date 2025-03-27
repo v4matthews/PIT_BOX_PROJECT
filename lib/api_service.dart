@@ -120,6 +120,13 @@ class ApiService {
     required String nomorTelepon,
     required String kota,
   }) async {
+    print(idUser);
+    print(username);
+    print(nama);
+    print(email);
+    print(nomorTelepon);
+    print(kota);
+
     final response = await _putRequest(_updateUserEndpoint, {
       'id_user': idUser,
       'username': username,
@@ -128,7 +135,7 @@ class ApiService {
       'tlpn_user': nomorTelepon,
       'kota_user': kota,
     });
-
+    print('Response Update User: ${response}');
     if (response.statusCode == 200) {
       return true;
     } else {
@@ -512,7 +519,7 @@ class ApiService {
     final response = await http.get(Uri.parse('$_baseUrl/getUser/$username'));
     if (response.statusCode == 200) {
       final userData = json.decode(response.body);
-      print('Data User: ${userData["_id"]}'); // Debug print statement
+      print('Data User: ${userData['poin_user']}'); // Debug print statement
       return {
         // 'id_user': userData[index]["_id"] ?? '',]
         'id_user': userData["_id"] ?? '',
@@ -521,6 +528,7 @@ class ApiService {
         'email_user': userData['email_user'] ?? '',
         'tlpn_user': userData['tlpn_user'] ?? '',
         'kota_user': userData['kota_user'] ?? '',
+        'poin_user': (userData['poin_user'] ?? 0).toString(),
       };
     } else {
       print('Failed to retrieve user data: ${response.body}');
@@ -578,8 +586,14 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
-      List<dynamic> data = jsonDecode(response.body);
-      return data.map((item) => item as Map<String, dynamic>).toList();
+      final responseData = jsonDecode(response.body);
+      if (responseData['status'] == 'success') {
+        List<dynamic> data = responseData['data'];
+        return data.map((item) => item as Map<String, dynamic>).toList();
+      } else {
+        throw Exception(
+            'Gagal memuat data reservasi: ${responseData['message']}');
+      }
     } else {
       throw Exception('Gagal memuat data reservasi: ${response.body}');
     }
@@ -590,11 +604,15 @@ class ApiService {
     required int totalHarga,
     required String metodePembayaran,
   }) async {
+    print(
+        'ID Reservasi: $idReservasi, Total Harga: $totalHarga, Metode Pembayaran: $metodePembayaran');
     final response = await _postRequest(_createPaymentEndpoint, {
       'id_reservasi': idReservasi,
       'total_harga': totalHarga,
       'metode_pembayaran': metodePembayaran,
     });
+
+    print("response: ${response.body}");
 
     if (response.statusCode == 201) {
       return json.decode(response.body);

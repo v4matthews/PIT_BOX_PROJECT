@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:pit_box/api_service.dart';
+import 'package:pit_box/components/asset_warna.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class WebViewPage extends StatefulWidget {
-  final String reservationId;
-  final int amount;
+  final String url;
 
   const WebViewPage({
     Key? key,
-    required this.reservationId,
-    required this.amount,
+    required this.url,
   }) : super(key: key);
 
   @override
@@ -17,8 +15,7 @@ class WebViewPage extends StatefulWidget {
 }
 
 class _WebViewPageState extends State<WebViewPage> {
-  bool _isLoading = false;
-  String? _paymentUrl;
+  bool _isLoading = true;
   late WebViewController _controller;
 
   @override
@@ -26,15 +23,32 @@ class _WebViewPageState extends State<WebViewPage> {
     super.initState();
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setBackgroundColor(Colors.white)
+      ..setBackgroundColor(const Color(0x00000000))
       ..setNavigationDelegate(
         NavigationDelegate(
           onProgress: (int progress) {
-            // Update loading bar.
+            debugPrint('WebView is loading (progress: $progress%)');
           },
-          onPageStarted: (String url) {},
-          onPageFinished: (String url) {},
-          onWebResourceError: (WebResourceError error) {},
+          onPageStarted: (String url) {
+            setState(() {
+              _isLoading = true;
+            });
+            debugPrint('Page started loading: $url');
+          },
+          onPageFinished: (String url) {
+            setState(() {
+              _isLoading = false;
+            });
+            debugPrint('Page finished loading: $url');
+          },
+          onWebResourceError: (WebResourceError error) {
+            debugPrint('''
+              Page resource error:
+              code: ${error.errorCode}
+              description: ${error.description}
+              errorType: ${error.errorType}
+            ''');
+          },
           onNavigationRequest: (NavigationRequest request) {
             if (request.url.contains('payment_success')) {
               Navigator.pop(context, 'success');
@@ -46,54 +60,48 @@ class _WebViewPageState extends State<WebViewPage> {
             return NavigationDecision.navigate;
           },
         ),
-      );
-    _processPayment();
-  }
-
-  Future<void> _processPayment() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final response = await ApiService.processPayment(
-        reservationId: widget.reservationId,
-        amount: widget.amount,
-      );
-
-      print('Response Web: $response');
-      setState(() {
-        _paymentUrl = response['redirect_url'];
-        print('Payment URL: $_paymentUrl');
-        if (_paymentUrl != null) {
-          _controller.loadRequest(Uri.parse(_paymentUrl!));
-        }
-      });
-      if (response['status'] == 'success') {
-        // Handle success case if needed
-      } else {
-        print('Payment failed: ${response['message']}');
-      }
-    } catch (e) {
-      print('Payment exception: $e');
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
+      )
+      ..loadRequest(Uri.parse(widget.url));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Pembayaran'),
+        centerTitle: true,
+        title: const Text(
+          'Pembayaran',
+          style: TextStyle(
+            color: AppColors.whiteText,
+            fontSize: 18,
+            // fontWeight: FontWeight.bold,
+            fontFamily: 'OpenSans',
+          ),
+        ),
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/bg.jpg'),
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: AppColors.whiteText),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
       ),
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator())
-          : _paymentUrl != null
-              ? WebViewWidget(controller: _controller)
-              : Center(child: Text('Gagal memuat halaman pembayaran')),
+      body: Stack(
+        children: [
+          WebViewWidget(controller: _controller),
+          if (_isLoading)
+            Center(
+              child: CircularProgressIndicator(),
+            ),
+        ],
+      ),
     );
   }
 }

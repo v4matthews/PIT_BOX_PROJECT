@@ -31,17 +31,16 @@ class _UserPaymentPageState extends State<UserPaymentPage> {
       ..setNavigationDelegate(
         NavigationDelegate(
           onProgress: (int progress) {
-            // Update loading bar.
-            print('WebView is loading (progress : $progress%)');
+            debugPrint('WebView is loading (progress: $progress%)');
           },
           onPageStarted: (String url) {
-            print('Page started loading: $url');
+            debugPrint('Page started loading: $url');
           },
           onPageFinished: (String url) {
-            print('Page finished loading: $url');
+            debugPrint('Page finished loading: $url');
           },
           onWebResourceError: (WebResourceError error) {
-            print('''
+            debugPrint('''
               Page resource error:
               code: ${error.errorCode}
               description: ${error.description}
@@ -49,9 +48,8 @@ class _UserPaymentPageState extends State<UserPaymentPage> {
             ''');
           },
           onNavigationRequest: (NavigationRequest request) {
-            print('allowing navigation to $request');
+            debugPrint('Allowing navigation to ${request.url}');
             if (request.url.contains('payment_success')) {
-              // Pastikan bahwa pembayaran berhasil sebelum navigasi
               Navigator.of(context).pushReplacementNamed('/home');
               return NavigationDecision.prevent;
             } else if (request.url.contains('payment_failed')) {
@@ -76,26 +74,40 @@ class _UserPaymentPageState extends State<UserPaymentPage> {
         amount: widget.amount,
       );
 
-      print('Response Woeee: $response');
-
       if (response['status'] == 'success') {
         setState(() {
           _paymentUrl = response['redirect_url'];
-          print('Payment URL: $_paymentUrl');
           if (_paymentUrl != null) {
             _controller.loadRequest(Uri.parse(_paymentUrl!));
           }
         });
       } else {
-        print('Payment failed: ${response['message']}');
+        _showErrorDialog('Payment failed: ${response['message']}');
       }
     } catch (e) {
-      print('Payment exception: $e');
+      _showErrorDialog('An error occurred while processing the payment.');
+      debugPrint('Payment exception: $e');
     } finally {
       setState(() {
         _isLoading = false;
       });
     }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Error'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override

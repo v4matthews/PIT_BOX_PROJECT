@@ -21,6 +21,8 @@ class _UserHomePageState extends State<UserHomePage> {
   String userName = "User";
   String userLocation = "User Location";
   String userPoin = '0';
+  String userSchedule = 'Belum ada jadwal';
+  String userRace = '0';
   bool isLoading = true;
   List raceEvents = [];
   TextEditingController controller = TextEditingController();
@@ -34,6 +36,7 @@ class _UserHomePageState extends State<UserHomePage> {
 
   void _getUserInfo() async {
     final userData = await SessionService.getUserData();
+    print(userData);
     setState(() {
       userName = userData['nama_user'] ?? 'User';
       userLocation = userData['kota_user'] != null
@@ -107,6 +110,7 @@ class _UserHomePageState extends State<UserHomePage> {
 
   AppBar _buildAppBar() {
     return AppBar(
+      automaticallyImplyLeading: false, // Removes the back arrow
       flexibleSpace: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
@@ -316,10 +320,10 @@ class _UserHomePageState extends State<UserHomePage> {
               children: [
                 _buildHorizontalCard(
                     150, "Race Point", userPoin, "assets/images/icon/poin.svg"),
-                _buildHorizontalCard(225, "Jadwal Race", "Belum ada jadwal",
+                _buildHorizontalCard(225, "Jadwal Race", userSchedule,
                     "assets/images/icon/jadwal.svg"),
-                _buildHorizontalCard(
-                    160, "Perlombaan", "5", "assets/images/icon/checklist.svg"),
+                _buildHorizontalCard(160, "Perlombaan", userRace,
+                    "assets/images/icon/checklist.svg"),
               ],
             ),
           ),

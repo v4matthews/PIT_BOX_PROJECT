@@ -96,27 +96,41 @@ class _ClassInformationPageState extends State<ClassInformationPage> {
       child: Scaffold(
         backgroundColor: AppColors.background,
         appBar: AppBar(
-          backgroundColor: AppColors.whiteColor,
+          flexibleSpace: Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/bg.jpg'),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
           centerTitle: true,
           title: const Text(
             'Detail Event',
             style: TextStyle(
-              color: AppColors.blackColor,
+              color: AppColors.whiteText,
               fontSize: 18,
               // fontWeight: FontWeight.bold,
               fontFamily: 'OpenSans',
             ),
           ),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: AppColors.whiteText),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
           bottom: TabBar(
+            dividerColor: Colors.transparent,
             isScrollable: true,
             labelColor: AppColors
-                .primaryText, // Set the text color of the selected tab to primary text
+                .whiteText, // Set the text color of the selected tab to white
             labelStyle: TextStyle(
-                fontWeight: FontWeight.bold), // Make the selected tab text bold
-            unselectedLabelColor: AppColors
-                .primaryText, // Set the text color of the unselected tabs to primary text
+                fontFamily: 'OpenSans'), // Make the selected tab text bold
+            unselectedLabelColor: Colors
+                .white, // Set the text color of the unselected tabs to white
             indicatorColor: AppColors
-                .primaryText, // Set the color of the tab indicator to primary text
+                .whiteText, // Set the color of the tab indicator to white
             tabs: classData.keys.map((String key) {
               return Tab(text: key);
             }).toList(),

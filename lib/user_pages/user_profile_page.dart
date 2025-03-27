@@ -29,7 +29,10 @@ class _UserProfilePageState extends State<UserProfilePage> {
   final TextEditingController kotaController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController statusUserController = TextEditingController();
-
+  String idUser = '';
+  String userPoin = '0';
+  String userRace = '0';
+  String userWin = '0';
   bool _isLoading = true;
 
   @override
@@ -40,9 +43,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
   void _loadUserData() async {
     final userData = await SessionService.getUserData();
+    print(userData);
     setState(() {
       usernameController.text = userData['username'] ?? '';
       namaUserController.text = userData['nama_user'] ?? '';
+      userPoin = userData['poin_user'] ?? '';
+      idUser = userData['id_user'] ?? '';
       _isLoading = false;
     });
   }
@@ -68,7 +74,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
   void _resevationList() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => ReservationListPage()),
+      MaterialPageRoute(
+          builder: (context) => UserReservationListPage(userId: idUser)),
     );
   }
 
@@ -250,7 +257,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildProfileStat('Poin', '1200'), // Replace with actual data
+              _buildProfileStat('Poin', userPoin), // Replace with actual data
               Container(
                 height: 30,
                 child: VerticalDivider(
@@ -258,7 +265,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                   thickness: 1,
                 ),
               ),
-              _buildProfileStat('Race', '15'), // Replace with actual data
+              _buildProfileStat('Race', userRace), // Replace with actual data
               Container(
                 height: 30,
                 child: VerticalDivider(
@@ -266,7 +273,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                   thickness: 1,
                 ),
               ),
-              _buildProfileStat('Win', '5'), // Replace with actual data
+              _buildProfileStat('Win', userWin), // Replace with actual data
             ],
           ),
         ],

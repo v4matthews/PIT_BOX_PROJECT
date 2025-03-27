@@ -42,7 +42,7 @@ class _ReservationPageState extends State<ReservationPage> {
   }
 
   Future<void> _createReservation() async {
-    if (_nameController.text.isEmpty) {
+    if (_nameController.text.isEmpty || _paymentMethod.isEmpty) {
       showCustomDialog(
         context: context,
         isSuccess: false,
@@ -58,38 +58,66 @@ class _ReservationPageState extends State<ReservationPage> {
     });
 
     try {
-      final response = await ApiService.createReservation(
+      // Buat reservasi
+      final reservationResponse = await ApiService.createReservation(
         idUser: _userId,
         idEvent: widget.event['_id'],
         namaTim: _nameController.text,
         metode_pembayaran: _paymentMethod,
       );
+      print("paymentResponse: $reservationResponse");
+      if (reservationResponse['status'] == 'success') {
+        print("masuk success");
+        final reservationId = reservationResponse['data']['_id'];
+        final totalHarga = widget.event['htm_event'] +
+            2000; // Tambahkan pajak atau biaya lainnya
+        print("reservationId: $reservationId");
+        print("totalHarga: $totalHarga");
+        // Proses pembayaran
+        final paymentResponse = await ApiService.createPayment(
+          idReservasi: reservationId,
+          totalHarga: totalHarga,
+          metodePembayaran: _paymentMethod,
+        );
+        print("paymentResponse: $paymentResponse");
 
-      if (response['status'] == 'success') {
-        showCustomDialog(
-          context: context,
-          isSuccess: true,
-          title: 'Sukses',
-          message: Text('Reservasi berhasil dibuat.'),
-          routeName: '/home',
-        );
-        // Proceed to payment or show success
+        if (paymentResponse['status'] == 'success') {
+          final paymentUrl = paymentResponse['data']['redirect_url'];
+          print("paymentUrl: $paymentUrl");
+
+          // Navigasi ke halaman webview untuk pembayaran
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => WebViewPage(
+                url: paymentUrl,
+              ),
+            ),
+          );
+
+          // Navigasi ke halaman pembayaran
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(
+          //     builder: (context) => UserPaymentPage(
+          //       reservationId: reservationId,
+          //       amount: totalHarga,
+          //     ),
+          //   ),
+          // );
+        } else {
+          throw Exception('Gagal memproses pembayaran.');
+        }
       } else {
-        showCustomDialog(
-          context: context,
-          isSuccess: false,
-          title: 'Gagal',
-          message: Text('Gagal membuat reservasi.'),
-          routeName: '/home',
-        );
+        throw Exception('Gagal membuat reservasi.');
       }
     } catch (e) {
       showCustomDialog(
         context: context,
         isSuccess: false,
         title: 'Gagal',
-        message: Text('Gagal membuat reservasi: $e'),
-        routeName: '/home',
+        message: Text('Terjadi kesalahan: $e'),
+        routeName: '',
       );
     } finally {
       setState(() {

@@ -1,132 +1,122 @@
+// filepath: D:/Tugas Akhir/Project TA/pit_box/pit_box/lib/user_pages/user_reservation_list.dart
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:pit_box/api_service.dart';
-import 'package:pit_box/components/asset_warna.dart';
-import 'package:pit_box/user_pages/user_payment.dart'; // Import halaman pembayaran
 
-class ReservationListPage extends StatefulWidget {
+class UserReservationListPage extends StatefulWidget {
+  final String userId;
+
+  const UserReservationListPage({Key? key, required this.userId})
+      : super(key: key);
+
   @override
-  _ReservationListPageState createState() => _ReservationListPageState();
+  _UserReservationListPageState createState() =>
+      _UserReservationListPageState();
 }
 
-class _ReservationListPageState extends State<ReservationListPage> {
-  List<Map<String, dynamic>> _reservations = [];
-  bool _isLoading = true;
+class _UserReservationListPageState extends State<UserReservationListPage> {
+  late Future<List<Map<String, dynamic>>> _reservationsFuture;
 
   @override
   void initState() {
     super.initState();
-    _loadReservations();
-  }
-
-  Future<void> _loadReservations() async {
-    try {
-      final userData = await ApiService.getUserData();
-      final reservations =
-          await ApiService.getReservations(userData['id_user']!);
-      setState(() {
-        _reservations = reservations;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal memuat data reservasi: $e')),
-      );
-    }
-  }
-
-  void _continuePayment(String reservationId, int amount) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => UserPaymentPage(
-          reservationId: reservationId,
-          amount: amount,
-        ),
-      ),
-    );
+    _reservationsFuture = ApiService.getReservations(widget.userId);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-        title: Text(
-          'Daftar Reservasi',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        backgroundColor: AppColors.primaryColor,
+        title: const Text('Daftar Reservasi'),
       ),
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator())
-          : _reservations.isEmpty
-              ? Center(child: Text('Tidak ada reservasi.'))
-              : ListView.builder(
-                  itemCount: _reservations.length,
-                  itemBuilder: (context, index) {
-                    final reservation = _reservations[index];
-                    final event = reservation['id_event'];
-                    return Card(
-                      color: Colors.white, // Mengubah warna card menjadi putih
-                      margin:
-                          EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                      elevation: 5,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: InkWell(
-                        onTap: () {
-                          if (reservation['status'] == 'Pending') {
-                            _continuePayment(reservation['id_reservasi'],
-                                reservation['amount']);
-                          }
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.all(15.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                event['nama_event'],
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              SizedBox(height: 10),
-                              Text('Nama Tim: ${reservation['nama_tim']}'),
-                              Text('Kategori: ${event['kategori_event']}'),
-                              Text('Tanggal: ${event['tanggal_event']}'),
-                              Text('Lokasi: ${event['kota_event']}'),
-                              SizedBox(height: 10),
-                              Text(
-                                'Status: ${reservation['status']}',
-                                style: TextStyle(
-                                  color: reservation['status'] == 'Pending'
-                                      ? Colors.orange
-                                      : Colors.green,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: _reservationsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Text('Terjadi kesalahan: ${snapshot.error}'),
+            );
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(
+              child: Text('Tidak ada reservasi yang ditemukan.'),
+            );
+          }
+
+          final reservations = snapshot.data!;
+
+          return ListView.builder(
+            itemCount: reservations.length,
+            itemBuilder: (context, index) {
+              final reservation = reservations[index];
+              // print("reservation Nama: $reservation['id_event']['nama_event']");
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: ListTile(
+                  title: Text(
+                      reservation['id_event']['nama_event'] ?? 'Nama Event'),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                          'Tanggal Reservasi: ${reservation['reserved_at'] != null ? DateFormat('dd MMM yyyy').format(DateTime.parse(reservation['reserved_at'])) : '-'}'),
+                      Text('Lokasi: ${reservation['kota_event'] ?? '-'}'),
+                      Text('Status: ${reservation['status'] ?? '-'}'),
+                    ],
+                  ),
+                  trailing: const Icon(Icons.arrow_forward_ios),
+                  onTap: () {
+                    // Aksi ketika item di klik
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ReservationDetailPage(
+                          reservation: reservation,
                         ),
                       ),
                     );
                   },
                 ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
+
+class ReservationDetailPage extends StatelessWidget {
+  final Map<String, dynamic> reservation;
+
+  const ReservationDetailPage({Key? key, required this.reservation})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Detail Reservasi'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Nama Event: ${reservation['nama_event'] ?? '-'}',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text('Tanggal: ${reservation['tanggal_event'] ?? '-'}'),
+            Text('Lokasi: ${reservation['kota_event'] ?? '-'}'),
+            Text('Status: ${reservation['status'] ?? '-'}'),
+            const SizedBox(height: 16),
+            Text('Deskripsi: ${reservation['deskripsi_event'] ?? '-'}'),
+          ],
+        ),
+      ),
     );
   }
 }
