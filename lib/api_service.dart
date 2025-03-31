@@ -595,7 +595,37 @@ class ApiService {
             'Gagal memuat data reservasi: ${responseData['message']}');
       }
     } else {
-      throw Exception('Gagal memuat data reservasi: ${response.body}');
+      print('${response}');
+      final responseData = jsonDecode(response.body);
+      throw Exception(responseData['message']);
+    }
+  }
+
+  // Fungsi untuk membatalkan reservasi
+  static Future<Map<String, dynamic>> cancelReservation(
+      String reservationId) async {
+    final response = await _postRequest('/cancelReservation', {
+      'reservation_id': reservationId,
+    });
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      if (responseData['status'] == 'success') {
+        print(responseData);
+        return {
+          'status': responseData['status'],
+          'message': responseData['message'],
+        };
+      } else {
+        return {
+          'status': 'error',
+          'message': responseData['message'],
+        };
+      }
+    } else {
+      return {
+        'status': 'error',
+        'message': 'Gagal membatalkan reservasi: ${response.body}',
+      };
     }
   }
 
@@ -618,6 +648,22 @@ class ApiService {
       return json.decode(response.body);
     } else {
       throw Exception('Gagal membuat pembayaran: ${response.body}');
+    }
+  }
+
+  // Fungsi untuk mendapatkan data pembayaran berdasarkan id_reservasi
+  static Future<Map<String, dynamic>> getPayment(String idReservasi) async {
+    final response = await http.get(
+      Uri.parse('$_baseUrl/getPayment/$idReservasi'),
+      headers: _jsonHeaders(),
+    );
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else if (response.statusCode == 404) {
+      throw Exception('Pembayaran tidak ditemukan!');
+    } else {
+      throw Exception('Gagal mengambil data pembayaran: ${response.body}');
     }
   }
 

@@ -33,7 +33,8 @@ void showCustomLogoutDialog(BuildContext context, VoidCallback onLogout) {
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
+                  fontFamily: 'OpenSans',
+                  color: AppColors.blackColor,
                 ),
               ),
               SizedBox(height: 8),
@@ -45,9 +46,10 @@ void showCustomLogoutDialog(BuildContext context, VoidCallback onLogout) {
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.grey[700],
+                  fontFamily: 'OpenSans',
                 ),
               ),
-              SizedBox(height: 24),
+              SizedBox(height: 40),
 
               // Tombol Batal dan Logout
               Row(
@@ -70,12 +72,12 @@ void showCustomLogoutDialog(BuildContext context, VoidCallback onLogout) {
                       'Batal',
                       style: TextStyle(
                         color: Colors.grey[700],
-                        fontWeight: FontWeight.bold,
+                        fontFamily: 'OpenSans',
                         fontSize: 16,
                       ),
                     ),
                   ),
-                  SizedBox(width: 8), // Jarak antara tombol Batal dan Logout
+                  SizedBox(width: 10), // Jarak antara tombol Batal dan Logout
 
                   // Tombol Logout
                   ElevatedButton(
@@ -95,7 +97,7 @@ void showCustomLogoutDialog(BuildContext context, VoidCallback onLogout) {
                       'Logout',
                       style: TextStyle(
                         color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                        fontFamily: 'OpenSans',
                         fontSize: 16,
                       ),
                     ),

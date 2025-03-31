@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pit_box/api_service.dart';
 import 'package:pit_box/components/asset_alert.dart';
-import 'package:pit_box/components/asset_alert_confirmation.dart';
+import 'package:pit_box/components/asset_alert_cancel_reservation.dart';
+import 'package:pit_box/components/asset_alert_logout.dart';
 import 'package:pit_box/components/asset_button.dart';
 import 'package:pit_box/components/asset_navbar.dart';
 import 'package:pit_box/components/asset_textfield.dart';

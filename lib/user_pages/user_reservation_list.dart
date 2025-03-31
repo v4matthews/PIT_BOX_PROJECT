@@ -1,11 +1,9 @@
-// Section: Imports
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pit_box/api_service.dart';
 import 'package:pit_box/components/asset_warna.dart';
 import 'package:pit_box/user_pages/user_reservation_detail.dart';
 
-// Section: UserReservationListPage Widget
 class UserReservationListPage extends StatefulWidget {
   final String userId;
 
@@ -17,8 +15,8 @@ class UserReservationListPage extends StatefulWidget {
       _UserReservationListPageState();
 }
 
-// Section: UserReservationListPage State
-class _UserReservationListPageState extends State<UserReservationListPage> {
+class _UserReservationListPageState extends State<UserReservationListPage>
+    with SingleTickerProviderStateMixin {
   late Future<List<Map<String, dynamic>>> _reservationsFuture;
 
   @override
@@ -29,57 +27,80 @@ class _UserReservationListPageState extends State<UserReservationListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.backgroundGrey,
-      appBar: _buildAppBar(),
-      body: _buildBody(),
-    );
-  }
-
-  // Section: AppBar
-  AppBar _buildAppBar() {
-    return AppBar(
-      flexibleSpace: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/bg.jpg'),
-            fit: BoxFit.cover,
+    return DefaultTabController(
+      length: 3, // Jumlah tab
+      child: Scaffold(
+        backgroundColor: AppColors.backgroundGrey,
+        appBar: AppBar(
+          flexibleSpace: Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/bg.jpg'),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          backgroundColor: Colors.transparent,
+          centerTitle: true,
+          title: Text(
+            'Daftar Reservasi',
+            style: TextStyle(
+              color: AppColors.whiteText,
+              fontSize: 18,
+              fontFamily: 'OpenSans',
+            ),
+          ),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: AppColors.whiteText),
+            onPressed: () => Navigator.pop(context),
+          ),
+          bottom: TabBar(
+            labelColor: AppColors.whiteText,
+            unselectedLabelColor: AppColors.whiteColor,
+            indicatorColor: AppColors.whiteText,
+            tabs: const [
+              Tab(text: 'Pending'),
+              Tab(text: 'Success'),
+              Tab(text: 'Canceled'),
+            ],
           ),
         ),
-      ),
-      backgroundColor: Colors.transparent,
-      centerTitle: true,
-      title: Text(
-        'Daftar Reservasi',
-        style: TextStyle(
-          color: AppColors.whiteText,
-          fontSize: 18,
-          fontFamily: 'OpenSans',
+        body: FutureBuilder<List<Map<String, dynamic>>>(
+          future: _reservationsFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return _buildLoadingIndicator();
+            } else if (snapshot.hasError) {
+              return _buildErrorMessage(snapshot.error);
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return _buildEmptyMessage();
+            }
+
+            final reservations = snapshot.data!;
+            return TabBarView(
+              children: [
+                _buildReservationList(
+                  reservations
+                      .where((reservation) =>
+                          reservation['status'] == 'Pending Payment')
+                      .toList(),
+                ),
+                _buildReservationList(
+                  reservations
+                      .where((reservation) => reservation['status'] == 'Paid')
+                      .toList(),
+                ),
+                _buildReservationList(
+                  reservations
+                      .where(
+                          (reservation) => reservation['status'] == 'Canceled')
+                      .toList(),
+                ),
+              ],
+            );
+          },
         ),
       ),
-      leading: IconButton(
-        icon: Icon(Icons.arrow_back, color: AppColors.whiteText),
-        onPressed: () => Navigator.pop(context),
-      ),
-    );
-  }
-
-  // Section: Body
-  Widget _buildBody() {
-    return FutureBuilder<List<Map<String, dynamic>>>(
-      future: _reservationsFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return _buildLoadingIndicator();
-        } else if (snapshot.hasError) {
-          return _buildErrorMessage(snapshot.error);
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return _buildEmptyMessage();
-        }
-
-        final reservations = snapshot.data!;
-        return _buildReservationList(reservations);
-      },
     );
   }
 
@@ -98,7 +119,7 @@ class _UserReservationListPageState extends State<UserReservationListPage> {
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Text(
-          'Terjadi kesalahan: $error',
+          error.toString().replaceAll('Exception: ', ''),
           style: TextStyle(
             color: AppColors.secondaryText,
             fontSize: 16,
@@ -128,6 +149,10 @@ class _UserReservationListPageState extends State<UserReservationListPage> {
 
   // Section: Reservation List
   Widget _buildReservationList(List<Map<String, dynamic>> reservations) {
+    if (reservations.isEmpty) {
+      return _buildEmptyMessage();
+    }
+
     return RefreshIndicator(
       onRefresh: () async {
         setState(() {
@@ -163,14 +188,6 @@ class _UserReservationListPageState extends State<UserReservationListPage> {
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () {
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(
-          //     builder: (context) => ReservationDetailPage(
-          //       reservation: reservation,
-          //     ),
-          //   ),
-          // );
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -253,8 +270,8 @@ class _UserReservationListPageState extends State<UserReservationListPage> {
         return AppColors.yellowColor;
       case 'Paid':
         return AppColors.greenColor;
-      case 'Cancelled':
-        return Colors.red;
+      case 'Canceled':
+        return Colors.grey;
       default:
         return Colors.grey;
     }

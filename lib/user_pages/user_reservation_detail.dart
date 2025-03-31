@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:pit_box/api_service.dart';
+import 'package:pit_box/components/asset_alert_cancel_reservation.dart';
 import 'package:pit_box/components/asset_warna.dart';
+import 'package:pit_box/user_pages/web_view.dart';
 
 class UserReservationDetailPage extends StatelessWidget {
   final Map<String, dynamic> reservation;
@@ -37,7 +40,6 @@ class UserReservationDetailPage extends StatelessWidget {
           color: AppColors.whiteText,
           fontSize: 18,
           fontFamily: 'OpenSans',
-          fontWeight: FontWeight.bold,
         ),
       ),
       leading: IconButton(
@@ -74,61 +76,204 @@ class UserReservationDetailPage extends StatelessWidget {
 
 // Section: Action Buttons
   Widget _buildActionButtons(BuildContext context) {
-    return Column(
-      children: [
-        SizedBox(
-          width: double.infinity,
-          child: OutlinedButton(
-            onPressed: () {
-              // Logika untuk melanjutkan pembayaran
-              print('Lanjutkan Pembayaran');
-            },
-            style: OutlinedButton.styleFrom(
-              backgroundColor: AppColors.whiteColor,
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+    if (reservation['status'] == 'Canceled') {
+      return const SizedBox
+          .shrink(); // Tidak menampilkan tombol jika status adalah 'canceled'
+    }
+
+    return Card(
+      color: AppColors.whiteColor,
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed: () async {
+                  // Logika untuk melanjutkan pembayaran
+                  await _viewConfirmationReceipt(context);
+                },
+                style: OutlinedButton.styleFrom(
+                  backgroundColor: AppColors.whiteColor,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  side: BorderSide(color: AppColors.primaryColor),
+                ),
+                child: const Text(
+                  'Lanjutkan Pembayaran',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primaryColor,
+                  ),
+                ),
               ),
-              side: BorderSide(color: AppColors.primaryColor),
             ),
-            child: const Text(
-              'Lanjutkan Pembayaran',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: AppColors.primaryColor,
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () async {
+                  // Logika untuk membuka confirmation_receipt
+                  await _cancleReservation(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.accentColor,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text(
+                  'Batalkan Reservasi',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
               ),
             ),
-          ),
+          ],
         ),
-        const SizedBox(height: 12),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: () {
-              // Logika untuk membatalkan reservasi
-              print('Batalkan Reservasi');
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.accentColor,
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
-            child: const Text(
-              'Batalkan Reservasi',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
+
+  Future<void> _viewConfirmationReceipt(BuildContext context) async {
+    try {
+      // Tampilkan indikator loading
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+
+      // Panggil API untuk mendapatkan data pembayaran
+      final paymentResponse = await ApiService.getPayment(reservation['_id']);
+
+      Navigator.pop(context); // Tutup dialog loading
+
+      if (paymentResponse.containsKey('confirmation_receipt')) {
+        final receiptUrl = paymentResponse['confirmation_receipt'];
+
+        // Navigasi ke halaman WebView untuk melihat bukti pembayaran
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => WebViewPage(
+              url: receiptUrl,
+            ),
+          ),
+        );
+      } else {
+        // _showErrorDialog(context, 'Bukti pembayaran tidak tersedia.');
+      }
+    } catch (e) {
+      Navigator.pop(context); // Tutup dialog loading
+      // _showErrorDialog(context, 'Terjadi kesalahan: $e');
+    }
+  }
+
+  Future<void> _cancleReservation(BuildContext context) async {
+    // Tampilkan dialog konfirmasi
+    showCancelReservationDialog(context, () async {
+      try {
+        // Tampilkan indikator loading
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => const Center(
+            child: CircularProgressIndicator(),
+          ),
+        );
+
+        // Panggil API untuk membatalkan reservasi
+        final response = await ApiService.cancelReservation(reservation['_id']);
+        Navigator.pop(context); // Tutup dialog loading
+
+        if (response['status'] == 'success') {
+          // Tampilkan pesan sukses
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content:
+                  Text(response['message'] ?? 'Reservasi berhasil dibatalkan.'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          Navigator.pop(context); // Kembali ke halaman sebelumnya
+
+          // Refresh halaman reservation list
+          Navigator.pop(context, true); // Mengirimkan sinyal untuk refresh
+        } else {
+          // Tampilkan pesan kesalahan
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Gagal membatalkan reservasi.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } catch (e) {
+        Navigator.pop(context); // Tutup dialog loading
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Terjadi kesalahan: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    });
+  }
+
+  // Future<void> _cancleReservation(BuildContext context) async {
+  //   try {
+  //     // Tampilkan indikator loading
+  //     showDialog(
+  //       context: context,
+  //       barrierDismissible: false,
+  //       builder: (context) => const Center(
+  //         child: CircularProgressIndicator(),
+  //       ),
+  //     );
+
+  //     // Panggil API untuk mendapatkan data pembayaran
+  //     final response = await ApiService.cancelReservation(reservation['_id']);
+  //     print(response['status']);
+  //     if (response['status'] == 'success') {
+  //       // Tampilkan pesan sukses
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(
+  //           content:
+  //               Text(response['message'] ?? 'Reservasi berhasil dibatalkan.'),
+  //           backgroundColor: Colors.green,
+  //         ),
+  //       );
+  //       Navigator.pop(context); // Kembali ke halaman sebelumnya
+  //     } else {
+  //       // Tampilkan pesan kesalahan
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         const SnackBar(
+  //           content: Text('Gagal membatalkan reservasi.'),
+  //           backgroundColor: Colors.red,
+  //         ),
+  //       );
+  //     }
+  //     Navigator.pop(context); // Tutup dialog loading
+  //   } catch (e) {
+  //     Navigator.pop(context); // Tutup dialog loading
+  //     // _showErrorDialog(context, 'Terjadi kesalahan: $e');
+  //   }
+  // }
 
   // Section: Event Info Card
   Widget _buildEventInfoCard() {
@@ -144,26 +289,34 @@ class UserReservationDetailPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildCardTitle('Informasi Event'),
-            const SizedBox(height: 16),
+            const SizedBox(height: 25),
             _buildDetailItem(
-                'Nama Event', reservation['id_event']['nama_event'] ?? '-'),
+                'Nama Event',
+                reservation['id_event']['nama_event'] ?? '-',
+                AppColors.primaryText),
             const Divider(height: 24, thickness: 0.5),
             _buildDetailItem(
                 'Tanggal',
                 DateFormat('dd MMM yyyy').format(
                   DateTime.parse(reservation['id_event']['tanggal_event'] ??
                       DateTime.now().toString()),
-                )),
+                ),
+                AppColors.primaryText),
             const Divider(height: 24, thickness: 0.5),
             _buildDetailItem(
-                'Waktu', reservation['id_event']['waktu_event'] ?? '-'),
+                'Waktu',
+                reservation['id_event']['waktu_event'] ?? '-',
+                AppColors.primaryText),
             const Divider(height: 24, thickness: 0.5),
             _buildDetailItem(
-                'Lokasi', reservation['id_event']['kota_event'] ?? '-'),
+                'Lokasi',
+                reservation['id_event']['kota_event'] ?? '-',
+                AppColors.primaryText),
             const Divider(height: 24, thickness: 0.5),
             _buildDetailItem(
               'Status',
               reservation['status'] ?? '-',
+              Colors.grey[500] ?? AppColors.lightGreyText,
             ),
           ],
         ),
@@ -179,12 +332,13 @@ class UserReservationDetailPage extends StatelessWidget {
         fontSize: 18,
         fontWeight: FontWeight.bold,
         color: AppColors.primaryColor,
+        fontFamily: 'OpenSans',
       ),
     );
   }
 
   // Section: Detail Item
-  Widget _buildDetailItem(String label, String value) {
+  Widget _buildDetailItem(String label, String value, Color colors) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -203,9 +357,10 @@ class UserReservationDetailPage extends StatelessWidget {
           flex: 3,
           child: Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w500,
+              color: colors,
             ),
           ),
         ),
