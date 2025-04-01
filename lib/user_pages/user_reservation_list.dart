@@ -58,6 +58,7 @@ class _UserReservationListPageState extends State<UserReservationListPage>
             labelColor: AppColors.whiteText,
             unselectedLabelColor: AppColors.whiteColor,
             indicatorColor: AppColors.whiteText,
+            labelStyle: TextStyle(fontFamily: 'OpenSans'),
             tabs: const [
               Tab(text: 'Pending'),
               Tab(text: 'Success'),
@@ -87,7 +88,8 @@ class _UserReservationListPageState extends State<UserReservationListPage>
                 ),
                 _buildReservationList(
                   reservations
-                      .where((reservation) => reservation['status'] == 'Paid')
+                      .where(
+                          (reservation) => reservation['status'] == 'Confirmed')
                       .toList(),
                 ),
                 _buildReservationList(
@@ -268,7 +270,7 @@ class _UserReservationListPageState extends State<UserReservationListPage>
     switch (status) {
       case 'Pending Payment':
         return AppColors.yellowColor;
-      case 'Paid':
+      case 'Confirmed':
         return AppColors.greenColor;
       case 'Canceled':
         return Colors.grey;

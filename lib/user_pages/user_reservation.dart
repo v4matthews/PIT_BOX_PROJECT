@@ -352,11 +352,11 @@ class _ReservationPageState extends State<ReservationPage> {
                             const SizedBox(height: 15),
                             _buildSummaryItem('Subtotal',
                                 'Rp ${NumberFormat("#,##0", "id_ID").format(widget.event['htm_event'])}'), // Replace with actual data
-                            _buildSummaryItem(
-                                'Tax', 'Rp 2.000'), // Replace with actual data
+                            _buildSummaryItem('Biaya Layanan',
+                                'Rp 2.000'), // Replace with actual data
                             Divider(),
                             _buildSummaryItem(
-                              'Grand Total',
+                              'Total Pembayaran',
                               'Rp ${NumberFormat("#,##0", "id_ID").format(widget.event['htm_event'] + 2000)}', // Replace with actual data
                               // style: TextStyle(
                               //   fontSize: 18,
@@ -425,7 +425,7 @@ class _ReservationPageState extends State<ReservationPage> {
                                         ),
                                         SizedBox(width: 10),
                                         Text(
-                                          'Other QRIS',
+                                          'QRIS',
                                           style: TextStyle(
                                             color:
                                                 _paymentMethod == 'other_qris'
@@ -466,7 +466,7 @@ class _ReservationPageState extends State<ReservationPage> {
                                         ),
                                         SizedBox(width: 10),
                                         Text(
-                                          'Bank Transfer',
+                                          'VA Bank Transfer',
                                           style: TextStyle(
                                             color: _paymentMethod ==
                                                     'bank_transfer'

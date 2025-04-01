@@ -121,16 +121,13 @@ class _ClassInformationPageState extends State<ClassInformationPage> {
             },
           ),
           bottom: TabBar(
+            labelColor: AppColors.whiteText,
+            unselectedLabelColor: AppColors.whiteColor,
+            indicatorColor: AppColors.whiteText,
             dividerColor: Colors.transparent,
             isScrollable: true,
-            labelColor: AppColors
-                .whiteText, // Set the text color of the selected tab to white
             labelStyle: TextStyle(
                 fontFamily: 'OpenSans'), // Make the selected tab text bold
-            unselectedLabelColor: Colors
-                .white, // Set the text color of the unselected tabs to white
-            indicatorColor: AppColors
-                .whiteText, // Set the color of the tab indicator to white
             tabs: classData.keys.map((String key) {
               return Tab(text: key);
             }).toList(),

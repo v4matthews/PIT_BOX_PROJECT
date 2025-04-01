@@ -629,25 +629,74 @@ class ApiService {
     }
   }
 
+  // static Future<Map<String, dynamic>> createPayment({
+  //   required String idReservasi,
+  //   required int totalHarga,
+  //   required String metodePembayaran,
+  // }) async {
+  //   print(
+  //       'ID Reservasi: $idReservasi, Total Harga: $totalHarga, Metode Pembayaran: $metodePembayaran');
+  //   final response = await _postRequest(_createPaymentEndpoint, {
+  //     'id_reservasi': idReservasi,
+  //     'total_harga': totalHarga,
+  //     'metode_pembayaran': metodePembayaran,
+  //   });
+
+  //   print("response: ${response.body}");
+
+  //   if (response.statusCode == 201) {
+  //     return json.decode(response.body);
+  //   } else {
+  //     throw Exception('Gagal membuat pembayaran: ${response.body}');
+  //   }
+  // }
+
   static Future<Map<String, dynamic>> createPayment({
     required String idReservasi,
     required int totalHarga,
     required String metodePembayaran,
   }) async {
-    print(
-        'ID Reservasi: $idReservasi, Total Harga: $totalHarga, Metode Pembayaran: $metodePembayaran');
-    final response = await _postRequest(_createPaymentEndpoint, {
-      'id_reservasi': idReservasi,
-      'total_harga': totalHarga,
-      'metode_pembayaran': metodePembayaran,
-    });
+    try {
+      final response = await _postRequest(_createPaymentEndpoint, {
+        'id_reservasi': idReservasi,
+        'total_harga': totalHarga,
+        'metode_pembayaran': metodePembayaran,
+      });
 
-    print("response: ${response.body}");
+      final responseData = json.decode(response.body);
+      // print("responseData ${responseData['data']['redirect_url']}");
+      if (response.statusCode == 201) {
+        // return {
+        //   'status': 'success',
+        //   'redirect_url': responseData['data']['redirect_url'],
+        //   'payment_data': responseData
+        // };
+        return json.decode(response.body);
+      } else {
+        throw Exception(responseData['message'] ?? 'Gagal membuat pembayaran');
+      }
+    } catch (e) {
+      debugPrint('Error creating payment: $e');
+      rethrow;
+    }
+  }
 
-    if (response.statusCode == 201) {
-      return json.decode(response.body);
-    } else {
-      throw Exception('Gagal membuat pembayaran: ${response.body}');
+  static Future<void> checkPaymentStatus(String orderId) async {
+    try {
+      final response =
+          await _postRequest('/check-payment-status', {'order_id': orderId});
+
+      final responseData = json.decode(response.body);
+
+      if (response.statusCode != 200) {
+        throw Exception(
+            responseData['message'] ?? 'Gagal memeriksa status pembayaran');
+      }
+
+      return responseData;
+    } catch (e) {
+      debugPrint('Error checking payment status: $e');
+      rethrow;
     }
   }
 
@@ -718,6 +767,50 @@ class ApiService {
       return jsonDecode(response.body);
     } else {
       throw Exception('Failed to update reservation status: ${response.body}');
+    }
+  }
+
+  // Fungsi untuk menangani callback dari Midtrans
+  static Future<void> handleMidtransCallback(
+      Map<String, dynamic> callbackData) async {
+    final String orderId = callbackData['order_id'];
+    final String transactionStatus = callbackData['transaction_status'];
+    final String fraudStatus = callbackData['fraud_status'];
+
+    try {
+      // Ambil data reservasi berdasarkan order_id
+      final reservationResponse = await http.get(
+        Uri.parse('$_baseUrl/getReservation/$orderId'),
+        headers: _jsonHeaders(),
+      );
+
+      if (reservationResponse.statusCode != 200) {
+        throw Exception('Reservasi tidak ditemukan!');
+      }
+
+      // Update status reservasi berdasarkan callback
+      String updatedStatus;
+      if (transactionStatus == 'capture' && fraudStatus == 'accept') {
+        updatedStatus = 'Paid';
+      } else if (transactionStatus == 'settlement') {
+        updatedStatus = 'Paid';
+      } else if (transactionStatus == 'cancel' ||
+          transactionStatus == 'deny' ||
+          transactionStatus == 'expire') {
+        updatedStatus = 'Failed';
+      } else if (transactionStatus == 'pending') {
+        updatedStatus = 'Pending Payment';
+      } else {
+        throw Exception('Status transaksi tidak valid!');
+      }
+
+      // Kirim permintaan untuk memperbarui status reservasi
+      await updateReservationStatus(
+          reservationId: orderId, status: updatedStatus);
+      print('Status pembayaran diperbarui!');
+    } catch (e) {
+      print('Gagal memperbarui status pembayaran: $e');
+      throw Exception('Gagal memperbarui status pembayaran: $e');
     }
   }
 

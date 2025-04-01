@@ -18,6 +18,8 @@ import 'package:pit_box/organizer_pages/organizer_register_page.dart';
 import 'package:pit_box/organizer_pages/organizer_register_event.dart';
 import 'package:pit_box/organizer_pages/organizer_insert_race.dart';
 import 'package:pit_box/user_pages/user_ticket.dart';
+import 'package:pit_box/utils/payment_failed.dart';
+import 'package:pit_box/utils/payment_success.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 import 'package:pit_box/race_page/test.dart';
@@ -67,6 +69,8 @@ class MyApp extends StatelessWidget {
         '/ticket': (context) => TicketListPage(),
         '/classInfo': (context) => ClassInformationPage(),
         '/updateProfile': (context) => UserUpdateProfile(),
+        '/paymentSuccess': (context) => PaymentSuccessPage(),
+        '/paymentFailed': (context) => PaymentFailedPage(),
       },
     );
   }

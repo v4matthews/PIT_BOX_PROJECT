@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:pit_box/api_service.dart';
 import 'package:pit_box/components/asset_navbar.dart';
 import 'package:pit_box/components/asset_warna.dart';
@@ -43,15 +44,23 @@ class _TicketListPageState extends State<TicketListPage> {
         return false; // Mencegah aksi back default
       },
       child: Scaffold(
-        backgroundColor: AppColors.backgroundSecondary,
+        backgroundColor: AppColors.backgroundGrey,
         appBar: AppBar(
-          backgroundColor: AppColors.primaryColor,
+          centerTitle: true,
           title: const Text(
-            'TICKET',
+            'Ticket',
             style: TextStyle(
-              color: Colors.white,
+              color: AppColors.whiteText,
               fontSize: 18,
-              fontWeight: FontWeight.bold,
+              fontFamily: 'OpenSans',
+            ),
+          ),
+          flexibleSpace: Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/bg.jpg'),
+                fit: BoxFit.cover,
+              ),
             ),
           ),
         ),
@@ -73,6 +82,7 @@ class Ticket {
   final String transactionId;
   final String userId;
   final String eventId;
+  final String namaTim;
   final String eventName;
   final String eventDate;
   final String eventTime;
@@ -85,6 +95,7 @@ class Ticket {
     required this.transactionId,
     required this.userId,
     required this.eventId,
+    required this.namaTim,
     required this.eventName,
     required this.eventDate,
     required this.eventTime,
@@ -99,6 +110,7 @@ class Ticket {
       transactionId: json['id_transaksi'] ?? 'N/A',
       userId: json['id_user'] ?? 'N/A',
       eventId: json['id_event'] ?? 'N/A',
+      namaTim: json['nama_tim'] ?? 'N/A',
       eventName: json['nama_event'] ?? 'N/A',
       eventDate: json['tanggal_event'] ?? 'N/A',
       eventTime: json['waktu_event'] ?? 'N/A',
@@ -149,10 +161,11 @@ class TicketCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 8.0),
-                    Text('Tanggal: ${ticket.eventDate}'),
+                    Text('Nama Tim: ${ticket.namaTim}'),
+                    Text(
+                        'Tanggal: ${ticket.eventDate != 'N/A' ? DateFormat('dd MMM yyyy').format(DateTime.parse(ticket.eventDate)) : '-'}'),
                     Text('Waktu: ${ticket.eventTime}'),
                     Text('Lokasi: ${ticket.eventLocation}'),
-                    Text('HTM: ${ticket.eventPrice}'),
                   ],
                 ),
               ),
