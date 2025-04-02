@@ -538,13 +538,35 @@ class ApiService {
 
   // ON DEV ============================
   // Function to get tickets
-  static Future<List<dynamic>> getTickets() async {
-    final response = await _getRequest(_getTicketsEndpoint);
+  // static Future<List<dynamic>> getTickets(id_user) async {
+  //   final response = await _postRequest(_getTicketsEndpoint, {
+  //     'id_user': id_user,
+  //   });
+
+  //   if (response.statusCode == 200) {
+  //     final data = json.decode(response.body);
+  //     print('Tickets: $data'); // Debug print statement
+  //     return data is List ? data : [data];
+  //   } else {
+  //     throw Exception('Failed to load tickets: ${response.body}');
+  //   }
+  // }
+
+  static Future<List<dynamic>> getTickets(String idUser) async {
+    final response = await http.get(
+      Uri.parse('$_baseUrl$_getTicketsEndpoint/$idUser'),
+      headers: _jsonHeaders(),
+    );
 
     if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      print('Tickets: $data'); // Debug print statement
-      return data is List ? data : [data];
+      final responseData = json.decode(response.body);
+      if (responseData['status'] == 'success') {
+        return responseData['data'];
+      } else {
+        throw Exception('Failed to load tickets: ${responseData['message']}');
+      }
+    } else if (response.statusCode == 404) {
+      throw Exception('Anda belum memiliki ticket');
     } else {
       throw Exception('Failed to load tickets: ${response.body}');
     }
