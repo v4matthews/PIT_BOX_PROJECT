@@ -90,21 +90,21 @@ class TicketDetailPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const Text(
-            'Kode Tiket',
+            'Kode QR Tiket',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: AppColors.primaryColor,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           QrImageView(
             data: _generateQRData(),
             version: QrVersions.auto,
             size: 200.0,
             backgroundColor: Colors.white,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Text(
             'ID: ${ticket.id}',
             style: const TextStyle(
@@ -112,15 +112,6 @@ class TicketDetailPage extends StatelessWidget {
               color: Colors.grey,
             ),
           ),
-          // const SizedBox(height: 14),
-          // Text(
-          //   'Nama Tim: ${ticket.namaTim}',
-          //   style: const TextStyle(
-          //     fontSize: 18,
-          //     color: AppColors.primaryText,
-          //     fontFamily: 'OpenSans',
-          //   ),
-          // ),
         ],
       ),
     );

@@ -595,7 +595,8 @@ class ApiService {
     if (response.statusCode == 201) {
       return json.decode(response.body);
     } else {
-      throw Exception('Gagal membuat reservasi: ${response.body}');
+      final responseData = json.decode(response.body);
+      throw Exception(responseData['message'] ?? 'Terjadi kesalahan');
     }
   }
 

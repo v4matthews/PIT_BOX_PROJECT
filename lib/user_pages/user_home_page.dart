@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 import 'package:pit_box/api_service.dart';
 import 'package:pit_box/components/asset_datepicker.dart';
 import 'package:pit_box/components/asset_datepicker_appbar.dart';
@@ -32,6 +33,7 @@ class _UserHomePageState extends State<UserHomePage> {
     super.initState();
     _getUserInfo();
     _getRaceEvents();
+    _getUpcomingRaceSchedule(); // Panggil fungsi untuk mendapatkan jadwal perlombaan
   }
 
   void _getUserInfo() async {
@@ -72,6 +74,43 @@ class _UserHomePageState extends State<UserHomePage> {
               (word) => word[0].toUpperCase() + word.substring(1).toLowerCase())
           .join(' ');
     });
+  }
+
+  void _getUpcomingRaceSchedule() async {
+    try {
+      final userData = await SessionService.getUserData();
+      final userId = userData['id_user'] ?? '';
+
+      if (userId.isNotEmpty) {
+        final tickets = await ApiService.getTickets(userId);
+
+        // Dapatkan tanggal hari ini dan 7 hari ke depan
+        final now = DateTime.now();
+        final sevenDaysFromNow = now.add(Duration(days: 7));
+
+        // Filter tiket dengan tanggal event dalam waktu 7 hari ke depan
+        final upcomingTickets = tickets.where((ticket) {
+          final eventDate = DateTime.parse(ticket['tanggal_event']);
+          return eventDate.isAfter(now) && eventDate.isBefore(sevenDaysFromNow);
+        }).toList();
+
+        // Perbarui nilai userSchedule
+        setState(() {
+          if (upcomingTickets.isNotEmpty) {
+            final nextTicket = upcomingTickets.first;
+            userSchedule = "${nextTicket['nama_event']} ";
+          } else {
+            userSchedule = "Belum ada jadwal";
+          }
+        });
+      } else {
+        userSchedule = "User ID tidak ditemukan";
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal memuat jadwal perlombaan: $e')),
+      );
+    }
   }
 
   @override
@@ -400,27 +439,33 @@ class _UserHomePageState extends State<UserHomePage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                title,
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w300),
-                textAlign: TextAlign.left,
-              ),
-              SizedBox(height: 5),
-              Text(
-                value,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primaryText,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w300),
+                  textAlign: TextAlign.left,
+                  overflow:
+                      TextOverflow.ellipsis, // Add ellipsis if text is too long
                 ),
-                textAlign: TextAlign.left,
-                softWrap: true,
-              ),
-            ],
+                SizedBox(height: 5),
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primaryText,
+                  ),
+                  textAlign: TextAlign.left,
+                  overflow:
+                      TextOverflow.ellipsis, // Add ellipsis if text is too long
+                  softWrap: false, // Prevent wrapping
+                ),
+              ],
+            ),
           ),
           SizedBox(width: 10),
           SvgPicture.asset(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pit_box/components/asset_warna.dart';
+import 'package:pit_box/user_pages/user_dashboard.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class WebViewPage extends StatefulWidget {
@@ -101,18 +102,11 @@ class _WebViewPageState extends State<WebViewPage> {
     // Handle berdasarkan path dan query parameters
     if (uri.path.contains('/payment/success')) {
       widget.onPaymentSuccess?.call();
-      Navigator.pushReplacementNamed(
-        context,
-        '/ticket', // Rute ke halaman Ticket
-        arguments: {
-          'order_id': uri.queryParameters['order_id'],
-          'amount': uri.queryParameters['amount'],
-        },
-      );
+      _navigateToDashboard();
       return true;
     } else if (uri.path.contains('/payment/failed')) {
       widget.onPaymentFailed?.call();
-      Navigator.of(context).pop(false); // Return status gagal
+      _navigateToDashboard();
       return true;
     }
     // Handle callback langsung dari Midtrans
@@ -123,18 +117,11 @@ class _WebViewPageState extends State<WebViewPage> {
 
       if (status == 'settlement' || status == 'capture') {
         widget.onPaymentSuccess?.call();
-        Navigator.pushReplacementNamed(
-          context,
-          '/ticket', // Rute ke halaman Ticket
-          arguments: {
-            'order_id': orderId,
-            'amount': uri.queryParameters['amount'],
-          },
-        );
+        _navigateToDashboard();
         return true;
       } else if (status == 'deny' || status == 'cancel' || status == 'expire') {
         widget.onPaymentFailed?.call();
-        Navigator.of(context).pop(false);
+        _navigateToDashboard();
         return true;
       }
     }
@@ -145,29 +132,13 @@ class _WebViewPageState extends State<WebViewPage> {
   void _checkPaymentStatus(String url) {
     final uri = Uri.parse(url);
     final status = uri.queryParameters['status'];
-    final orderId = uri.queryParameters['order_id'];
 
     if (status == 'success') {
       widget.onPaymentSuccess?.call();
-      Navigator.pushReplacementNamed(
-        context,
-        '/ticket', // Rute ke halaman Ticket
-        arguments: {
-          'order_id': orderId,
-          'amount': uri.queryParameters['amount'],
-          'payment_method': uri.queryParameters['payment_method'],
-        },
-      );
+      _navigateToDashboard();
     } else if (status == 'failed') {
       widget.onPaymentFailed?.call();
-      Navigator.pushReplacementNamed(
-        context,
-        '/payment-failed',
-        arguments: {
-          'order_id': orderId,
-          'error_message': 'Pembayaran gagal atau dibatalkan',
-        },
-      );
+      _navigateToDashboard();
     }
   }
 
@@ -176,10 +147,18 @@ class _WebViewPageState extends State<WebViewPage> {
       await _controller.goBack();
       return false;
     } else {
-      // Jika pengguna menutup halaman pembayaran, arahkan ke halaman Home
-      Navigator.pushReplacementNamed(context, '/home');
+      // Jika pengguna menutup halaman pembayaran, arahkan ke halaman Dashboard
+      _navigateToDashboard();
       return true;
     }
+  }
+
+  void _navigateToDashboard() {
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => UserDashboard()),
+      (route) => false,
+    );
   }
 
   @override

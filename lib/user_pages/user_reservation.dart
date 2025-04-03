@@ -116,7 +116,7 @@ class _ReservationPageState extends State<ReservationPage> {
         context: context,
         isSuccess: false,
         title: 'Gagal',
-        message: Text('Terjadi kesalahan: $e'),
+        message: Text('${e.toString().replaceAll('Exception: ', '')}'),
         routeName: '',
       );
     } finally {
