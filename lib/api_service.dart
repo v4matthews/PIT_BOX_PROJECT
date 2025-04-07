@@ -239,11 +239,12 @@ class ApiService {
     required String email,
     required String password,
   }) async {
+    print('Email: $email, Password: $password');
     final response = await _postRequest(_loginOrganizerEndpoint, {
       'email_organizer': email,
       'password_organizer': password,
     });
-
+    print('Response: ${response.body}');
     if (response.statusCode == 200) {
       return json.decode(response.body);
     } else {
@@ -529,6 +530,32 @@ class ApiService {
         'tlpn_user': userData['tlpn_user'] ?? '',
         'kota_user': userData['kota_user'] ?? '',
         'poin_user': (userData['poin_user'] ?? 0).toString(),
+      };
+    } else {
+      print('Failed to retrieve user data: ${response.body}');
+      return {};
+    }
+  }
+
+  static Future<Map<String, String>> getOrganizerData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final email_organizer = prefs.getString('username');
+    if (email_organizer == null) {
+      return {};
+    }
+
+    final response =
+        await http.get(Uri.parse('$_baseUrl/getUser/$email_organizer'));
+    if (response.statusCode == 200) {
+      final organizerData = json.decode(response.body);
+      return {
+        // 'id_user': organizerData[index]["_id"] ?? '',]
+        'id_user': organizerData["_id"] ?? '',
+        'nama_organizer': organizerData['nama_organizer'] ?? '',
+        'email_organizer': organizerData['email_organizer'] ?? '',
+        'tlpn_organizer': organizerData['tlpn_organizer'] ?? '',
+        'kota_organizer': organizerData['kota_organizer'] ?? '',
+        'alamat_organizer': (organizerData['alamat_organizer'] ?? 0).toString(),
       };
     } else {
       print('Failed to retrieve user data: ${response.body}');

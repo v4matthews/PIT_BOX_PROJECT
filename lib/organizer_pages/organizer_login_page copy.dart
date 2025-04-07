@@ -27,50 +27,25 @@ class OrganizerLoginPage extends StatelessWidget {
         email: emailController.text,
         password: passwordController.text,
       );
-      print("response organizer: $response");
-      if (response['status'] == 'sukses') {
-        // Simpan session login
-        // await SessionService.saveLoginSession(usernameController.text);
+
+      if (response['success']) {
         await SessionService.saveLoginSession(
-          username: emailController.text,
+          username: response['username'] ?? emailController.text,
           userType: 'organizer',
         );
-        showCustomDialog(
-          context: context,
-          isSuccess: true,
-          title: 'Login Organizer Berhasil',
-          message: const Text('Selamat datang di PITBOX!'),
-          routeName: '/insertRace',
-        );
-        // showCustomDialog(
-        //   context: context,
-        //   isSuccess: true,
-        //   title: 'Login Berhasil',
-        //   message: Text('Selamat datang di PITBOX!'),
-        //   routeName: '/homeOrganizer',
-        // );
+
+        Navigator.pushReplacementNamed(context, '/homeOrganizer');
       } else {
-        // Jika login gagal, tampilkan pesan error
-        showCustomDialog(
-          context: context,
-          isSuccess: false,
-          title: 'Login Gagal',
-          message: Text(response['message'] ?? 'Terjadi kesalahan saat login'),
-          routeName: '/loginOrganizer',
-        );
+        throw Exception(response['message'] ?? 'Login failed');
       }
 
-      // if (response['sukses']) {
-      //   print("Login Berahsil");
-      //   await SessionService.saveLoginSession(
-      //     username: emailController.text,
-      //     userType: 'organizer',
-      //   );
-
-      //   Navigator.pushReplacementNamed(context, '/homeOrganizer');
-      // } else {
-      //   throw Exception(response['message'] ?? 'Login failed');
-      // }
+      showCustomDialog(
+        context: context,
+        isSuccess: true,
+        title: 'Login Organizer Berhasil',
+        message: const Text('Selamat datang di PITBOX!'),
+        routeName: '/insertRace',
+      );
     } catch (e) {
       showCustomDialog(
         context: context,

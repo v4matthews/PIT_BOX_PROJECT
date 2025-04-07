@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pit_box/organizer_pages/organizer_home.dart';
+import 'package:pit_box/organizer_pages/organizer_dashboard.dart';
 import 'package:pit_box/race_page/detail_page.dart';
 import 'package:pit_box/session_service.dart';
 import 'package:pit_box/user_pages/user_class_info.dart';
@@ -26,12 +27,19 @@ import 'package:pit_box/race_page/test.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  bool isLoggedIn = await SessionService.isLoggedIn();
 
-  runApp(MyApp(
-    // initialRoute: isLoggedIn ? '/home' : '/login',
-    initialRoute: isLoggedIn ? '/home' : '/login',
-  ));
+  bool isLoggedIn = await SessionService.isLoggedIn();
+  String? userType = await SessionService.getUserType();
+
+  String initialRoute;
+
+  if (!isLoggedIn) {
+    initialRoute = '/login';
+  } else {
+    initialRoute = userType == 'organizer' ? '/homeOrganizer' : '/home';
+  }
+
+  runApp(MyApp(initialRoute: initialRoute));
 }
 
 class MyApp extends StatelessWidget {
@@ -63,7 +71,7 @@ class MyApp extends StatelessWidget {
         '/loginOrganizer': (context) => OrganizerLoginPage(),
         '/forgotOrganizer': (context) => OrganizerForgotPassword(),
         '/registerOrganizer': (context) => OrganizerRegisterPage(),
-        '/homeOrganizer': (context) => organizerHome(),
+        '/homeOrganizer': (context) => OrganizerDashboard(),
         '/insertRace': (context) => OrganizerRegisterEvent(),
         '/profile': (context) => UserProfilePage(),
         '/ticket': (context) => TicketListPage(),

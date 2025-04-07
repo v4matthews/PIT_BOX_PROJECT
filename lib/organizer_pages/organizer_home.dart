@@ -12,7 +12,6 @@ class organizerHome extends StatefulWidget {
 }
 
 class organizerHomeState extends State<organizerHome> {
-  final TextEditingController _searchController = TextEditingController();
   final TextEditingController _dateController1 = TextEditingController();
   final TextEditingController _dateController2 = TextEditingController();
 

@@ -66,10 +66,15 @@ class TwoLayerPage extends StatelessWidget {
         password: passwordController.text,
       );
 
+      print("Response Login: ${response.toString()}");
+
       if (response['status'] == 'sukses') {
         // Simpan session login
-        await SessionService.saveLoginSession(usernameController.text);
-
+        // await SessionService.saveLoginSession(usernameController.text);
+        await SessionService.saveLoginSession(
+          username: usernameController.text,
+          userType: 'user',
+        );
         showCustomDialog(
           context: context,
           isSuccess: true,
