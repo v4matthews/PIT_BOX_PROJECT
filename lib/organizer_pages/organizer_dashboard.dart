@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pit_box/components/asset_warna.dart';
 import 'package:pit_box/organizer_pages/organizer_home_page.dart';
+import 'package:pit_box/organizer_pages/organizer_list_event.dart';
 import 'package:pit_box/organizer_pages/organizer_profile_page.dart';
 import 'package:pit_box/user_pages/user_home_page.dart';
 // import 'package:pit_box/user_pages/user_home_page_old.dart';
@@ -20,6 +21,7 @@ class _OrganizerHomeState extends State<OrganizerDashboard> {
   final List<Widget> _pages = [
     OrganizerHomePage(),
     OrganizerProfilePage(),
+    OrganizerListEventPage(),
   ];
 
   void _onItemTapped(int index) {
@@ -69,6 +71,8 @@ class _OrganizerHomeState extends State<OrganizerDashboard> {
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(
               icon: Icon(Icons.account_circle), label: 'Profile'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.list_outlined), label: 'List Event'),
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: AppColors.accentColor,

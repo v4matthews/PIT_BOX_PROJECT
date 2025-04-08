@@ -1,27 +1,27 @@
-import 'package:art_sweetalert/art_sweetalert.dart';
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
+import 'package:pit_box/api_service.dart';
 import 'package:pit_box/components/asset_alert.dart';
 import 'package:pit_box/components/asset_button.dart';
 import 'package:pit_box/components/asset_datepicker.dart';
 import 'package:pit_box/components/asset_dropdown.dart';
 import 'package:pit_box/components/asset_textarea.dart';
 import 'package:pit_box/components/asset_textfield.dart';
-import 'package:pit_box/components/asset_textfield_password.dart';
-import 'package:pit_box/components/asset_textfield_email.dart';
 import 'package:pit_box/components/asset_textfield_number.dart';
-import 'package:pit_box/api_service.dart';
-import 'package:intl/intl.dart';
+import 'package:pit_box/components/asset_textfield_price.dart';
+import 'package:pit_box/components/asset_warna.dart';
+import 'package:pit_box/components/assset_button_loading.dart';
 
 class OrganizerRegisterEvent extends StatefulWidget {
-  OrganizerRegisterEvent({super.key});
-
   @override
   _RegisterPageState createState() => _RegisterPageState();
 }
 
 class _RegisterPageState extends State<OrganizerRegisterEvent> {
+  // Pertahankan semua controller dan variabel state yang ada
   final TextEditingController namaEventController = TextEditingController();
-  // TextEditingController kategoriController = TextEditingController();
   final TextEditingController waktuController = TextEditingController();
   final TextEditingController htmController = TextEditingController();
   final TextEditingController tanggalController = TextEditingController();
@@ -34,6 +34,7 @@ class _RegisterPageState extends State<OrganizerRegisterEvent> {
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
   List<String> regionList = [];
+  File? selectedImage;
 
   @override
   void initState() {
@@ -41,59 +42,7 @@ class _RegisterPageState extends State<OrganizerRegisterEvent> {
     fetchRegionData();
   }
 
-  // Sign In Method
-  void insertEvent(BuildContext context) async {
-    try {
-      if (namaEventController.text.isEmpty) {
-        throw Exception('Nama belum diisi');
-      }
-      if (kategoriController == null) {
-        throw Exception('Kategori belum diisi');
-      }
-      if (htmController.text.isEmpty) {
-        throw Exception('HTM belum diisi');
-      }
-      if (tanggalController.text.isEmpty) {
-        throw Exception('Tanggal belum dipilih');
-      }
-      if (selectedValue == null || selectedValue!.isEmpty) {
-        throw Exception('Kota belum dipilih');
-      }
-      if (alamatController.text.isEmpty) {
-        throw Exception('Alamat belum diisi');
-      }
-      if (deskripsiController.text.isEmpty) {
-        throw Exception('Deskripsi belum diisi');
-      }
-
-      final result = await ApiService.insertEvent(
-          nama: namaEventController.text,
-          kategori: kategoriController!,
-          htm: htmController.text,
-          kota: selectedValue!,
-          tanggal: tanggalController.text,
-          alamat: alamatController.text,
-          deskripsi: deskripsiController.text,
-          waktu: waktuController.text);
-
-      if (result == true) {
-        showCustomDialog(
-            context: context,
-            isSuccess: true,
-            title: 'Registrasi Event Berhasil',
-            message: Text('Event anda telah terdaftar'),
-            routeName: '/insertRace');
-      }
-    } catch (e) {
-      showCustomDialog(
-          context: context,
-          isSuccess: false,
-          title: 'Registrasi Event Gagal',
-          message: Text(e.toString()),
-          routeName: '/insertRace');
-    }
-  }
-
+  // Pertahankan method fetchRegionData tanpa perubahan
   Future<void> fetchRegionData() async {
     try {
       final result = await ApiService.dataRegion();
@@ -102,70 +51,154 @@ class _RegisterPageState extends State<OrganizerRegisterEvent> {
             result.map<String>((region) => region['name'] as String).toList();
       });
     } catch (e) {
-      // Menampilkan pesan error jika gagal memuat data
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Gagal memuat data region: $e')),
       );
     }
   }
 
-  void pickTime() async {
-    final time = await showTimePicker(
+  // Pertahankan method pickImage tanpa perubahan
+  Future<void> pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        selectedImage = File(pickedFile.path);
+      });
+    }
+  }
+
+  // Pertahankan method pickTime tanpa perubahan
+  Future<void> pickTime() async {
+    final TimeOfDay? picked = await showTimePicker(
       context: context,
-      initialTime: TimeOfDay.now(),
+      initialTime: selectedTime ?? TimeOfDay.now(),
     );
 
-    if (time != null) {
+    if (picked != null && picked != selectedTime) {
       setState(() {
-        selectedTime = time;
-        waktuController.text = time.format(context);
+        selectedTime = picked;
+        waktuController.text = picked.format(context);
       });
+    }
+  }
+
+  // Pertahankan method insertEvent tanpa perubahan struktural
+  Future<void> _insertEvent(BuildContext context) async {
+    try {
+      // Validasi tetap sama
+      if (namaEventController.text.isEmpty) throw Exception('Nama belum diisi');
+      if (kategoriController == null) throw Exception('Kategori belum diisi');
+      if (htmController.text.isEmpty) throw Exception('HTM belum diisi');
+      if (tanggalController.text.isEmpty)
+        throw Exception('Tanggal belum dipilih');
+      if (selectedValue == null || selectedValue!.isEmpty)
+        throw Exception('Kota belum dipilih');
+      if (alamatController.text.isEmpty) throw Exception('Alamat belum diisi');
+      if (deskripsiController.text.isEmpty)
+        throw Exception('Deskripsi belum diisi');
+      if (selectedImage == null) throw Exception('Foto belum dipilih');
+
+      final result = await ApiService.insertEvent(
+        idOrganizer: '67f33da629552a8012994ff7',
+        nama: namaEventController.text,
+        kategori: kategoriController!,
+        htm: htmController.text.replaceAll('.', '').replaceAll('Rp', '').trim(),
+        kota: selectedValue!,
+        tanggal: tanggalController.text,
+        alamat: alamatController.text,
+        deskripsi: deskripsiController.text,
+        waktu: waktuController.text,
+      );
+
+      if (result == true) {
+        showCustomDialog(
+          context: context,
+          isSuccess: true,
+          title: 'Registrasi Event Berhasil',
+          message: Text('Event anda telah terdaftar'),
+          routeName: '/insertRace',
+        );
+      }
+    } catch (e) {
+      showCustomDialog(
+        context: context,
+        isSuccess: false,
+        title: 'Registrasi Event Gagal',
+        message: Text(e.toString()),
+        routeName: '/insertRace',
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Pertahankan logika responsive yang ada
     final screenWidth = MediaQuery.of(context).size.width;
-    final isSmallScreen = screenWidth < 600; // Responsivitas
-    final width = screenWidth * (isSmallScreen ? 0.7 : 0.6);
+    final isSmallScreen = screenWidth < 600;
+    final width = screenWidth * 0.9;
+
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: _buildAppBar(context),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+            // Tambahkan padding vertikal saja
+            padding: EdgeInsets.symmetric(vertical: 24, horizontal: 10),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(height: 40),
-
-                // Welcome Text
-                Text(
-                  'Create Event',
-                  style: TextStyle(
-                    color: Colors.grey[700],
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
+                // Pertahankan semua widget children yang ada
+                SizedBox(height: 8), // Dipertahankan
+                GestureDetector(
+                  onTap: pickImage,
+                  child: Container(
+                    width: width,
+                    height: width * 4 / 3,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: selectedImage != null
+                        ? Image.file(
+                            selectedImage!,
+                            fit: BoxFit.cover,
+                          )
+                        : Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                Text(
+                                  'Klik untuk memilih foto',
+                                  style: TextStyle(color: Colors.grey),
+                                ),
+                              ],
+                            ),
+                          ),
                   ),
                 ),
-
-                const SizedBox(height: 25),
-
+                SizedBox(height: 8),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: width * 0.05),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Pilih foto brosur event Anda! Pastikan gambar memiliki rasio 4:3 untuk hasil terbaik.',
+                      style: TextStyle(color: Colors.grey, fontSize: 14),
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20),
                 MyTextField(
                   controller: namaEventController,
                   width: width,
                   hintText: 'Nama Event',
                   obScureText: false,
                 ),
-
-                SizedBox(height: 16),
-                // MyTextField(
-                //   controller: kategoriController,
-                //   width: width,
-                //   hintText: 'Kategori',
-                //   obScureText: false,
-                // ),
-
+                SizedBox(height: 20),
                 AssetDropdown(
                   hintText: "Kategori Event",
                   width: width,
@@ -177,24 +210,22 @@ class _RegisterPageState extends State<OrganizerRegisterEvent> {
                     'STB UP',
                     'SLOOP',
                     'NASCAR',
-                  ], // Item dropdown
-                  selectedValue: kategoriController, // Nilai terpilih
+                  ],
+                  selectedValue: kategoriController,
                   onChanged: (value) {
                     setState(() {
-                      kategoriController = value; // Perbarui nilai terpilih
+                      kategoriController = value;
                     });
                   },
                 ),
-
-                SizedBox(height: 16),
-                NumberTextField(
+                SizedBox(height: 20),
+                PriceTextField(
                   controller: htmController,
                   width: width,
                   hintText: 'HTM Event',
                   obScureText: false,
                 ),
-                SizedBox(height: 16),
-
+                SizedBox(height: 20),
                 MyDateField(
                   controller: tanggalController,
                   width: width,
@@ -203,19 +234,13 @@ class _RegisterPageState extends State<OrganizerRegisterEvent> {
                   onDateSelected: (DateTime date) {
                     setState(() {
                       selectedDate = date;
-
-                      // Format tanggal ke ISO 8601 atau format lainnya
                       String formattedDate =
                           DateFormat('yyyy-MM-dd').format(date);
-
-                      // Isi controller dengan format tanggal
                       tanggalController.text = formattedDate;
                     });
                   },
                 ),
-
-                SizedBox(height: 16),
-                // Time Picker
+                SizedBox(height: 20),
                 GestureDetector(
                   onTap: pickTime,
                   child: AbsorbPointer(
@@ -225,17 +250,10 @@ class _RegisterPageState extends State<OrganizerRegisterEvent> {
                       hintText: 'Waktu Event',
                       obScureText: false,
                       suffixIcon: Icons.access_time,
-                      onSuffixIconTap: () {
-                        print("Ikon jam ditekan!");
-                        // Tambahkan logika, seperti membuka pemilih waktu
-                      },
                     ),
                   ),
                 ),
-
-                SizedBox(height: 16),
-
-                // Dropdown for Kota
+                SizedBox(height: 20),
                 AssetDropdown(
                   hintText: "Pilih Kota",
                   selectedValue: selectedValue,
@@ -245,47 +263,74 @@ class _RegisterPageState extends State<OrganizerRegisterEvent> {
                       selectedValue = newValue;
                     });
                   },
-                  items: regionList,
+                  items: regionList.isNotEmpty ? regionList : ['Memuat...'],
                 ),
-
-                const SizedBox(height: 15),
+                SizedBox(height: 20),
                 MyTextArea(
                   controller: alamatController,
                   hintText: "Alamat Lengkap Event",
                   obScureText: false,
                   width: width,
-                  maxLines: 3, // Menjadi Text Area dengan 5 baris
-                  keyboardType: TextInputType
-                      .multiline, // Mengatur keyboard agar mendukung multiline
+                  maxLines: 3,
+                  keyboardType: TextInputType.multiline,
                 ),
-
-                const SizedBox(height: 15),
-
+                SizedBox(height: 20),
                 MyTextArea(
                   controller: deskripsiController,
                   hintText: "Deskripsi Event",
                   obScureText: false,
                   width: width,
-                  maxLines: 3, // Menjadi Text Area dengan 5 baris
-                  keyboardType: TextInputType
-                      .multiline, // Mengatur keyboard agar mendukung multiline
+                  maxLines: 3,
+                  keyboardType: TextInputType.multiline,
                 ),
-
                 SizedBox(height: 24),
-
-                // Sign in Button
-                MyButton(
+                MyLoadingButton(
+                  label: "Tambah Event",
                   width: width,
-                  label: "REGISTER",
-                  ontap: () async {
-                    // Panggil cekUsername terlebih dahulu
-                    insertEvent(context);
+                  onTap: () async {
+                    await _insertEvent(context);
                   },
                 ),
+                // MyButton(
+                //   width: width,
+                //   label: "REGISTER",
+                //   ontap: () async {
+                //     insertEvent(context);
+                //   },
+                // ),
+                SizedBox(height: 24),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  // Pertahankan method _buildAppBar tanpa perubahan
+  AppBar _buildAppBar(BuildContext context) {
+    return AppBar(
+      flexibleSpace: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/bg.jpg'),
+            fit: BoxFit.cover,
+          ),
+        ),
+      ),
+      backgroundColor: Colors.transparent,
+      centerTitle: true,
+      title: const Text(
+        'Tambah Pertandingan',
+        style: TextStyle(
+          color: AppColors.whiteText,
+          fontSize: 18,
+          fontFamily: 'OpenSans',
+        ),
+      ),
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back, color: AppColors.whiteText),
+        onPressed: () => Navigator.pop(context),
       ),
     );
   }

@@ -46,7 +46,7 @@ class _MyLoadingButtonState extends State<MyLoadingButton> {
         margin: const EdgeInsets.symmetric(horizontal: 4),
         decoration: BoxDecoration(
           color: _isLoading ? Colors.grey : widget.color,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(12),
         ),
         child: Center(
           child: AnimatedSwitcher(

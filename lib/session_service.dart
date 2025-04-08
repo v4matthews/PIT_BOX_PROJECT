@@ -12,16 +12,22 @@ class SessionService {
   static const String _keyUserId = 'userId';
 
   // Simpan session login
+  // Simpan session login
   static Future<void> saveLoginSession({
     required String username,
     required String userType, // 'user' atau 'organizer'
+    String? emailOrganizer,
   }) async {
     print("saveLoginSession: $username, $userType");
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_keyUsername, username);
-    // await prefs.setString(_keyUserId, userId);
     await prefs.setString(_keyUserType, userType);
     await prefs.setBool(_keyIsLoggedIn, true);
+
+    // Cetak username jika userType adalah 'organizer'
+    if (userType == 'organizer' && emailOrganizer != null) {
+      await prefs.setString('email_organizer', emailOrganizer);
+    }
   }
 
   // Logout
@@ -78,7 +84,7 @@ class SessionService {
   }
 
   static Future<Map<String, dynamic>> getOrganizerData() async {
-    return await ApiService.getUserData();
+    return await ApiService.getOrganizerData();
   }
 
   // Redirect berdasarkan tipe user

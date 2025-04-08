@@ -396,6 +396,7 @@ class ApiService {
   }
 
   static Future<bool> insertEvent({
+    required String idOrganizer,
     required String nama,
     required String kategori,
     required String htm,
@@ -408,7 +409,7 @@ class ApiService {
     final String idEvent = Uuid().v4();
 
     final response = await _postRequest(_insertEventEndpoint, {
-      'id_event': idEvent,
+      'id_organizer': idOrganizer,
       'nama_event': nama,
       'kategori_event': kategori,
       'htm_event': htm,
@@ -539,26 +540,28 @@ class ApiService {
 
   static Future<Map<String, String>> getOrganizerData() async {
     final prefs = await SharedPreferences.getInstance();
-    final email_organizer = prefs.getString('username');
-    if (email_organizer == null) {
+    final emailOrganizer = prefs.getString('email_organizer');
+    print('Email Organizer: $emailOrganizer'); // Debugging
+
+    if (emailOrganizer == null) {
+      print('Email organizer tidak ditemukan di SharedPreferences');
       return {};
     }
 
     final response =
-        await http.get(Uri.parse('$_baseUrl/getUser/$email_organizer'));
+        await http.get(Uri.parse('$_baseUrl/getUser/$emailOrganizer'));
     if (response.statusCode == 200) {
       final organizerData = json.decode(response.body);
       return {
-        // 'id_user': organizerData[index]["_id"] ?? '',]
         'id_user': organizerData["_id"] ?? '',
         'nama_organizer': organizerData['nama_organizer'] ?? '',
         'email_organizer': organizerData['email_organizer'] ?? '',
         'tlpn_organizer': organizerData['tlpn_organizer'] ?? '',
         'kota_organizer': organizerData['kota_organizer'] ?? '',
-        'alamat_organizer': (organizerData['alamat_organizer'] ?? 0).toString(),
+        'alamat_organizer': organizerData['alamat_organizer'] ?? '',
       };
     } else {
-      print('Failed to retrieve user data: ${response.body}');
+      print('Failed to retrieve organizer data: ${response.body}');
       return {};
     }
   }

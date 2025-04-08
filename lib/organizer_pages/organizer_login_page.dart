@@ -40,7 +40,7 @@ class OrganizerLoginPage extends StatelessWidget {
           isSuccess: true,
           title: 'Login Organizer Berhasil',
           message: const Text('Selamat datang di PITBOX!'),
-          routeName: '/insertRace',
+          routeName: '/homeOrganizer',
         );
         // showCustomDialog(
         //   context: context,
@@ -76,8 +76,8 @@ class OrganizerLoginPage extends StatelessWidget {
         context: context,
         isSuccess: false,
         title: 'Login Organizer Gagal',
-        message: Text(e.toString()),
-        routeName: '/insertRace',
+        message: Text(e.toString().replaceFirst('Exception: ', '')),
+        routeName: '/',
       );
     }
   }
@@ -170,14 +170,14 @@ class OrganizerLoginPage extends StatelessWidget {
                         alignment: Alignment.centerRight,
                         child: GestureDetector(
                           onTap: () {
-                            Navigator.pushNamed(context, '/forgotOrganizer');
+                            Navigator.pushReplacementNamed(
+                                context, '/forgotOrganizer');
                           },
                           child: Text(
                             'Forgot your password?',
                             style: TextStyle(
                               color: Colors.grey[700],
                               fontSize: isSmallScreen ? 14 : 20,
-                              fontFamily: 'OpenSans',
                             ),
                           ),
                         ),
@@ -196,17 +196,17 @@ class OrganizerLoginPage extends StatelessWidget {
                         alignment: Alignment.center,
                         child: GestureDetector(
                           onTap: () {
-                            Navigator.pushNamed(context, '/registerOrganizer');
+                            Navigator.pushReplacementNamed(
+                                context, '/registerOrganizer');
                           },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                'Login sebagai user? ',
+                                'Daftar sebagai penyelenggara? ',
                                 style: TextStyle(
                                   color: Colors.grey[700],
                                   fontSize: isSmallScreen ? 16 : 22,
-                                  fontFamily: 'OpenSans',
                                 ),
                               ),
                               const SizedBox(width: 4),
@@ -216,11 +216,48 @@ class OrganizerLoginPage extends StatelessWidget {
                                   color: Colors.blue,
                                   fontWeight: FontWeight.w300,
                                   fontSize: isSmallScreen ? 16 : 22,
-                                  fontFamily: 'OpenSans',
                                 ),
                               ),
                             ],
                           ),
+                        ),
+                      ),
+                      const SizedBox(height: 250),
+
+                      // Login as user
+                      Container(
+                        width: width,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.pushReplacementNamed(
+                                    context, '/login');
+                              },
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Login sebagai ',
+                                    style: TextStyle(
+                                      color: Colors.grey[700],
+                                      fontSize: isSmallScreen ? 16 : 22,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'User',
+                                    style: TextStyle(
+                                      color: Colors.blue,
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: isSmallScreen ? 16 : 22,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],

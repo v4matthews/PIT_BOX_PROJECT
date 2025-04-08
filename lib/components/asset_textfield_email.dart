@@ -53,7 +53,7 @@ class _EmailTextFieldState extends State<EmailTextField> {
               decoration: InputDecoration(
                 enabledBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.grey.shade600),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(
@@ -61,15 +61,15 @@ class _EmailTextFieldState extends State<EmailTextField> {
                         ? Colors.red
                         : Colors.grey.shade400,
                   ),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 errorBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.red),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 focusedErrorBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.red),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 fillColor: Colors.white,
                 filled: true,

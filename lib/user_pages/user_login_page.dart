@@ -8,8 +8,9 @@ import 'package:pit_box/components/asset_textfield_password.dart';
 import 'package:pit_box/components/asset_warna.dart';
 import 'package:pit_box/components/assset_button_loading.dart';
 import 'package:pit_box/components/square_tile.dart';
+import 'package:pit_box/organizer_pages/organizer_dashboard.dart';
 import 'package:pit_box/organizer_pages/organizer_forgot.dart';
-import 'package:pit_box/organizer_pages/organizer_home.dart';
+
 import 'package:pit_box/organizer_pages/organizer_login_page.dart';
 import 'package:pit_box/organizer_pages/organizer_register_page.dart';
 import 'package:pit_box/session_service.dart';
@@ -25,21 +26,9 @@ void main() {
 class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        resizeToAvoidBottomInset: false, // Prevent screen from shifting up
-        body: TwoLayerPage(),
-      ),
-      routes: {
-        '/login': (context) => LoginPage(),
-        '/register': (context) => RegisterPage(),
-        '/forgotUser': (context) => UserForgetPassword(),
-        '/loginOrganizer': (context) => OrganizerLoginPage(),
-        '/forgotOrganizer': (context) => OrganizerForgotPassword(),
-        '/registerOrganizer': (context) => OrganizerRegisterPage(),
-        '/homeOrganizer': (context) => organizerHome(),
-        // Tambahkan rute lain jika diperlukan
-      },
+    return Scaffold(
+      resizeToAvoidBottomInset: false, // Prevent screen from shifting up
+      body: TwoLayerPage(),
     );
   }
 }
@@ -249,7 +238,8 @@ class TwoLayerPage extends StatelessWidget {
                         children: [
                           GestureDetector(
                             onTap: () {
-                              Navigator.pushNamed(context, '/forgotUser');
+                              Navigator.pushReplacementNamed(
+                                  context, '/forgotUser');
                             },
                             child: Text(
                               'Forgot your password?',
@@ -283,7 +273,8 @@ class TwoLayerPage extends StatelessWidget {
                         children: [
                           GestureDetector(
                             onTap: () {
-                              Navigator.pushNamed(context, '/register');
+                              Navigator.pushReplacementNamed(
+                                  context, '/register');
                             },
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -321,7 +312,8 @@ class TwoLayerPage extends StatelessWidget {
                         children: [
                           GestureDetector(
                             onTap: () {
-                              Navigator.pushNamed(context, '/loginOrganizer');
+                              Navigator.pushReplacementNamed(
+                                  context, '/loginOrganizer');
                             },
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,

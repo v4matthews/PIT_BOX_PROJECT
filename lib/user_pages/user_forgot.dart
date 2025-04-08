@@ -166,7 +166,8 @@ class UserForgetPassword extends StatelessWidget {
                           children: [
                             GestureDetector(
                               onTap: () {
-                                Navigator.pushNamed(context, '/login');
+                                Navigator.pushReplacementNamed(
+                                    context, '/login'); // Perbaikan di sini
                               },
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,

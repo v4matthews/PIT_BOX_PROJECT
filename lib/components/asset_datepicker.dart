@@ -31,11 +31,11 @@ class MyDateField extends StatelessWidget {
           decoration: InputDecoration(
             enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(color: Colors.grey.shade600),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(12),
             ),
             focusedBorder: OutlineInputBorder(
               borderSide: BorderSide(color: Colors.grey.shade600),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(12),
             ),
             fillColor: Colors.white,
             filled: true,
@@ -54,6 +54,15 @@ class MyDateField extends StatelessWidget {
               initialDate: selectedDate ?? DateTime.now(),
               firstDate: DateTime(2000),
               lastDate: DateTime(2101),
+              builder: (BuildContext context, Widget? child) {
+                return Theme(
+                  data: Theme.of(context).copyWith(
+                    dialogBackgroundColor:
+                        Colors.black, // Mengatur background menjadi putih
+                  ),
+                  child: child!,
+                );
+              },
             );
             if (pickedDate != null) {
               onDateSelected(pickedDate);

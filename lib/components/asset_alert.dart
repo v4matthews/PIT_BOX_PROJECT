@@ -18,17 +18,16 @@ void showCustomDialog({
     transitionDuration: Duration(milliseconds: 200), // Durasi animasi
     pageBuilder: (context, animation, secondaryAnimation) {
       return Center(
-          child: ScaleTransition(
-        scale: CurvedAnimation(
-          parent: animation,
-          curve: Curves.easeOutBack, // Efek "bounce" saat muncul
-        ),
-        child: Dialog(
-          elevation: 10, // Shadow untuk dialog
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+        child: ScaleTransition(
+          scale: CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOutBack, // Efek "bounce" saat muncul
           ),
-          child: Container(
+          child: Dialog(
+            elevation: 10, // Shadow untuk dialog
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
             child: Container(
               decoration: BoxDecoration(
                 color: AppColors.whiteColor,
@@ -56,9 +55,9 @@ void showCustomDialog({
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.black,
-                        fontSize: 22,
+                        fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        fontFamily: 'Montserrat', // Gunakan font yang menarik
+                        fontFamily: 'OpenSans', // Gunakan font yang menarik
                       ),
                     ),
                     SizedBox(height: 16),
@@ -70,8 +69,8 @@ void showCustomDialog({
                                   (message as Text).data ?? '',
                                   textAlign: TextAlign.center,
                                   style: (message as Text).style?.copyWith(
-                                        fontSize: 16,
-                                        color: Colors.grey[700],
+                                        fontSize: 20, // Perbesar ukuran font
+                                        color: Colors.grey[800],
                                       ),
                                 )
                               : message,
@@ -86,8 +85,8 @@ void showCustomDialog({
                             color: AppColors
                                 .primaryText, // Warna border sesuai status
                           ),
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 32, vertical: 16),
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 30, vertical: 5),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -114,7 +113,7 @@ void showCustomDialog({
             ),
           ),
         ),
-      ));
+      );
     },
     transitionBuilder: (context, animation, secondaryAnimation, child) {
       return FadeTransition(
@@ -125,5 +124,10 @@ void showCustomDialog({
         ),
       );
     },
-  );
+  ).then((_) {
+    // Callback ketika dialog ditutup
+    if (isSuccess) {
+      Navigator.pushReplacementNamed(context, routeName);
+    }
+  });
 }

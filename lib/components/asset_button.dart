@@ -27,7 +27,7 @@ class MyButton extends StatelessWidget {
             const EdgeInsets.symmetric(horizontal: 4), // Margin antar elemen
         decoration: BoxDecoration(
           color: color, // Warna tombol
-          borderRadius: BorderRadius.circular(8), // Sudut melengkung
+          borderRadius: BorderRadius.circular(12), // Sudut melengkung
         ),
         child: Center(
           child: Text(

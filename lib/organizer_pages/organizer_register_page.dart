@@ -284,8 +284,8 @@ class _RegisterPageState extends State<OrganizerRegisterPage> {
                       const SizedBox(height: 30),
                       GestureDetector(
                         onTap: () {
-                          // Navigate to the '/loginOrganizer' page when the row is tapped
-                          Navigator.pushNamed(context, '/loginOrganizer');
+                          Navigator.pushReplacementNamed(
+                              context, '/loginOrganizer');
                         },
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,

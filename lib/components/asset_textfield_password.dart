@@ -70,7 +70,7 @@ class _PasswordFieldState extends State<PasswordField> {
                         ? Colors.red // Border merah jika ada error
                         : Colors.grey.shade600,
                   ),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(
@@ -78,7 +78,7 @@ class _PasswordFieldState extends State<PasswordField> {
                         ? Colors.red // Border merah jika ada error
                         : Colors.grey.shade600,
                   ),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 fillColor: Colors.white,
                 filled: true,
