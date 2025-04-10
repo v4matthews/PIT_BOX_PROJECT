@@ -13,6 +13,7 @@ import 'package:pit_box/components/asset_textfield_number.dart';
 import 'package:pit_box/components/asset_textfield_price.dart';
 import 'package:pit_box/components/asset_warna.dart';
 import 'package:pit_box/components/assset_button_loading.dart';
+import 'package:http/http.dart' as http;
 
 class OrganizerRegisterEvent extends StatefulWidget {
   @override
@@ -87,7 +88,7 @@ class _RegisterPageState extends State<OrganizerRegisterEvent> {
   // Pertahankan method insertEvent tanpa perubahan struktural
   Future<void> _insertEvent(BuildContext context) async {
     try {
-      // Validasi tetap sama
+      // Validasi input
       if (namaEventController.text.isEmpty) throw Exception('Nama belum diisi');
       if (kategoriController == null) throw Exception('Kategori belum diisi');
       if (htmController.text.isEmpty) throw Exception('HTM belum diisi');
@@ -100,6 +101,10 @@ class _RegisterPageState extends State<OrganizerRegisterEvent> {
         throw Exception('Deskripsi belum diisi');
       if (selectedImage == null) throw Exception('Foto belum dipilih');
 
+      // Upload gambar terlebih dahulu
+      final String imageId = await ApiService.uploadImage(selectedImage!);
+
+      // Simpan data event ke database
       final result = await ApiService.insertEvent(
         idOrganizer: '67f33da629552a8012994ff7',
         nama: namaEventController.text,
@@ -110,6 +115,7 @@ class _RegisterPageState extends State<OrganizerRegisterEvent> {
         alamat: alamatController.text,
         deskripsi: deskripsiController.text,
         waktu: waktuController.text,
+        image: imageId, // Gunakan fileId dari gambar
       );
 
       if (result == true) {

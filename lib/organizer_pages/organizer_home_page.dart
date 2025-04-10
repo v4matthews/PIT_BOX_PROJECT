@@ -3,6 +3,7 @@ import 'package:pit_box/api_service.dart';
 import 'package:pit_box/components/asset_alert_logout.dart';
 import 'package:pit_box/components/asset_navbar.dart';
 import 'package:pit_box/components/asset_warna.dart';
+import 'package:pit_box/organizer_pages/organizer_list_event.dart';
 import 'package:pit_box/organizer_pages/organizer_register_event.dart';
 import 'package:pit_box/session_service.dart';
 import 'package:pit_box/user_pages/user_dashboard.dart';
@@ -17,31 +18,116 @@ class OrganizerHomePage extends StatefulWidget {
 }
 
 class _OrganizerHomePageState extends State<OrganizerHomePage> {
-  final TextEditingController namaOrganizerController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController nomortlpnController = TextEditingController();
-  final TextEditingController kotaController = TextEditingController();
-  String idUser = '';
+  final TextEditingController _namaOrganizerController =
+      TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _nomortlpnController = TextEditingController();
+  final TextEditingController _kotaController = TextEditingController();
+
+  String _idOrganizer = '';
+  String _eventBerjalan = '0';
+  String _totalEvent = '0';
+  bool _isLoading = true;
+  String _errorMessage = '';
+  bool _isRefreshing = false;
 
   @override
   void initState() {
     super.initState();
-    _loadOrganizerData();
+    _loadInitialData();
+  }
+
+  Future<void> _loadInitialData() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = '';
+    });
+
+    try {
+      await _loadOrganizerData();
+      // await _loadJumlahEvent();
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Gagal memuat data. Silakan coba lagi.';
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _refreshData() async {
+    setState(() {
+      _isRefreshing = true;
+      _errorMessage = '';
+    });
+
+    try {
+      await _loadOrganizerData();
+      await _loadJumlahEvent();
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Gagal memuat data. Silakan coba lagi.';
+      });
+    } finally {
+      setState(() {
+        _isRefreshing = false;
+      });
+    }
   }
 
   Future<void> _loadOrganizerData() async {
     try {
       final organizerData = await SessionService.getOrganizerData();
-      setState(() {
-        namaOrganizerController.text = organizerData['nama_organizer'] ?? '';
-        emailController.text = organizerData['email_organizer'] ?? '';
-        nomortlpnController.text = organizerData['tlpn_organizer'] ?? '';
-        kotaController.text = organizerData['kota_organizer'] ?? '';
-        idUser = organizerData['id_user'] ?? '';
-      });
+      if (organizerData != null) {
+        setState(() {
+          _namaOrganizerController.text = organizerData['nama_organizer'] ?? '';
+          _emailController.text = organizerData['email_organizer'] ?? '';
+          _nomortlpnController.text = organizerData['tlpn_organizer'] ?? '';
+          _kotaController.text = organizerData['kota_organizer'] ?? '';
+          _idOrganizer = organizerData['id_organizer'] ?? '';
+        });
+      }
     } catch (e) {
-      // Handle error
       print('Error loading organizer data: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> _loadJumlahEvent() async {
+    try {
+      if (_idOrganizer.isEmpty) return;
+
+      final List<dynamic> eventData =
+          await ApiService.getEventsByOrganizer(_idOrganizer);
+
+      if (eventData != null) {
+        final ongoingEvents = eventData
+            .where((event) =>
+                event['status_event'] == 'ongoing' ||
+                event['status_event'] == 'upcoming')
+            .length;
+
+        final totalEvents = eventData
+            .where((event) => event['status_event'] != 'canceled')
+            .length;
+
+        setState(() {
+          _eventBerjalan = ongoingEvents.toString();
+          _totalEvent = totalEvents.toString();
+        });
+      }
+    } catch (e) {
+      print('Error loading event data: $e');
+      setState(() {
+        _eventBerjalan = '0';
+        _totalEvent = '0';
+      });
+      // Optionally show error to user
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal memuat data event')),
+      );
     }
   }
 
@@ -49,7 +135,10 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => page),
-    );
+    ).then((_) {
+      // Refresh data when returning from other pages
+      _refreshData();
+    });
   }
 
   void _confirmLogout() {
@@ -80,19 +169,68 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
       },
       child: Scaffold(
         backgroundColor: AppColors.backgroundGrey,
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
-              _buildHeader(),
-              SizedBox(height: 20),
-              _buildEventStatsSection(),
-              SizedBox(height: 20),
-              _buildProfileInfoSection(),
-              SizedBox(height: 20),
-              _buildAccountSetting(),
-            ],
+        body: _isLoading
+            ? _buildLoadingView()
+            : _errorMessage.isNotEmpty
+                ? _buildErrorView()
+                : RefreshIndicator(
+                    onRefresh: _refreshData,
+                    child: SingleChildScrollView(
+                      physics: AlwaysScrollableScrollPhysics(),
+                      child: Column(
+                        children: [
+                          _buildHeader(),
+                          SizedBox(height: 20),
+                          _buildEventStatsSection(),
+                          SizedBox(height: 20),
+                          _buildProfileInfoSection(),
+                          SizedBox(height: 20),
+                          _buildAccountSetting(),
+                          SizedBox(height: 20),
+                          if (_isRefreshing)
+                            Padding(
+                              padding: EdgeInsets.symmetric(vertical: 20),
+                              child: CircularProgressIndicator(),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+      ),
+    );
+  }
+
+  Widget _buildLoadingView() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircularProgressIndicator(),
+          SizedBox(height: 20),
+          Text('Memuat data...'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorView() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.error_outline, color: Colors.red, size: 50),
+          SizedBox(height: 20),
+          Text(
+            _errorMessage,
+            style: TextStyle(fontSize: 16),
+            textAlign: TextAlign.center,
           ),
-        ),
+          SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: _loadInitialData,
+            child: Text('Coba Lagi'),
+          ),
+        ],
       ),
     );
   }
@@ -121,7 +259,7 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
           ),
           SizedBox(height: 15),
           Text(
-            'Halo, ${namaOrganizerController.text}',
+            _namaOrganizerController.text,
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -180,13 +318,11 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
         children: [
           _buildStatContainer(
             title: "Event Berjalan",
-            value: "5", // Replace with dynamic data
-            color: Colors.blue,
+            value: _eventBerjalan,
           ),
           _buildStatContainer(
             title: "Total Event",
-            value: "20", // Replace with dynamic data
-            color: Colors.green,
+            value: _totalEvent,
           ),
         ],
       ),
@@ -196,7 +332,6 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
   Widget _buildStatContainer({
     required String title,
     required String value,
-    required Color color,
   }) {
     return Expanded(
       child: Container(
@@ -244,11 +379,12 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
       child: Column(
         children: [
           _buildSectionHeader('Manajemen Event'),
-          _buildProfileRow('Tambah Event',
-              onTap: () => _navigateToPage(ClassInformationPage())),
           _buildProfileRow('List Event',
-              onTap: () =>
-                  _navigateToPage(UserReservationListPage(userId: idUser))),
+              onTap: () => _navigateToPage(
+                  OrganizerListEventPage(idOrganizer: _idOrganizer))),
+          _buildProfileRow('Edit Event',
+              onTap: () => _navigateToPage(
+                  UserReservationListPage(userId: _idOrganizer))),
           SizedBox(height: 30),
           _buildSectionHeader('Account Setting'),
           _buildProfileRow('Edit Profile',

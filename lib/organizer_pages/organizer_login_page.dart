@@ -27,12 +27,13 @@ class OrganizerLoginPage extends StatelessWidget {
         email: emailController.text,
         password: passwordController.text,
       );
+
       print("response organizer: $response");
       if (response['status'] == 'sukses') {
         // Simpan session login
         // await SessionService.saveLoginSession(usernameController.text);
         await SessionService.saveLoginSession(
-          username: emailController.text,
+          emailOrganizer: emailController.text,
           userType: 'organizer',
         );
         showCustomDialog(

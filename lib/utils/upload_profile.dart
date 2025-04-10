@@ -30,8 +30,8 @@ class _UploadProfileImagePageState extends State<UploadProfileImagePage> {
     });
 
     try {
-      final imageUrl = await ApiService.uploadImage(_pickedFile!.path);
-      Navigator.pop(context, imageUrl);
+      // // final imageUrl = await ApiService.uploadImage(_pickedFile!.path);
+      // Navigator.pop(context, imageUrl);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Gagal mengunggah gambar: $e')),

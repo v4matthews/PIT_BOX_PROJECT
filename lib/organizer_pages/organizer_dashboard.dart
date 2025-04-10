@@ -21,7 +21,7 @@ class _OrganizerHomeState extends State<OrganizerDashboard> {
   final List<Widget> _pages = [
     OrganizerHomePage(),
     OrganizerProfilePage(),
-    OrganizerListEventPage(),
+    // OrganizerListEventPage(),
   ];
 
   void _onItemTapped(int index) {

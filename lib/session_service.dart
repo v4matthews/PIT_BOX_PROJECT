@@ -14,17 +14,22 @@ class SessionService {
   // Simpan session login
   // Simpan session login
   static Future<void> saveLoginSession({
-    required String username,
+    String? username,
     required String userType, // 'user' atau 'organizer'
     String? emailOrganizer,
   }) async {
-    print("saveLoginSession: $username, $userType");
+    print("saveLoginSession: username=$username, userType=$userType");
+
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_keyUsername, username);
     await prefs.setString(_keyUserType, userType);
     await prefs.setBool(_keyIsLoggedIn, true);
 
-    // Cetak username jika userType adalah 'organizer'
+    // Simpan username hanya jika tidak null
+    if (username != null) {
+      await prefs.setString(_keyUsername, username);
+    }
+
+    // Simpan emailOrganizer jika userType adalah 'organizer' dan email tidak null
     if (userType == 'organizer' && emailOrganizer != null) {
       await prefs.setString('email_organizer', emailOrganizer);
     }

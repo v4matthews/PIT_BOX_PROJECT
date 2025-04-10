@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:pit_box/session_service.dart';
@@ -35,6 +36,7 @@ class ApiService {
   static const String _createPaymentEndpoint = '/createPayment';
   static const String _updateReservationStatus = '/updateReservationStatus';
   static const String _getEnabledPaymentMethodsUrl = '/getPaymentMethods';
+  static const String _getEventByOrganizer = '/getEvents';
 
   // static const String _getUserData = '/getUserData';
 
@@ -380,16 +382,19 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> _uploadImage(String filePath) async {
+  static Future<String> uploadImage(File imageFile) async {
     final url = Uri.parse('$_baseUrl/uploadImage');
     final request = http.MultipartRequest('POST', url);
 
-    request.files.add(await http.MultipartFile.fromPath('image', filePath));
+    request.files
+        .add(await http.MultipartFile.fromPath('image', imageFile.path));
 
     final response = await request.send();
+    print("Response: $response");
     if (response.statusCode == 200) {
       final responseData = await http.Response.fromStream(response);
-      return json.decode(responseData.body);
+      final responseBody = json.decode(responseData.body);
+      return responseBody['fileId']; // Kembalikan fileId dari server
     } else {
       throw Exception('Gagal mengunggah gambar: ${response.statusCode}');
     }
@@ -405,9 +410,8 @@ class ApiService {
     required String kota,
     required String alamat,
     required String deskripsi,
+    required String image,
   }) async {
-    final String idEvent = Uuid().v4();
-
     final response = await _postRequest(_insertEventEndpoint, {
       'id_organizer': idOrganizer,
       'nama_event': nama,
@@ -418,6 +422,7 @@ class ApiService {
       'kota_event': kota,
       'alamat_event': alamat,
       'deskripsi_event': deskripsi,
+      'image_event': image,
     });
 
     if (response.statusCode == 201) {
@@ -427,49 +432,49 @@ class ApiService {
     }
   }
 
-  static Future<bool> insertEventPending({
-    required String name,
-    required String location,
-    required String date,
-    required String categoryId,
-    required String organizerId,
-    String? imagePath,
-    String? description,
-    double? price,
-  }) async {
-    final String eventId = Uuid().v4();
+  // static Future<bool> insertEventPending({
+  //   required String name,
+  //   required String location,
+  //   required String date,
+  //   required String categoryId,
+  //   required String organizerId,
+  //   String? imagePath,
+  //   String? description,
+  //   double? price,
+  // }) async {
+  //   final String eventId = Uuid().v4();
 
-    final body = {
-      'id_event': eventId,
-      'name': name,
-      'location': location,
-      'date': date,
-      'category_id': categoryId,
-      'organizer_id': organizerId,
-      'description': description ?? '',
-      'price': price ?? 0.0,
-    };
+  //   final body = {
+  //     'id_event': eventId,
+  //     'name': name,
+  //     'location': location,
+  //     'date': date,
+  //     'category_id': categoryId,
+  //     'organizer_id': organizerId,
+  //     'description': description ?? '',
+  //     'price': price ?? 0.0,
+  //   };
 
-    if (imagePath != null) {
-      try {
-        final imageUploadResponse = await _uploadImage(imagePath);
-        if (imageUploadResponse['success'] == true) {
-          body['image_url'] = imageUploadResponse['url'];
-        } else {
-          throw Exception('Gagal mengunggah gambar');
-        }
-      } catch (e) {
-        throw Exception('Terjadi kesalahan saat mengunggah gambar: $e');
-      }
-    }
+  //   if (imagePath != null) {
+  //     try {
+  //       final imageUploadResponse = await _uploadImage(imagePath);
+  //       if (imageUploadResponse['success'] == true) {
+  //         body['image_url'] = imageUploadResponse['url'];
+  //       } else {
+  //         throw Exception('Gagal mengunggah gambar');
+  //       }
+  //     } catch (e) {
+  //       throw Exception('Terjadi kesalahan saat mengunggah gambar: $e');
+  //     }
+  //   }
 
-    final response = await _postRequest(_insertEventEndpoint, body);
-    if (response.statusCode == 201) {
-      return true;
-    } else {
-      throw Exception('Gagal menambahkan event: ${response.body}');
-    }
-  }
+  //   final response = await _postRequest(_insertEventEndpoint, body);
+  //   if (response.statusCode == 201) {
+  //     return true;
+  //   } else {
+  //     throw Exception('Gagal menambahkan event: ${response.body}');
+  //   }
+  // }
 
   static Future<Map<String, dynamic>> getFilteredEvents({
     String? category,
@@ -496,6 +501,48 @@ class ApiService {
       return data;
     } else {
       throw Exception('Gagal memuat data yang difilter: ${response.body}');
+    }
+  }
+
+  static Future<List<dynamic>> getEventsByOrganizer(String idOrganizer) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/getEventsByOrganizer/$idOrganizer'),
+        headers: _jsonHeaders(),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        return List<dynamic>.from(responseData); // Ensure we return a List
+      } else if (response.statusCode == 404) {
+        throw Exception('Tidak ada event ditemukan untuk organizer ini');
+      } else {
+        throw Exception('Gagal mengambil data event: ${response.body}');
+      }
+    } catch (e) {
+      print('Error in getEventsByOrganizer: $e');
+      throw Exception('Terjadi kesalahan saat mengambil data event');
+    }
+  }
+
+  static Future<List<Map<String, dynamic>>> getParticipants(
+      String idEvent) async {
+    print('idEvent: $idEvent'); // Debug print statement
+    final response = await http.post(
+      Uri.parse('$_baseUrl/getParticipan'),
+      headers: _jsonHeaders(),
+      body: json.encode({'id_event': idEvent}),
+    );
+
+    print('Response: ${response.body}'); // Debug print statement
+
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      return List<Map<String, dynamic>>.from(responseData);
+    } else if (response.statusCode == 404) {
+      throw Exception('Tidak ada peserta ditemukan untuk event ini');
+    } else {
+      throw Exception('Gagal mengambil data peserta: ${response.body}');
     }
   }
 
@@ -549,11 +596,11 @@ class ApiService {
     }
 
     final response =
-        await http.get(Uri.parse('$_baseUrl/getUser/$emailOrganizer'));
+        await http.get(Uri.parse('$_baseUrl/getOrganizer/$emailOrganizer'));
     if (response.statusCode == 200) {
       final organizerData = json.decode(response.body);
       return {
-        'id_user': organizerData["_id"] ?? '',
+        'id_organizer': organizerData["_id"] ?? '',
         'nama_organizer': organizerData['nama_organizer'] ?? '',
         'email_organizer': organizerData['email_organizer'] ?? '',
         'tlpn_organizer': organizerData['tlpn_organizer'] ?? '',
@@ -600,13 +647,6 @@ class ApiService {
     } else {
       throw Exception('Failed to load tickets: ${response.body}');
     }
-  }
-
-  static Future<String> uploadImage(String imagePath) async {
-    // Logika untuk mengunggah gambar ke server
-    // Misalnya, menggunakan HTTP multipart request
-    // ...
-    return 'https://example.com/profile_image.jpg'; // URL gambar yang diunggah
   }
 
   static Future<Map<String, dynamic>> createReservation({
@@ -877,6 +917,72 @@ class ApiService {
       throw Exception('Gagal mengambil metode pembayaran: ${response.body}');
     }
   }
+
+  // static Future<Map<String, dynamic>> uploadImage(String filePath) async {
+  //   try {
+  //     final url = Uri.parse('$_baseUrl/uploadImage');
+  //     var request = http.MultipartRequest('POST', url);
+
+  //     request.files.add(
+  //       await http.MultipartFile.fromPath(
+  //         'image',
+  //         filePath,
+  //         filename: 'event_${DateTime.now().millisecondsSinceEpoch}.jpg',
+  //       ),
+  //     );
+
+  //     final response = await request.send();
+  //     final responseData = await response.stream.bytesToString();
+  //     print('Response: ${response}');
+  //     print('Response Data: $responseData');
+  //     if (response.statusCode == 200) {
+  //       final decodedResponse = json.decode(responseData);
+  //       if (decodedResponse['status'] == 'success') {
+  //         return decodedResponse;
+  //       } else {
+  //         throw Exception(
+  //             'Gagal mengunggah gambar: ${decodedResponse['message']}');
+  //       }
+  //     } else {
+  //       throw Exception('Gagal mengunggah gambar: ${response.statusCode}');
+  //     }
+  //   } catch (e) {
+  //     throw Exception('Terjadi kesalahan saat mengunggah gambar: $e');
+  //   }
+  // }
+
+  // static Future<bool> insertEvent({
+  //   required String idOrganizer,
+  //   required String nama,
+  //   required String kategori,
+  //   required String htm,
+  //   required String tanggal,
+  //   required String waktu,
+  //   required String kota,
+  //   required String alamat,
+  //   required String deskripsi,
+  //   required String
+  //       image, // Ini sekarang adalah fileId dari gambar yang diupload
+  // }) async {
+  //   final response = await _postRequest(_insertEventEndpoint, {
+  //     'id_organizer': idOrganizer,
+  //     'nama_event': nama,
+  //     'kategori_event': kategori,
+  //     'htm_event': htm,
+  //     'tanggal_event': tanggal,
+  //     'waktu_event': waktu,
+  //     'kota_event': kota,
+  //     'alamat_event': alamat,
+  //     'deskripsi_event': deskripsi,
+  //     'imageId': image, // Gunakan field imageId untuk menyimpan ID gambar
+  //   });
+
+  //   if (response.statusCode == 201) {
+  //     return true;
+  //   } else {
+  //     throw Exception('Gagal menyimpan event: ${response.body}');
+  //   }
+  // }
 }
 
 
