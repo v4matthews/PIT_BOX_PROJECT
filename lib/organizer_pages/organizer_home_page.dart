@@ -4,7 +4,7 @@ import 'package:pit_box/components/asset_alert_logout.dart';
 import 'package:pit_box/components/asset_navbar.dart';
 import 'package:pit_box/components/asset_warna.dart';
 import 'package:pit_box/organizer_pages/organizer_list_event.dart';
-import 'package:pit_box/organizer_pages/organizer_register_event.dart';
+import 'package:pit_box/organizer_pages/organizer_insert_event.dart';
 import 'package:pit_box/organizer_pages/organizer_update_password.dart';
 import 'package:pit_box/organizer_pages/organizer_update_profile.dart';
 import 'package:pit_box/session_service.dart';
@@ -194,7 +194,7 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
         children: [
           CircularProgressIndicator(),
           SizedBox(height: 20),
-          Text('Memuat data...'),
+          Text('Pitbox sedang menyiapkan halaman...'),
         ],
       ),
     );
@@ -369,7 +369,7 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
       child: Column(
         children: [
           _buildSectionHeader('Manajemen Event'),
-          _buildProfileRow('Daftar Event',
+          _buildProfileRow('Daftar Event Saya',
               onTap: () => _navigateToPage(
                   OrganizerListEventPage(idOrganizer: _idOrganizer))),
           _buildProfileRow('Ubah Event',

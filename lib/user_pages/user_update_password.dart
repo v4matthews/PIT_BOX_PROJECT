@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pit_box/components/asset_alert_clearsession.dart';
 import 'package:pit_box/components/asset_textfield.dart';
 import 'package:pit_box/components/asset_button.dart';
 import 'package:pit_box/components/asset_textfield_password.dart';
@@ -46,12 +47,13 @@ class _UpdatePasswordPageState extends State<UpdatePasswordPage> {
       );
 
       if (result == true) {
-        showCustomDialog(
+        LogoutAfterUpdatePassword(
             context: context,
             isSuccess: true,
             title: 'Update Password Berhasil',
-            message: Text('Password Anda berhasil diperbarui.'),
-            routeName: '/home');
+            message: Text(
+                'Password Anda berhasil diperbarui. Silahkan login kembali.'),
+            routeName: '/login');
       }
     } catch (e) {
       showCustomDialog(

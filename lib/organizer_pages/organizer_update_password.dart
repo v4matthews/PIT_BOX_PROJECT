@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pit_box/components/asset_alert_clearsession.dart';
 import 'package:pit_box/components/asset_textfield.dart';
 import 'package:pit_box/components/asset_button.dart';
 import 'package:pit_box/components/asset_textfield_password.dart';
@@ -39,20 +40,21 @@ class _OrganizerUpdatePasswordState extends State<OrganizerUpdatePassword> {
         throw Exception('Password baru dan konfirmasi password tidak sama');
       }
 
-      final userData = await SessionService.getUserData();
-      final result = await ApiService.updatePassword(
-        idUser: userData['id_user']!,
+      final organizerData = await SessionService.getOrganizerData();
+      final result = await ApiService.updateOrganizerPassword(
+        idOrganizer: organizerData['id_organizer']!,
         currentPassword: currentPasswordController.text,
         newPassword: newPasswordController.text,
       );
 
       if (result == true) {
-        showCustomDialog(
+        LogoutAfterUpdatePassword(
             context: context,
             isSuccess: true,
             title: 'Update Password Berhasil',
-            message: Text('Password Anda berhasil diperbarui.'),
-            routeName: '/home');
+            message: Text(
+                'Password Anda berhasil diperbarui. Silahkan login kembali.'),
+            routeName: '/login');
       }
     } catch (e) {
       showCustomDialog(
@@ -60,7 +62,7 @@ class _OrganizerUpdatePasswordState extends State<OrganizerUpdatePassword> {
           isSuccess: false,
           title: 'Gagal memperbarui password',
           message: Text(e.toString().replaceFirst('Exception: ', '')),
-          routeName: '/home');
+          routeName: '/homeOrganizer');
     } finally {
       setState(() {
         isLoading = false;
@@ -94,7 +96,7 @@ class _OrganizerUpdatePasswordState extends State<OrganizerUpdatePassword> {
             left: 0,
             right: 0,
             child: Container(
-              height: MediaQuery.of(context).size.height * 0.825,
+              height: MediaQuery.of(context).size.height * 0.85,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.only(
@@ -167,7 +169,7 @@ class _OrganizerUpdatePasswordState extends State<OrganizerUpdatePassword> {
                       GestureDetector(
                         onTap: () {
                           // Navigate to the '/profile' page when the row is tapped
-                          Navigator.pushNamed(context, '/home');
+                          Navigator.pushNamed(context, '/homeOrganizer');
                         },
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,

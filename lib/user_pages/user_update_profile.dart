@@ -3,6 +3,7 @@ import 'package:art_sweetalert/art_sweetalert.dart';
 import 'package:pit_box/components/asset_alert.dart';
 import 'package:pit_box/components/asset_button.dart';
 import 'package:pit_box/components/asset_textfield.dart';
+import 'package:pit_box/components/asset_textfield_disabled.dart';
 import 'package:pit_box/components/asset_textfield_password.dart';
 import 'package:pit_box/components/asset_textfield_email.dart';
 import 'package:pit_box/components/asset_textfield_number.dart';
@@ -215,7 +216,13 @@ class _UserUpdateProfileState extends State<UserUpdateProfile> {
                             ),
 
                             const SizedBox(height: 30),
-
+                            MyDisabledTextfield(
+                              controller: usernameController,
+                              width: width,
+                              hintText: 'Username',
+                              obScureText: false,
+                            ),
+                            const SizedBox(height: 15),
                             MyTextField(
                               controller: namaUserController,
                               width: width,

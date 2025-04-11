@@ -16,7 +16,7 @@ import 'package:pit_box/user_pages/user_update_profile.dart';
 import 'package:pit_box/organizer_pages/organizer_login_page.dart';
 import 'package:pit_box/organizer_pages/organizer_forgot.dart';
 import 'package:pit_box/organizer_pages/organizer_register_page.dart';
-import 'package:pit_box/organizer_pages/organizer_register_event.dart';
+import 'package:pit_box/organizer_pages/organizer_insert_event.dart';
 // import 'package:pit_box/organizer_pages/organizer_insert_race.dart';
 import 'package:pit_box/user_pages/user_ticket.dart';
 import 'package:pit_box/utils/payment_failed.dart';

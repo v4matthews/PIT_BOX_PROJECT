@@ -283,7 +283,7 @@ class _RegisterPageState extends State<OrganizerRegisterEvent> {
                     setState(() {
                       selectedDate = date;
                       String formattedDate =
-                          DateFormat('yyyy-MM-dd').format(date);
+                          DateFormat('dd MMM yyyy').format(date);
                       tanggalController.text = formattedDate;
                     });
                   },
@@ -328,7 +328,7 @@ class _RegisterPageState extends State<OrganizerRegisterEvent> {
                   hintText: "Deskripsi Event",
                   obScureText: false,
                   width: width,
-                  maxLines: 3,
+                  maxLines: 7,
                   keyboardType: TextInputType.multiline,
                 ),
                 SizedBox(height: 24),

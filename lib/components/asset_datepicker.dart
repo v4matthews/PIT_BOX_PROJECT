@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart'; // Tambahkan ini untuk format tanggal
 
 class MyDateField extends StatelessWidget {
   final TextEditingController controller;
@@ -66,7 +67,8 @@ class MyDateField extends StatelessWidget {
             );
             if (pickedDate != null) {
               onDateSelected(pickedDate);
-              controller.text = pickedDate.toLocal().toString().split(' ')[0];
+              // Format tanggal menjadi dd MMM yyyy
+              controller.text = DateFormat('dd MMM yyyy').format(pickedDate);
             }
           },
         ),

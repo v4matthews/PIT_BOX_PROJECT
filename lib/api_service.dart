@@ -24,6 +24,7 @@ class ApiService {
   static const String _getRegionEndpoint = '/getRegion';
   static const String _getAllCategoriesEndpoint = '/getAllCategories';
   static const String _updateUserEndpoint = '/updateUser';
+  static const String _updateOrganizer = '/updateOrganizer';
   static const String _forgetUserEndpoint = '/forgetUserEndpoint';
   static const String _forgetOrganizerEndpoint = '/forgetOrganizerEndpoint';
   static const String _insertEventEndpoint = '/insertEvent';
@@ -31,6 +32,7 @@ class ApiService {
   static const String _verifyPasswordEndpoint = '/verifyPassword';
   static const String _getTicketsEndpoint = '/getTickets';
   static const String _updatePasswordEndpoint = '/updatePassword';
+  static const String _updatePasswordOrganizer = '/updatePasswordOrganizer';
   static const String _createReservation = '/createReservation';
   static const String _getReservationsEndpoint = '/getReservations';
   static const String _createPaymentEndpoint = '/createPayment';
@@ -145,6 +147,33 @@ class ApiService {
     }
   }
 
+  // Fungsi Update Organizer
+  static Future<bool> updateOrganizer({
+    required String idOrganizer,
+    required String nama,
+    required String email,
+    required String nomorTelepon,
+    required String kota,
+    required String alamat,
+  }) async {
+    debugPrint(
+        'idOrganizer: $idOrganizer, nama: $nama, email: $email, nomorTelepon: $nomorTelepon, kota: $kota, alamat: $alamat'); // Debug log statement
+    final response = await _putRequest(_updateOrganizer, {
+      'id_organizer': idOrganizer,
+      'nama_organizer': nama,
+      'email_organizer': email,
+      'tlpn_organizer': nomorTelepon,
+      'kota_organizer': kota,
+      'alamat_organizer': alamat,
+    });
+    print('Response Update User: ${response}');
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      throw Exception('${json.decode(response.body)['message']}');
+    }
+  }
+
   // Fungsi Update Password
   static Future<bool> updatePassword({
     required String idUser,
@@ -153,6 +182,28 @@ class ApiService {
   }) async {
     final response = await _putRequest(_updatePasswordEndpoint, {
       'id_user': idUser,
+      'current_password': currentPassword,
+      'new_password': newPassword,
+    });
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      throw Exception('${json.decode(response.body)['message']}');
+    }
+  }
+
+  static Future<bool> updateOrganizerPassword({
+    required String idOrganizer,
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    print(idOrganizer);
+    print(currentPassword);
+    print(newPassword);
+
+    final response = await _putRequest(_updatePasswordOrganizer, {
+      'id_organizer': idOrganizer,
       'current_password': currentPassword,
       'new_password': newPassword,
     });
