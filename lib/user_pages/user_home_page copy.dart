@@ -7,7 +7,7 @@ import 'package:pit_box/components/asset_list_view_home.dart';
 import 'package:pit_box/components/asset_loading.dart';
 import 'package:pit_box/components/asset_searchbar_home.dart';
 import 'package:pit_box/components/asset_warna.dart';
-import 'package:pit_box/race_page/all_page.dart';
+import 'package:pit_box/race_page/event_list_page.dart';
 import 'package:pit_box/session_service.dart';
 import 'package:pit_box/utils/location_list.dart';
 import 'package:pit_box/components/asset_list_view.dart';

@@ -14,8 +14,14 @@ import 'package:pit_box/components/asset_textfield_price.dart';
 import 'package:pit_box/components/asset_warna.dart';
 import 'package:pit_box/components/assset_button_loading.dart';
 import 'package:http/http.dart' as http;
+import 'package:pit_box/utils/cloudinary_service.dart';
 
 class OrganizerRegisterEvent extends StatefulWidget {
+  final String idOrganizer; // Tambahkan parameter idOrganizer
+
+  const OrganizerRegisterEvent({Key? key, required this.idOrganizer})
+      : super(key: key);
+
   @override
   _RegisterPageState createState() => _RegisterPageState();
 }
@@ -29,7 +35,6 @@ class _RegisterPageState extends State<OrganizerRegisterEvent> {
   final TextEditingController kotaController = TextEditingController();
   final TextEditingController alamatController = TextEditingController();
   final TextEditingController deskripsiController = TextEditingController();
-
   String? selectedValue;
   String? kategoriController;
   DateTime? selectedDate;
@@ -70,6 +75,36 @@ class _RegisterPageState extends State<OrganizerRegisterEvent> {
     }
   }
 
+  Future<void> uploadToCloudinaryAndSaveUrl() async {
+    if (selectedImage == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Pilih gambar terlebih dahulu')),
+      );
+      return;
+    }
+
+    try {
+      final imageUrl = await CloudinaryService.uploadImage(selectedImage!);
+
+      if (imageUrl != null) {
+        print('Gambar berhasil diunggah ke Cloudinary: $imageUrl');
+        // Simpan URL gambar ke insertEvent
+        setState(() {
+          selectedImage = null; // Reset gambar setelah berhasil upload
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gambar berhasil diunggah')),
+        );
+      } else {
+        throw Exception('Gagal mengunggah gambar ke Cloudinary');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Terjadi kesalahan: $e')),
+      );
+    }
+  }
+
   // Pertahankan method pickTime tanpa perubahan
   Future<void> pickTime() async {
     final TimeOfDay? picked = await showTimePicker(
@@ -89,6 +124,7 @@ class _RegisterPageState extends State<OrganizerRegisterEvent> {
   Future<void> _insertEvent(BuildContext context) async {
     try {
       // Validasi input
+      if (selectedImage == null) throw Exception('Gambar belum dipilih');
       if (namaEventController.text.isEmpty) throw Exception('Nama belum diisi');
       if (kategoriController == null) throw Exception('Kategori belum diisi');
       if (htmController.text.isEmpty) throw Exception('HTM belum diisi');
@@ -99,14 +135,20 @@ class _RegisterPageState extends State<OrganizerRegisterEvent> {
       if (alamatController.text.isEmpty) throw Exception('Alamat belum diisi');
       if (deskripsiController.text.isEmpty)
         throw Exception('Deskripsi belum diisi');
-      if (selectedImage == null) throw Exception('Foto belum dipilih');
 
-      // Upload gambar terlebih dahulu
-      final String imageId = await ApiService.uploadImage(selectedImage!);
+      // Upload gambar ke Cloudinary dan dapatkan URL
+      final String? imageUrl =
+          await CloudinaryService.uploadImage(selectedImage!);
+
+      print("Image URL: $imageUrl"); // Debugging
+
+      if (imageUrl == null) {
+        throw Exception('Gagal mengunggah gambar ke Cloudinary');
+      }
 
       // Simpan data event ke database
       final result = await ApiService.insertEvent(
-        idOrganizer: '67f33da629552a8012994ff7',
+        idOrganizer: widget.idOrganizer,
         nama: namaEventController.text,
         kategori: kategoriController!,
         htm: htmController.text.replaceAll('.', '').replaceAll('Rp', '').trim(),
@@ -115,7 +157,7 @@ class _RegisterPageState extends State<OrganizerRegisterEvent> {
         alamat: alamatController.text,
         deskripsi: deskripsiController.text,
         waktu: waktuController.text,
-        image: imageId, // Gunakan fileId dari gambar
+        image: imageUrl, // Gunakan URL gambar dari Cloudinary
       );
 
       if (result == true) {

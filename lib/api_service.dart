@@ -164,6 +164,32 @@ class ApiService {
     }
   }
 
+  static Future<bool> saveProfileUrl({
+    required String idUser,
+    required String profileUrl,
+  }) async {
+    try {
+      final response = await _postRequest('/saveUserProfileUrl', {
+        'id_user': idUser,
+        'profile_url': profileUrl,
+      });
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        if (responseData['status'] == 'success') {
+          return true;
+        } else {
+          throw Exception(
+              'Gagal menyimpan URL profil: ${responseData['message']}');
+        }
+      } else {
+        throw Exception('Gagal menyimpan URL profil: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Terjadi kesalahan saat menyimpan URL profil: $e');
+    }
+  }
+
   // Fungsi Registrasi Organizer
   static Future<bool> registerOrganizer({
     required String nama,
@@ -382,24 +408,6 @@ class ApiService {
     }
   }
 
-  static Future<String> uploadImage(File imageFile) async {
-    final url = Uri.parse('$_baseUrl/uploadImage');
-    final request = http.MultipartRequest('POST', url);
-
-    request.files
-        .add(await http.MultipartFile.fromPath('image', imageFile.path));
-
-    final response = await request.send();
-    print("Response: $response");
-    if (response.statusCode == 200) {
-      final responseData = await http.Response.fromStream(response);
-      final responseBody = json.decode(responseData.body);
-      return responseBody['fileId']; // Kembalikan fileId dari server
-    } else {
-      throw Exception('Gagal mengunggah gambar: ${response.statusCode}');
-    }
-  }
-
   static Future<bool> insertEvent({
     required String idOrganizer,
     required String nama,
@@ -412,6 +420,7 @@ class ApiService {
     required String deskripsi,
     required String image,
   }) async {
+    print("image omg: $image");
     final response = await _postRequest(_insertEventEndpoint, {
       'id_organizer': idOrganizer,
       'nama_event': nama,
@@ -525,6 +534,22 @@ class ApiService {
     }
   }
 
+  static Future<Map<String, dynamic>> getDataOrganizer(
+      String idOrganizer) async {
+    print('idOrganizer: $idOrganizer'); // Debug print statement
+    final response = await _postRequest('/getDataOrganizer', {
+      'id_organizer': idOrganizer,
+    });
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else if (response.statusCode == 404) {
+      throw Exception('Organizer tidak ditemukan!');
+    } else {
+      throw Exception('Gagal mengambil data organizer: ${response.body}');
+    }
+  }
+
   static Future<List<Map<String, dynamic>>> getParticipants(
       String idEvent) async {
     print('idEvent: $idEvent'); // Debug print statement
@@ -543,6 +568,23 @@ class ApiService {
       throw Exception('Tidak ada peserta ditemukan untuk event ini');
     } else {
       throw Exception('Gagal mengambil data peserta: ${response.body}');
+    }
+  }
+
+  static Future<List<Map<String, dynamic>>> getUserParticipation(
+      String idUser) async {
+    print('idUser: $idUser'); // Debug print statement
+    final response = await _postRequest('/countUserParticipan', {
+      'id_user': idUser,
+    });
+    print('Response: ${response.body}'); // Debug print statement
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      return List<Map<String, dynamic>>.from(responseData);
+    } else if (response.statusCode == 404) {
+      throw Exception('Anda belum tergabung dalam event apapun');
+    } else {
+      throw Exception('Gagal mengambil data partisipasi: ${response.body}');
     }
   }
 

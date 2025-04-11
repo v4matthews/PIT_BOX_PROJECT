@@ -45,7 +45,10 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
 
     try {
       await _loadOrganizerData();
-      // await _loadJumlahEvent();
+      // Panggil _loadJumlahEvent setelah _loadOrganizerData selesai
+      if (_idOrganizer.isNotEmpty) {
+        await _loadJumlahEvent();
+      }
     } catch (e) {
       setState(() {
         _errorMessage = 'Gagal memuat data. Silakan coba lagi.';
@@ -254,7 +257,8 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
             radius: 55,
             child: CircleAvatar(
               radius: 50,
-              backgroundImage: AssetImage('assets/images/icon/profile.png'),
+              backgroundImage:
+                  AssetImage('assets/images/icon/profile_organizer.png'),
             ),
           ),
           SizedBox(height: 15),
@@ -267,13 +271,15 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
               color: AppColors.whiteText,
             ),
           ),
-          SizedBox(height: 30),
+          SizedBox(height: 25),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ElevatedButton(
                 onPressed: () {
-                  _navigateToPage(OrganizerRegisterEvent());
+                  _navigateToPage(OrganizerRegisterEvent(
+                    idOrganizer: _idOrganizer,
+                  ));
                 },
                 style: ElevatedButton.styleFrom(
                   shape: RoundedRectangleBorder(

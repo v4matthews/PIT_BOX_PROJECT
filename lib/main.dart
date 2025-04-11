@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pit_box/organizer_pages/organizer_home_page.dart';
-import 'package:pit_box/organizer_pages/organizer_dashboard.dart';
+
 import 'package:pit_box/race_page/detail_page.dart';
 import 'package:pit_box/session_service.dart';
 import 'package:pit_box/user_pages/user_class_info.dart';
@@ -22,8 +22,6 @@ import 'package:pit_box/user_pages/user_ticket.dart';
 import 'package:pit_box/utils/payment_failed.dart';
 import 'package:pit_box/utils/payment_success.dart';
 import 'package:responsive_framework/responsive_framework.dart';
-
-import 'package:pit_box/race_page/test.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -72,7 +70,7 @@ class MyApp extends StatelessWidget {
         '/forgotOrganizer': (context) => OrganizerForgotPassword(),
         '/registerOrganizer': (context) => OrganizerRegisterPage(),
         '/homeOrganizer': (context) => OrganizerHomePage(),
-        '/insertRace': (context) => OrganizerRegisterEvent(),
+        // '/insertRace': (context) => OrganizerRegisterEvent(),
         '/profile': (context) => UserProfilePage(),
         '/ticket': (context) => TicketListPage(),
         '/classInfo': (context) => ClassInformationPage(),

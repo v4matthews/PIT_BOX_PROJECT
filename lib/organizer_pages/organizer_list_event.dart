@@ -136,16 +136,18 @@ class _OrganizerListEventPageState extends State<OrganizerListEventPage>
           onRefresh: () async => setState(() {}),
           child: GridView.builder(
             padding: const EdgeInsets.all(12),
+            // Define the grid layout for the event cards
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 5,
-              mainAxisSpacing: 16,
-              childAspectRatio: 0.8,
+              crossAxisCount: 2, // Number of columns in the grid
+              crossAxisSpacing:
+                  4, // Reduced horizontal spacing between grid items
+              mainAxisSpacing: 8, // Reduced vertical spacing between grid items
+              childAspectRatio: 0.8, // Aspect ratio for each grid item
             ),
             itemCount: events.length,
             itemBuilder: (context, index) {
               final event = events[index];
-              final imageUrl = event['foto_event'];
+              final imageUrl = event['image_event'];
 
               return Container(
                 margin: const EdgeInsets.all(8),

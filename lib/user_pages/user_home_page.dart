@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+
 import 'package:pit_box/api_service.dart';
 import 'package:pit_box/components/asset_datepicker.dart';
 import 'package:pit_box/components/asset_datepicker_appbar.dart';
@@ -8,10 +9,11 @@ import 'package:pit_box/components/asset_list_view_home.dart';
 import 'package:pit_box/components/asset_loading.dart';
 import 'package:pit_box/components/asset_searchbar_home.dart';
 import 'package:pit_box/components/asset_warna.dart';
-import 'package:pit_box/race_page/all_page.dart';
+import 'package:pit_box/race_page/event_list_page.dart';
 import 'package:pit_box/session_service.dart';
 import 'package:pit_box/utils/location_list.dart';
 import 'package:pit_box/components/asset_list_view.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class UserHomePage extends StatefulWidget {
   @override
@@ -19,6 +21,8 @@ class UserHomePage extends StatefulWidget {
 }
 
 class _UserHomePageState extends State<UserHomePage> {
+  final RefreshController _refreshController =
+      RefreshController(initialRefresh: false);
   String userName = "User";
   String userLocation = "User Location";
   String userPoin = '0';
@@ -31,14 +35,38 @@ class _UserHomePageState extends State<UserHomePage> {
   @override
   void initState() {
     super.initState();
-    _getUserInfo();
-    _getRaceEvents();
-    _getUpcomingRaceSchedule(); // Panggil fungsi untuk mendapatkan jadwal perlombaan
+    _loadInitialData();
   }
 
-  void _getUserInfo() async {
+  Future<void> _loadInitialData() async {
+    await Future.wait([
+      _getUserInfo(),
+      _getRaceEvents(),
+      _getUpcomingRaceSchedule(),
+      _getUserParticipationCount(),
+    ]);
+    setState(() => isLoading = false);
+  }
+
+  void _onRefresh() async {
+    try {
+      await Future.wait([
+        _getUserInfo(),
+        _getRaceEvents(),
+        _getUpcomingRaceSchedule(),
+        _getUserParticipationCount(),
+      ]);
+      _refreshController.refreshCompleted();
+    } catch (e) {
+      _refreshController.refreshFailed();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal memperbarui data: $e')),
+      );
+    }
+  }
+
+  Future<void> _getUserInfo() async {
     final userData = await SessionService.getUserData();
-    print(userData);
     setState(() {
       userName = userData['nama_user'] ?? 'User';
       userLocation = userData['kota_user'] != null
@@ -48,17 +76,14 @@ class _UserHomePageState extends State<UserHomePage> {
                   word[0].toUpperCase() + word.substring(1).toLowerCase())
               .join(' ')
           : 'User Location';
-      userPoin = userData['poin_user'] ?? '0';
-      isLoading = false;
+      userPoin = userData['poin_user']?.toString() ?? '0';
     });
   }
 
-  void _getRaceEvents() async {
+  Future<void> _getRaceEvents() async {
     try {
       final response = await ApiService.getFilteredEvents();
-      setState(() {
-        raceEvents = response['events'];
-      });
+      setState(() => raceEvents = response['events'] ?? []);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Gagal memuat data perlombaan: $e')),
@@ -66,7 +91,7 @@ class _UserHomePageState extends State<UserHomePage> {
     }
   }
 
-  void _updateLocation(String newLocation) {
+  Future<void> _updateLocation(String newLocation) async {
     setState(() {
       userLocation = newLocation
           .split(' ')
@@ -74,41 +99,56 @@ class _UserHomePageState extends State<UserHomePage> {
               (word) => word[0].toUpperCase() + word.substring(1).toLowerCase())
           .join(' ');
     });
+    await _getRaceEvents(); // Refresh events when location changes
   }
 
-  void _getUpcomingRaceSchedule() async {
+  Future<void> _getUpcomingRaceSchedule() async {
     try {
       final userData = await SessionService.getUserData();
       final userId = userData['id_user'] ?? '';
 
-      if (userId.isNotEmpty) {
-        final tickets = await ApiService.getTickets(userId);
-
-        // Dapatkan tanggal hari ini dan 7 hari ke depan
-        final now = DateTime.now();
-        final sevenDaysFromNow = now.add(Duration(days: 7));
-
-        // Filter tiket dengan tanggal event dalam waktu 7 hari ke depan
-        final upcomingTickets = tickets.where((ticket) {
-          final eventDate = DateTime.parse(ticket['tanggal_event']);
-          return eventDate.isAfter(now) && eventDate.isBefore(sevenDaysFromNow);
-        }).toList();
-
-        // Perbarui nilai userSchedule
-        setState(() {
-          if (upcomingTickets.isNotEmpty) {
-            final nextTicket = upcomingTickets.first;
-            userSchedule = "${nextTicket['nama_event']} ";
-          } else {
-            userSchedule = "Belum ada jadwal";
-          }
-        });
-      } else {
-        userSchedule = "User ID tidak ditemukan";
+      if (userId.isEmpty) {
+        setState(() => userSchedule = "User ID tidak ditemukan");
+        return;
       }
+
+      final tickets = await ApiService.getTickets(userId);
+      final now = DateTime.now();
+      final sevenDaysFromNow = now.add(Duration(days: 7));
+
+      final upcomingTickets = tickets.where((ticket) {
+        if (ticket['tanggal_event'] == null) return false;
+        final eventDate = DateTime.parse(ticket['tanggal_event']);
+        return eventDate.isAfter(now) && eventDate.isBefore(sevenDaysFromNow);
+      }).toList();
+
+      setState(() {
+        userSchedule = upcomingTickets.isNotEmpty
+            ? "${upcomingTickets.first['nama_event']}"
+            : "Belum ada jadwal";
+      });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Gagal memuat jadwal perlombaan: $e')),
+      );
+    }
+  }
+
+  Future<void> _getUserParticipationCount() async {
+    try {
+      final userData = await SessionService.getUserData();
+      final userId = userData['id_user'] ?? '';
+
+      if (userId.isEmpty) {
+        setState(() => userRace = "0");
+        return;
+      }
+
+      final participationData = await ApiService.getUserParticipation(userId);
+      setState(() => userRace = participationData.length.toString());
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal memuat jumlah partisipasi: $e')),
       );
     }
   }
@@ -131,13 +171,18 @@ class _UserHomePageState extends State<UserHomePage> {
             Positioned.fill(
               child: isLoading
                   ? LoadingWidget(text: "Memuat data...")
-                  : SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          _buildCarouselSection(),
-                          _buildHorizontalListSection(),
-                          _buildGridViewSection(),
-                        ],
+                  : SmartRefresher(
+                      controller: _refreshController,
+                      onRefresh: _onRefresh,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            SizedBox(height: 20),
+                            _buildHorizontalListSection(),
+                            _buildCarouselSection(),
+                            _buildGridViewSection(),
+                          ],
+                        ),
                       ),
                     ),
             ),
@@ -349,7 +394,7 @@ class _UserHomePageState extends State<UserHomePage> {
 
   Widget _buildHorizontalListSection() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         children: [
           SizedBox(
@@ -400,7 +445,7 @@ class _UserHomePageState extends State<UserHomePage> {
 
   Widget _buildGridViewSection() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: GridView.builder(
         shrinkWrap: true,
         physics: NeverScrollableScrollPhysics(),

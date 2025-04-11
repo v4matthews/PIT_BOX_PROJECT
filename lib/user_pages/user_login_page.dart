@@ -8,7 +8,6 @@ import 'package:pit_box/components/asset_textfield_password.dart';
 import 'package:pit_box/components/asset_warna.dart';
 import 'package:pit_box/components/assset_button_loading.dart';
 import 'package:pit_box/components/square_tile.dart';
-import 'package:pit_box/organizer_pages/organizer_dashboard.dart';
 import 'package:pit_box/organizer_pages/organizer_forgot.dart';
 
 import 'package:pit_box/organizer_pages/organizer_login_page.dart';

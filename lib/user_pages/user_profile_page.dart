@@ -12,9 +12,8 @@ import 'package:pit_box/user_pages/user_dashboard.dart';
 import 'package:pit_box/user_pages/user_reservation_list.dart';
 import 'package:pit_box/user_pages/user_update_password.dart';
 import 'package:pit_box/user_pages/user_update_profile.dart';
-import 'package:pit_box/user_pages/user_update_profile_page.dart'; // Import halaman UserUpdateProfile
-import 'package:pit_box/components/asset_alert.dart';
-import 'package:pit_box/user_pages/user_class_info.dart'; // Import halaman ClassInformationPage
+import 'package:pit_box/user_pages/user_update_profile_page.dart';
+import 'package:pit_box/user_pages/user_class_info.dart';
 
 class UserProfilePage extends StatefulWidget {
   @override
@@ -104,24 +103,18 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
   Future<void> _logout() async {
     await SessionService.clearLoginSession(context); // Hapus session
-    // Navigator.pushNamedAndRemoveUntil(
-    //   context,
-    //   '/login',
-    //   (Route<dynamic> route) => false,
-    // ); // Arahkan ke halaman login dan hapus semua rute sebelumnya
   }
 
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        // Navigasi ke halaman utama saat tombol back ditekan
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => UserDashboard()),
-          (route) => false, // Menghapus semua halaman sebelumnya
+          (route) => false,
         );
-        return false; // Mencegah aksi back default
+        return false;
       },
       child: Scaffold(
         backgroundColor: AppColors.backgroundGrey,
@@ -130,24 +123,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
             : SingleChildScrollView(
                 child: Column(
                   children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: AssetImage('assets/images/bg.jpg'),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildProfileHeader(),
-                        ],
-                      ),
-                    ),
-                    // Bagian Info Profile
+                    _buildProfileHeaderSection(),
                     SizedBox(height: 20),
                     _buildProfileInfoSection(),
                     SizedBox(height: 20),
@@ -155,6 +131,43 @@ class _UserProfilePageState extends State<UserProfilePage> {
                   ],
                 ),
               ),
+      ),
+    );
+  }
+
+  Widget _buildProfileHeaderSection() {
+    return Container(
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage('assets/images/bg.jpg'),
+          fit: BoxFit.cover,
+        ),
+      ),
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: 60),
+          Text(
+            'Halo, ${namaUserController.text}',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'OpenSans',
+              color: AppColors.whiteText,
+            ),
+          ),
+          SizedBox(height: 4),
+          Text(
+            '@${usernameController.text}',
+            style: TextStyle(
+              fontSize: 18,
+              fontFamily: 'OpenSans',
+              color: AppColors.whiteText,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -216,94 +229,6 @@ class _UserProfilePageState extends State<UserProfilePage> {
     );
   }
 
-  Widget _buildProfileHeader() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 50, bottom: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          CircleAvatar(
-            backgroundColor: AppColors.whiteColor,
-            radius: 60,
-            child: Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: AppColors.whiteColor, // Set the border color
-                  width: 3.0, // Set the border width
-                ),
-              ),
-            ),
-            backgroundImage: AssetImage(
-                'assets/images/icon/profile.png'), // Replace with your profile icon asset
-          ),
-          SizedBox(height: 10),
-          Text(
-            'Halo, ' + namaUserController.text,
-            style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'OpenSans',
-                color: AppColors.whiteText),
-          ),
-          SizedBox(height: 4),
-          Text(
-            '@' + usernameController.text,
-            style: TextStyle(
-                fontSize: 18,
-                fontFamily: 'OpenSans',
-                color: AppColors.whiteText),
-          ),
-          SizedBox(height: 30),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildProfileStat('Poin', userPoin), // Replace with actual data
-              Container(
-                height: 30,
-                child: VerticalDivider(
-                  color: AppColors.whiteText,
-                  thickness: 1,
-                ),
-              ),
-              _buildProfileStat('Race', userRace), // Replace with actual data
-              Container(
-                height: 30,
-                child: VerticalDivider(
-                  color: AppColors.whiteText,
-                  thickness: 1,
-                ),
-              ),
-              _buildProfileStat('Win', userWin), // Replace with actual data
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProfileStat(String label, String value) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: AppColors.whiteText),
-        ),
-        SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 16,
-            color: AppColors.whiteText,
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildProfileRow(String label,
       {bool isEditable = true, VoidCallback? onTap}) {
     return Padding(
@@ -355,7 +280,6 @@ class _UserProfilePageState extends State<UserProfilePage> {
                 color: AppColors.redColor,
                 fontSize: 18,
                 fontFamily: 'OpenSans',
-                // fontWeight: FontWeight.bold,
               ),
             ),
           ],

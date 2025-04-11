@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pit_box/components/asset_warna.dart';
 // import 'package:pit_box/user_pages/user_home_page_old.dart';
 import 'package:pit_box/user_pages/user_profile_page.dart';
-import 'package:pit_box/race_page/all_page.dart';
+import 'package:pit_box/race_page/event_list_page.dart';
 import 'package:pit_box/user_pages/user_ticket.dart';
 
 class MyNavbar extends StatelessWidget {
