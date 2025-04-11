@@ -11,6 +11,7 @@ import 'package:pit_box/components/asset_searchbar_home.dart';
 import 'package:pit_box/components/asset_warna.dart';
 import 'package:pit_box/race_page/event_list_page.dart';
 import 'package:pit_box/session_service.dart';
+import 'package:pit_box/user_pages/user_ticket.dart';
 import 'package:pit_box/utils/location_list.dart';
 import 'package:pit_box/components/asset_list_view.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -84,11 +85,7 @@ class _UserHomePageState extends State<UserHomePage> {
     try {
       final response = await ApiService.getFilteredEvents();
       setState(() => raceEvents = response['events'] ?? []);
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal memuat data perlombaan: $e')),
-      );
-    }
+    } catch (e) {}
   }
 
   Future<void> _updateLocation(String newLocation) async {
@@ -127,11 +124,7 @@ class _UserHomePageState extends State<UserHomePage> {
             ? "${upcomingTickets.first['nama_event']}"
             : "Belum ada jadwal";
       });
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal memuat jadwal perlombaan: $e')),
-      );
-    }
+    } catch (e) {}
   }
 
   Future<void> _getUserParticipationCount() async {
@@ -146,11 +139,7 @@ class _UserHomePageState extends State<UserHomePage> {
 
       final participationData = await ApiService.getUserParticipation(userId);
       setState(() => userRace = participationData.length.toString());
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal memuat jumlah partisipasi: $e')),
-      );
-    }
+    } catch (e) {}
   }
 
   @override
@@ -465,61 +454,72 @@ class _UserHomePageState extends State<UserHomePage> {
 
   Widget _buildHorizontalCard(
       double width, String title, String value, String icon) {
-    return Container(
-      width: width,
-      margin: EdgeInsets.only(right: 10),
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.black12, width: 2),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black26.withOpacity(0.1),
-            blurRadius: 6,
-            offset: Offset(2, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w300),
-                  textAlign: TextAlign.left,
-                  overflow:
-                      TextOverflow.ellipsis, // Add ellipsis if text is too long
-                ),
-                SizedBox(height: 5),
-                Text(
-                  value,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.primaryText,
-                  ),
-                  textAlign: TextAlign.left,
-                  overflow:
-                      TextOverflow.ellipsis, // Add ellipsis if text is too long
-                  softWrap: false, // Prevent wrapping
-                ),
-              ],
+    return GestureDetector(
+      onTap: () {
+        if (title == "Jadwal Race" && userSchedule != "Belum ada jadwal") {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  TicketListPage(), // Ganti dengan halaman tiket Anda
             ),
-          ),
-          SizedBox(width: 10),
-          SvgPicture.asset(
-            icon,
-            width: 35,
-            height: 35,
-            fit: BoxFit.contain,
-          ),
-        ],
+          );
+        }
+      },
+      child: Container(
+        width: width,
+        margin: EdgeInsets.only(right: 10),
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.black12, width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black26.withOpacity(0.1),
+              blurRadius: 6,
+              offset: Offset(2, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w300),
+                    textAlign: TextAlign.left,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(height: 5),
+                  Text(
+                    value,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primaryText,
+                    ),
+                    textAlign: TextAlign.left,
+                    overflow: TextOverflow.ellipsis,
+                    softWrap: false,
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(width: 10),
+            SvgPicture.asset(
+              icon,
+              width: 35,
+              height: 35,
+              fit: BoxFit.contain,
+            ),
+          ],
+        ),
       ),
     );
   }

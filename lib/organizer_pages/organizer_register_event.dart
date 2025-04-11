@@ -166,7 +166,7 @@ class _RegisterPageState extends State<OrganizerRegisterEvent> {
           isSuccess: true,
           title: 'Registrasi Event Berhasil',
           message: Text('Event anda telah terdaftar'),
-          routeName: '/insertRace',
+          routeName: '/homeOrganizer',
         );
       }
     } catch (e) {

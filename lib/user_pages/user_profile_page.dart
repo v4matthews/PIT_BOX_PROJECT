@@ -201,13 +201,14 @@ class _UserProfilePageState extends State<UserProfilePage> {
       child: Column(
         children: [
           _buildSectionHeader('Pitbox Section'),
-          _buildProfileRow('Class Event',
+          _buildProfileRow('Katagori Kelas',
               isEditable: false, onTap: _navigateToClassInfo),
-          _buildProfileRow('List Reservasi', onTap: _resevationList),
+          _buildProfileRow('Reservasi dan Pending Payment',
+              onTap: _resevationList),
           SizedBox(height: 30),
-          _buildSectionHeader('Account Setting'),
-          _buildProfileRow('Edit Profile', onTap: _navigateToUpdateProfile),
-          _buildProfileRow('Ubah Password', onTap: _navigateToUpdatePassword),
+          _buildSectionHeader('Pengaturan Akun'),
+          _buildProfileRow('Ubah Profil', onTap: _navigateToUpdateProfile),
+          _buildProfileRow('Ubah Kata Sandi', onTap: _navigateToUpdatePassword),
         ],
       ),
     );
@@ -275,7 +276,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
             ),
             SizedBox(width: 10),
             Text(
-              "Logout",
+              "Keluar",
               style: TextStyle(
                 color: AppColors.redColor,
                 fontSize: 18,

@@ -90,40 +90,19 @@ class _OrganizerListEventPageState extends State<OrganizerListEventPage>
           return const Center(child: CircularProgressIndicator());
         }
 
-        if (snapshot.hasError) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.error_outline, color: Colors.red, size: 48),
-                const SizedBox(height: 16),
-                Text(
-                  'Error loading events',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 8),
-                ElevatedButton(
-                  onPressed: () => setState(() {}),
-                  child: const Text('Retry'),
-                ),
-              ],
-            ),
-          );
-        }
-
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
-                  Icons.event_available,
+                  Icons.event,
                   size: 48,
                   color: Colors.grey[400],
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'No events available',
+                  'Anda belum memiliki event',
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
               ],
@@ -135,14 +114,12 @@ class _OrganizerListEventPageState extends State<OrganizerListEventPage>
         return RefreshIndicator(
           onRefresh: () async => setState(() {}),
           child: GridView.builder(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(10),
             // Define the grid layout for the event cards
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2, // Number of columns in the grid
-              crossAxisSpacing:
-                  4, // Reduced horizontal spacing between grid items
-              mainAxisSpacing: 8, // Reduced vertical spacing between grid items
-              childAspectRatio: 0.8, // Aspect ratio for each grid item
+
+              childAspectRatio: 0.55,
             ),
             itemCount: events.length,
             itemBuilder: (context, index) {
@@ -219,7 +196,7 @@ class _OrganizerListEventPageState extends State<OrganizerListEventPage>
                             Text(
                               event['kategori_event'] ?? 'No category',
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: 14,
                                 color: Colors.grey[600],
                               ),
                               maxLines: 1,
@@ -230,17 +207,16 @@ class _OrganizerListEventPageState extends State<OrganizerListEventPage>
                               children: [
                                 Icon(
                                   Icons.calendar_today,
-                                  size: 12,
+                                  size: 14,
                                   color: Colors.grey[600],
                                 ),
                                 const SizedBox(width: 4),
                                 Expanded(
                                   child: Text(
-                                    event['tanggal_event'] != null
-                                        ? DateFormat('dd MMM yyyy').format(
-                                            DateTime.parse(
-                                                event['tanggal_event']))
-                                        : 'No date',
+                                    event['tanggal_event'] != null &&
+                                            event['waktu_event'] != null
+                                        ? '${DateFormat('dd MMM yyyy').format(DateTime.parse(event['tanggal_event']))} | ${event['waktu_event']}'
+                                        : 'No date | No time',
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: Colors.grey[600],
@@ -267,15 +243,6 @@ class _OrganizerListEventPageState extends State<OrganizerListEventPage>
 
   @override
   Widget build(BuildContext context) {
-    if (_isInitialLoading) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('Organizer Events'),
-        ),
-        body: const Center(child: CircularProgressIndicator()),
-      );
-    }
-
     return Scaffold(
       backgroundColor: AppColors.backgroundGrey,
       appBar: AppBar(
@@ -289,7 +256,7 @@ class _OrganizerListEventPageState extends State<OrganizerListEventPage>
         ),
         centerTitle: true,
         title: const Text(
-          'Detail Event',
+          'List Event',
           style: TextStyle(
             color: AppColors.whiteText,
             fontSize: 18,

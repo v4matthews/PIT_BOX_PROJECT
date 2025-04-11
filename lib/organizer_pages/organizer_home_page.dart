@@ -5,6 +5,8 @@ import 'package:pit_box/components/asset_navbar.dart';
 import 'package:pit_box/components/asset_warna.dart';
 import 'package:pit_box/organizer_pages/organizer_list_event.dart';
 import 'package:pit_box/organizer_pages/organizer_register_event.dart';
+import 'package:pit_box/organizer_pages/organizer_update_password.dart';
+import 'package:pit_box/organizer_pages/organizer_update_profile.dart';
 import 'package:pit_box/session_service.dart';
 import 'package:pit_box/user_pages/user_dashboard.dart';
 import 'package:pit_box/user_pages/user_reservation_list.dart';
@@ -75,7 +77,7 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
       });
     } finally {
       setState(() {
-        _isRefreshing = false;
+        _isRefreshing = false; // Pastikan ini diatur ke false
       });
     }
   }
@@ -128,9 +130,6 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
         _totalEvent = '0';
       });
       // Optionally show error to user
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal memuat data event')),
-      );
     }
   }
 
@@ -161,45 +160,30 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => UserDashboard()),
-          (route) => false,
-        );
-        return false;
-      },
-      child: Scaffold(
-        backgroundColor: AppColors.backgroundGrey,
-        body: _isLoading
-            ? _buildLoadingView()
-            : _errorMessage.isNotEmpty
-                ? _buildErrorView()
-                : RefreshIndicator(
-                    onRefresh: _refreshData,
-                    child: SingleChildScrollView(
-                      physics: AlwaysScrollableScrollPhysics(),
-                      child: Column(
-                        children: [
-                          _buildHeader(),
-                          SizedBox(height: 20),
-                          _buildEventStatsSection(),
-                          SizedBox(height: 20),
-                          _buildProfileInfoSection(),
-                          SizedBox(height: 20),
-                          _buildAccountSetting(),
-                          SizedBox(height: 20),
-                          if (_isRefreshing)
-                            Padding(
-                              padding: EdgeInsets.symmetric(vertical: 20),
-                              child: CircularProgressIndicator(),
-                            ),
-                        ],
-                      ),
+    return Scaffold(
+      backgroundColor: AppColors.backgroundGrey,
+      body: _isLoading
+          ? _buildLoadingView()
+          : _errorMessage.isNotEmpty
+              ? _buildErrorView()
+              : RefreshIndicator(
+                  onRefresh: _refreshData,
+                  child: SingleChildScrollView(
+                    physics: AlwaysScrollableScrollPhysics(),
+                    child: Column(
+                      children: [
+                        _buildHeader(),
+                        SizedBox(height: 20),
+                        _buildEventStatsSection(),
+                        SizedBox(height: 20),
+                        _buildProfileInfoSection(),
+                        SizedBox(height: 20),
+                        _buildAccountSetting(),
+                        SizedBox(height: 20),
+                      ],
                     ),
                   ),
-      ),
+                ),
     );
   }
 
@@ -385,18 +369,18 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
       child: Column(
         children: [
           _buildSectionHeader('Manajemen Event'),
-          _buildProfileRow('List Event',
+          _buildProfileRow('Daftar Event',
               onTap: () => _navigateToPage(
                   OrganizerListEventPage(idOrganizer: _idOrganizer))),
-          _buildProfileRow('Edit Event',
+          _buildProfileRow('Ubah Event',
               onTap: () => _navigateToPage(
                   UserReservationListPage(userId: _idOrganizer))),
           SizedBox(height: 30),
-          _buildSectionHeader('Account Setting'),
-          _buildProfileRow('Edit Profile',
-              onTap: () => _navigateToPage(UserUpdateProfile())),
+          _buildSectionHeader('Pengaturan Akun'),
+          _buildProfileRow('Ubah Profile',
+              onTap: () => _navigateToPage(OrganizerUpdateProfile())),
           _buildProfileRow('Ubah Password',
-              onTap: () => _navigateToPage(UpdatePasswordPage())),
+              onTap: () => _navigateToPage(OrganizerUpdatePassword())),
         ],
       ),
     );
@@ -474,7 +458,7 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
           ),
           SizedBox(width: 10),
           Text(
-            "Logout",
+            "Keluar",
             style: TextStyle(
               color: AppColors.redColor,
               fontSize: 18,

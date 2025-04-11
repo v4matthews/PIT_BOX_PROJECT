@@ -123,9 +123,9 @@ class _OrganizerEventDetailPageState extends State<OrganizerEventDetailPage> {
           ),
           const SizedBox(height: 10),
           Text(
-            widget.event['htm_event'] != null
-                ? 'Rp ${NumberFormat('#,###').format(widget.event['htm_event'])}'
-                : 'Data tidak tersedia',
+            (widget.event['htm_event'] != null && _participants.isNotEmpty)
+                ? 'Rp ${NumberFormat('#,###').format(widget.event['htm_event'] * _participants.length)}'
+                : 'Rp 0',
             style: const TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.w600,
@@ -239,6 +239,13 @@ class _OrganizerEventDetailPageState extends State<OrganizerEventDetailPage> {
           ),
           const SizedBox(height: 15),
           _buildAlignedDetailItem(
+            'HTM',
+            widget.event['htm_event'] != null
+                ? 'Rp ${NumberFormat('#,###').format(widget.event['htm_event'])}'
+                : '-',
+          ),
+          const SizedBox(height: 15),
+          _buildAlignedDetailItem(
             'Tanggal',
             widget.event['tanggal_event'] != null
                 ? DateFormat('dd MMM yyyy')
@@ -252,25 +259,13 @@ class _OrganizerEventDetailPageState extends State<OrganizerEventDetailPage> {
           ),
           const SizedBox(height: 15),
           _buildAlignedDetailItem(
-            'Lokasi',
-            widget.event['alamat_event'] ?? '-',
-          ),
-          const SizedBox(height: 15),
-          _buildAlignedDetailItem(
             'Kota',
             widget.event['kota_event'] ?? '-',
           ),
           const SizedBox(height: 15),
           _buildAlignedDetailItem(
-            'HTM',
-            widget.event['htm_event'] != null
-                ? 'Rp ${NumberFormat('#,###').format(widget.event['htm_event'])}'
-                : '-',
-          ),
-          const SizedBox(height: 15),
-          _buildAlignedDetailItem(
-            'Deskripsi',
-            widget.event['deskripsi_event'] ?? '-',
+            'Lokasi',
+            widget.event['alamat_event'] ?? '-',
           ),
         ],
       ),
