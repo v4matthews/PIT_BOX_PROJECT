@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pit_box/api_service.dart';
 import 'package:pit_box/components/asset_warna.dart';
+import 'package:pit_box/organizer_pages/organizer_home_page.dart';
 import 'package:pit_box/organizer_pages/organizer_open_scanner.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart'; // Add this import
 
 class OrganizerEventDetailPage extends StatefulWidget {
   final Map<String, dynamic> event;
@@ -21,6 +23,8 @@ class _OrganizerEventDetailPageState extends State<OrganizerEventDetailPage> {
   late Future<List<Map<String, dynamic>>> _participantsFuture;
   bool _isLoading = true;
   List<Map<String, dynamic>> _participants = [];
+  final RefreshController _refreshController =
+      RefreshController(initialRefresh: false); // Add refresh controller
 
   @override
   void initState() {
@@ -40,6 +44,12 @@ class _OrganizerEventDetailPageState extends State<OrganizerEventDetailPage> {
     } catch (e) {
       setState(() => _isLoading = false);
     }
+  }
+
+  // Add this function for pull-to-refresh
+  void _onRefresh() async {
+    await _loadParticipants();
+    _refreshController.refreshCompleted();
   }
 
   @override
@@ -72,26 +82,67 @@ class _OrganizerEventDetailPageState extends State<OrganizerEventDetailPage> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: screenWidth > 600 ? 600 : screenWidth,
-            ),
-            child: Column(
-              children: [
-                _buildEventImageSection(),
-                const SizedBox(height: 15),
-                _buildEventInfoCard(),
-                const SizedBox(height: 15),
-                _buildParticipantsList(),
-              ],
+      body: SmartRefresher(
+        // Wrap your content with SmartRefresher
+        controller: _refreshController,
+        onRefresh: _onRefresh,
+        enablePullDown: true,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: screenWidth > 600 ? 600 : screenWidth,
+              ),
+              child: Column(
+                children: [
+                  _buildEventImageSection(),
+                  const SizedBox(height: 15),
+                  _buildEventInfoCard(),
+                  const SizedBox(height: 15),
+                  _buildParticipantsList(),
+                ],
+              ),
             ),
           ),
         ),
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(context),
+      bottomNavigationBar: BottomAppBar(
+        height: 100,
+        color: Colors.white,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: const Icon(
+                Icons.qr_code_scanner,
+                color: AppColors.primaryText,
+                size: 32,
+              ),
+              onPressed: () async {
+                final scannedData = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => OrganizerOpenScanner(),
+                  ),
+                );
+
+                if (scannedData != null) {
+                  // Handle the scanned data
+                  debugPrint('Scanned QR Code Data: $scannedData');
+                }
+              },
+            ),
+            const Text(
+              'Scan Ticket',
+              style: TextStyle(
+                color: AppColors.primaryText,
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -338,7 +389,7 @@ class _OrganizerEventDetailPageState extends State<OrganizerEventDetailPage> {
                       Expanded(
                         flex: 2,
                         child: Text(
-                          'Tanggal Reservasi',
+                          'Status Peserta',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: AppColors.primaryColor,
@@ -389,10 +440,7 @@ class _OrganizerEventDetailPageState extends State<OrganizerEventDetailPage> {
                           Expanded(
                             flex: 2,
                             child: Text(
-                              participant['joined_at'] != null
-                                  ? DateFormat('dd MMM yyyy').format(
-                                      DateTime.parse(participant['joined_at']))
-                                  : 'Unknown',
+                              participant['status_ticket'] ?? '-',
                               style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
@@ -429,7 +477,7 @@ class _OrganizerEventDetailPageState extends State<OrganizerEventDetailPage> {
           ),
         ),
         Expanded(
-          flex: 3,
+          flex: 4,
           child: Text(
             value,
             textAlign: TextAlign.right,

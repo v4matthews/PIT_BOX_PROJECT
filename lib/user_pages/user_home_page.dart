@@ -11,6 +11,7 @@ import 'package:pit_box/components/asset_searchbar_home.dart';
 import 'package:pit_box/components/asset_warna.dart';
 import 'package:pit_box/race_page/event_list_page.dart';
 import 'package:pit_box/session_service.dart';
+import 'package:pit_box/user_pages/user_detail_poin.dart';
 import 'package:pit_box/user_pages/user_ticket.dart';
 import 'package:pit_box/utils/location_list.dart';
 import 'package:pit_box/components/asset_list_view.dart';
@@ -383,21 +384,25 @@ class _UserHomePageState extends State<UserHomePage> {
 
   Widget _buildHorizontalListSection() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
+      padding: const EdgeInsets.symmetric(
+          horizontal: 20), // Tambahkan padding horizontal
+      child: Row(
         children: [
-          SizedBox(
-            height: 75,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: [
-                _buildHorizontalCard(
-                    150, "Race Point", userPoin, "assets/images/icon/poin.svg"),
-                _buildHorizontalCard(225, "Jadwal Race", userSchedule,
-                    "assets/images/icon/jadwal.svg"),
-                _buildHorizontalCard(160, "Perlombaan", userRace,
-                    "assets/images/icon/checklist.svg"),
-              ],
+          Expanded(
+            flex: 3, // Jadwal Race lebih panjang
+            child: _buildHorizontalCard(
+              "Jadwal Race",
+              userSchedule,
+              "assets/images/icon/jadwal.svg",
+            ),
+          ),
+          SizedBox(width: 10), // Jarak antar kartu
+          Expanded(
+            flex: 2, // Perlombaan lebih pendek
+            child: _buildHorizontalCard(
+              "Perlombaan",
+              userRace,
+              "assets/images/icon/checklist.svg",
             ),
           ),
         ],
@@ -452,24 +457,20 @@ class _UserHomePageState extends State<UserHomePage> {
     );
   }
 
-  Widget _buildHorizontalCard(
-      double width, String title, String value, String icon) {
+  Widget _buildHorizontalCard(String title, String value, String icon) {
     return GestureDetector(
       onTap: () {
         if (title == "Jadwal Race" && userSchedule != "Belum ada jadwal") {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) =>
-                  TicketListPage(), // Ganti dengan halaman tiket Anda
+              builder: (context) => TicketListPage(),
             ),
           );
         }
       },
       child: Container(
-        width: width,
-        margin: EdgeInsets.only(right: 10),
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),

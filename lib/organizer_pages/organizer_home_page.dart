@@ -5,6 +5,7 @@ import 'package:pit_box/components/asset_navbar.dart';
 import 'package:pit_box/components/asset_warna.dart';
 import 'package:pit_box/organizer_pages/organizer_list_event.dart';
 import 'package:pit_box/organizer_pages/organizer_insert_event.dart';
+import 'package:pit_box/organizer_pages/organizer_update_event.dart';
 import 'package:pit_box/organizer_pages/organizer_update_password.dart';
 import 'package:pit_box/organizer_pages/organizer_update_profile.dart';
 import 'package:pit_box/session_service.dart';
@@ -373,8 +374,7 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
               onTap: () => _navigateToPage(
                   OrganizerListEventPage(idOrganizer: _idOrganizer))),
           _buildProfileRow('Ubah Event',
-              onTap: () => _navigateToPage(
-                  UserReservationListPage(userId: _idOrganizer))),
+              onTap: () => _navigateToPage(OrganizerUpdateEventPage())),
           SizedBox(height: 30),
           _buildSectionHeader('Pengaturan Akun'),
           _buildProfileRow('Ubah Profile',

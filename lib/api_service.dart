@@ -614,7 +614,24 @@ class ApiService {
 
     if (response.statusCode == 200) {
       final responseData = json.decode(response.body);
-      return List<Map<String, dynamic>>.from(responseData);
+      List<Map<String, dynamic>> participants =
+          List<Map<String, dynamic>>.from(responseData);
+
+      // Add status_ticket for each participant
+      for (var participant in participants) {
+        try {
+          final statusTicket = await getTicketStatus(
+            idTicket: participant['id_ticket'],
+          );
+          participant['status_ticket'] = statusTicket;
+        } catch (e) {
+          print(
+              'Error fetching status_ticket for user ${participant['id_user']}: $e');
+          participant['status_ticket'] = 'unknown';
+        }
+      }
+
+      return participants;
     } else if (response.statusCode == 404) {
       throw Exception('Tidak ada peserta ditemukan untuk event ini');
     } else {
@@ -1076,6 +1093,50 @@ class ApiService {
   //     throw Exception('Gagal menyimpan event: ${response.body}');
   //   }
   // }
+
+  static Future<bool> updateTicketStatus(String idTicket) async {
+    final response = await _putRequest('/updateStatusTicket', {
+      'id_ticket': idTicket,
+    });
+
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      if (responseData['status'] == 'success') {
+        return true;
+      } else {
+        throw Exception(
+            'Gagal memperbarui status ticket: ${responseData['message']}');
+      }
+    } else if (response.statusCode == 404) {
+      throw Exception('Ticket tidak ditemukan!');
+    } else if (response.statusCode == 400) {
+      throw Exception('Peserta sudah melakukan Check In');
+    } else {
+      throw Exception('Gagal memperbarui status ticket: ${response.body}');
+    }
+  }
+
+  static Future<String> getTicketStatus({
+    required String idTicket,
+  }) async {
+    final response = await _postRequest('/getStatusTicket', {
+      'id_ticket': idTicket,
+    });
+
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      if (responseData['status'] == 'success') {
+        return responseData['data']['status_ticket'];
+      } else {
+        throw Exception(
+            'Gagal mengambil status ticket: ${responseData['message']}');
+      }
+    } else if (response.statusCode == 404) {
+      throw Exception('Ticket tidak ditemukan!');
+    } else {
+      throw Exception('Gagal mengambil status ticket: ${response.body}');
+    }
+  }
 }
 
 
