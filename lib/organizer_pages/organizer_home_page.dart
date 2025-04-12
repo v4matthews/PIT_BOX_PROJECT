@@ -373,8 +373,8 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
           _buildProfileRow('Daftar Event Saya',
               onTap: () => _navigateToPage(
                   OrganizerListEventPage(idOrganizer: _idOrganizer))),
-          _buildProfileRow('Ubah Event',
-              onTap: () => _navigateToPage(OrganizerUpdateEventPage())),
+          // _buildProfileRow('Ubah Event',
+          //     onTap: () => _navigateToPage(OrganizerUpdateEventPage())),
           SizedBox(height: 30),
           _buildSectionHeader('Pengaturan Akun'),
           _buildProfileRow('Ubah Profile',

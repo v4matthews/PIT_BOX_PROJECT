@@ -1137,6 +1137,69 @@ class ApiService {
       throw Exception('Gagal mengambil status ticket: ${response.body}');
     }
   }
+
+  static Future<bool> updateEvent({
+    required String idEvent,
+    String? namaEvent,
+    String? kategoriEvent,
+    String? htmEvent,
+    String? tanggalEvent,
+    String? waktuEvent,
+    String? kotaEvent,
+    String? alamatEvent,
+    String? deskripsiEvent,
+    String? imageEvent,
+  }) async {
+    final Map<String, dynamic> updateFields = {
+      if (namaEvent != null) 'nama_event': namaEvent,
+      if (kategoriEvent != null) 'kategori_event': kategoriEvent,
+      if (htmEvent != null) 'htm_event': htmEvent,
+      if (tanggalEvent != null) 'tanggal_event': tanggalEvent,
+      if (waktuEvent != null) 'waktu_event': waktuEvent,
+      if (kotaEvent != null) 'kota_event': kotaEvent,
+      if (alamatEvent != null) 'alamat_event': alamatEvent,
+      if (deskripsiEvent != null) 'deskripsi_event': deskripsiEvent,
+      if (imageEvent != null) 'image_event': imageEvent,
+    };
+
+    if (updateFields.isEmpty) {
+      throw Exception('Tidak ada data yang valid untuk diperbarui.');
+    }
+
+    final response = await _putRequest('/updateEvent', {
+      'id_event': idEvent,
+      ...updateFields,
+    });
+
+    if (response.statusCode == 200) {
+      return true;
+    } else if (response.statusCode == 404) {
+      throw Exception('Event tidak ditemukan!');
+    } else {
+      throw Exception('Gagal memperbarui event: ${response.body}');
+    }
+  }
+
+  static Future<bool> deleteEvent(String idEvent) async {
+    final response = await _postRequest('/deleteEvent', {
+      'id_event': idEvent,
+    });
+
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      if (responseData['status'] == 'success') {
+        return true;
+      } else {
+        throw Exception('Gagal menghapus event: ${responseData['message']}');
+      }
+    } else if (response.statusCode == 404) {
+      throw Exception('Event tidak ditemukan!');
+    } else if (response.statusCode == 400) {
+      throw Exception('ID Event tidak valid!');
+    } else {
+      throw Exception('Gagal menghapus event: ${response.body}');
+    }
+  }
 }
 
 

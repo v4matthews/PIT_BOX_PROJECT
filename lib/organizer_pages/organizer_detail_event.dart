@@ -4,6 +4,7 @@ import 'package:pit_box/api_service.dart';
 import 'package:pit_box/components/asset_warna.dart';
 import 'package:pit_box/organizer_pages/organizer_home_page.dart';
 import 'package:pit_box/organizer_pages/organizer_open_scanner.dart';
+import 'package:pit_box/organizer_pages/organizer_update_event.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart'; // Add this import
 
 class OrganizerEventDetailPage extends StatefulWidget {
@@ -317,6 +318,100 @@ class _OrganizerEventDetailPageState extends State<OrganizerEventDetailPage> {
           _buildAlignedDetailItem(
             'Lokasi',
             widget.event['alamat_event'] ?? '-',
+          ),
+          const SizedBox(height: 40),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              ElevatedButton.icon(
+                onPressed: () async {
+                  if (_participants.isNotEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Tidak bisa menghapus event karena sudah ada peserta yang terdaftar.',
+                        ),
+                      ),
+                    );
+                    return;
+                  }
+
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Konfirmasi'),
+                      content: const Text(
+                          'Apakah Anda yakin ingin menghapus event ini?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text('Batal'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: const Text('Hapus'),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  if (confirm == true) {
+                    // Call API to delete the event
+                    try {
+                      await ApiService.deleteEvent(
+                          widget.event['_id'].toString());
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text('Berhasil menghapus event')),
+                      );
+                      Navigator.pop(context); // Go back after deletion
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Gagal menghapus event')),
+                      );
+                    }
+                  }
+                },
+                icon: const Icon(Icons.delete, color: AppColors.redColor),
+                label: const Text(
+                  'Hapus Event',
+                  style: TextStyle(color: AppColors.redColor),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.whiteColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    side: BorderSide(color: AppColors.primaryText),
+                  ),
+                ),
+              ),
+              SizedBox(width: 10),
+              ElevatedButton.icon(
+                onPressed: () {
+                  // Navigate to the edit event page
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => OrganizerUpdateEventPage(
+                          event: widget
+                              .event), // Pass the event data to the edit event page
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.edit, color: AppColors.primaryText),
+                label: const Text(
+                  'Edit Event',
+                  style: TextStyle(color: AppColors.primaryText),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.whiteColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    side: BorderSide(color: AppColors.primaryText),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
